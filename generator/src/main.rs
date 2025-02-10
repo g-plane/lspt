@@ -57,78 +57,84 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 }
 
 fn gen_structs(structures: Vec<Structure>, enumerations: &[Enumeration]) -> String {
-    structures.iter().fold(String::new(), |mut output, structure| {
-        if structure.proposed {
-            output.push_str("\n#[cfg(feature = \"proposed\")]");
-        }
-        if let Some(deprecated) = &structure.deprecated {
-            let _ = write!(output, "\n#[deprecated = \"{deprecated}\"]");
-        }
-        let default = if can_derive_default(structure, &structures, enumerations) {
-            "Default, "
-        } else {
-            ""
-        };
-        let _ = write!(
-            output,
-            "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize)]"
-        );
-        output.push_str("\n#[serde(rename_all = \"camelCase\")]");
-        output.push_str(&gen_doc(structure.documentation.as_deref(), 0));
-        let _ = write!(output, "\npub struct {} {{", structure.name);
-        structure.properties.iter().fold(&mut output, |output, property| {
-            if property.proposed {
-                output.push_str("\n    #[cfg(feature = \"proposed\")]");
+    structures
+        .iter()
+        .fold(String::new(), |mut output, structure| {
+            if structure.proposed {
+                output.push_str("\n#[cfg(feature = \"proposed\")]");
             }
-            if let Some(deprecated) = &property.deprecated {
-                let _ = write!(output, "\n    #[deprecated = \"{deprecated}\"]");
+            if let Some(deprecated) = &structure.deprecated {
+                let _ = write!(output, "\n#[deprecated = \"{deprecated}\"]");
             }
-            let mut name = property.name.to_snake_case();
-            if name == "type" {
-                output.push_str("\n    #[serde(rename = \"type\")]");
-                name = "ty".into();
-            }
-            let mut optional = property.optional;
-            let type_def = if let TypeDef::Or { items } = &property.ty {
-                let filter_items = items
-                    .iter()
-                    .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
-                    .collect::<Vec<_>>();
-                if filter_items.len() == items.len() {
-                    property.ty.clone()
-                } else {
-                    optional = true;
-                    match filter_items.first() {
-                        Some(item) if filter_items.len() == 1 => (*item).clone(),
-                        _ => TypeDef::Or {
-                            items: filter_items.into_iter().cloned().collect(),
-                        },
-                    }
-                }
+            let default = if can_derive_default(structure, &structures, enumerations) {
+                "Default, "
             } else {
-                property.ty.clone()
+                ""
             };
-            let mut ty = gen_type_def(&type_def);
-            match &type_def {
-                TypeDef::Ref { name } if name == &structure.name => {
-                    ty = format!("Box<{ty}>");
+            let _ = write!(
+                output,
+                "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize)]"
+            );
+            output.push_str("\n#[serde(rename_all = \"camelCase\")]");
+            output.push_str(&gen_doc(structure.documentation.as_deref(), 0));
+            let _ = write!(output, "\npub struct {} {{", structure.name);
+            structure.properties.iter().fold(&mut output, |output, property| {
+                if property.proposed {
+                    output.push_str("\n    #[cfg(feature = \"proposed\")]");
                 }
-                _ => {}
-            }
-            if optional {
-                output.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
-                output.push_str(&gen_doc(property.documentation.as_deref(), 4));
-                let _ = write!(output, "\n    pub {name}: Option<{ty}>,");
-            } else {
-                output.push_str(&gen_doc(property.documentation.as_deref(), 4));
-                let _ = write!(output, "\n    pub {name}: {ty},");
-            }
-            output.push('\n');
+                if let Some(deprecated) = &property.deprecated {
+                    let _ = write!(output, "\n    #[deprecated = \"{deprecated}\"]");
+                }
+                let mut name = property.name.to_snake_case();
+                if name == "type" {
+                    output.push_str("\n    #[serde(rename = \"type\")]");
+                    name = "ty".into();
+                }
+                let mut optional = property.optional;
+                let type_def = if let TypeDef::Or { items } = &property.ty {
+                    let filter_items = items
+                        .iter()
+                        .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
+                        .collect::<Vec<_>>();
+                    if filter_items.len() == items.len() {
+                        property.ty.clone()
+                    } else {
+                        optional = true;
+                        match filter_items.first() {
+                            Some(item) if filter_items.len() == 1 => (*item).clone(),
+                            _ => TypeDef::Or {
+                                items: filter_items.into_iter().cloned().collect(),
+                            },
+                        }
+                    }
+                } else {
+                    property.ty.clone()
+                };
+                let mut ty = gen_type_def(&type_def);
+                match &type_def {
+                    TypeDef::Ref { name } if name == &structure.name => {
+                        ty = format!("Box<{ty}>");
+                    }
+                    _ => {}
+                }
+                if optional {
+                    output.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
+                    output.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                    let _ = write!(output, "\n    pub {name}: Option<{ty}>,");
+                } else {
+                    output.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                    let _ = write!(output, "\n    pub {name}: {ty},");
+                }
+                output.push('\n');
+                output
+            });
+            output.push_str("}\n");
             output
-        });
-        output.push_str("}\n");
-        output
-    })
+        })
+        .replace(
+            "Vec<Union3<TextEdit, AnnotatedTextEdit, SnippetTextEdit>>",
+            "Vec<Union2<TextEdit, AnnotatedTextEdit>>",
+        ) // hard-coded workaround
 }
 fn can_derive_default(structure: &Structure, structures: &[Structure], enumerations: &[Enumeration]) -> bool {
     structure.properties.iter().all(|prop| {

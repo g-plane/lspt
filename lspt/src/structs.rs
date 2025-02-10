@@ -2451,7 +2451,7 @@ pub struct TextDocumentEdit {
     ///
     /// @since 3.18.0 - support for SnippetTextEdit. This is guarded using a
     /// client capability.
-    pub edits: Vec<Union3<TextEdit, AnnotatedTextEdit, SnippetTextEdit>>,
+    pub edits: Vec<Union2<TextEdit, AnnotatedTextEdit>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
