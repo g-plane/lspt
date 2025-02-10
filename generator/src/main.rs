@@ -88,14 +88,34 @@ fn gen_structs(structures: Vec<Structure>, enumerations: &[Enumeration]) -> Stri
                 output.push_str("\n    #[serde(rename = \"type\")]");
                 name = "ty".into();
             }
-            let mut ty = gen_type_def(&property.ty);
-            match &property.ty {
+            let mut optional = property.optional;
+            let type_def = if let TypeDef::Or { items } = &property.ty {
+                let filter_items = items
+                    .iter()
+                    .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
+                    .collect::<Vec<_>>();
+                if filter_items.len() == items.len() {
+                    property.ty.clone()
+                } else {
+                    optional = true;
+                    match filter_items.first() {
+                        Some(item) if filter_items.len() == 1 => (*item).clone(),
+                        _ => TypeDef::Or {
+                            items: filter_items.into_iter().cloned().collect(),
+                        },
+                    }
+                }
+            } else {
+                property.ty.clone()
+            };
+            let mut ty = gen_type_def(&type_def);
+            match &type_def {
                 TypeDef::Ref { name } if name == &structure.name => {
                     ty = format!("Box<{ty}>");
                 }
                 _ => {}
             }
-            if property.optional {
+            if optional {
                 output.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
                 output.push_str(&gen_doc(property.documentation.as_deref(), 4));
                 let _ = write!(output, "\n    pub {name}: Option<{ty}>,");
@@ -121,7 +141,13 @@ fn can_derive_default(structure: &Structure, structures: &[Structure], enumerati
                             .find(|structure| &structure.name == name)
                             .is_some_and(|structure| can_derive_default(structure, structures, enumerations))
                 }
-                TypeDef::Or { .. } => false,
+                TypeDef::Or { items } => {
+                    items
+                        .iter()
+                        .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
+                        .count()
+                        <= 1
+                }
                 TypeDef::Base {
                     name: BaseType::DocumentUri | BaseType::Uri,
                 } => false,
@@ -432,7 +458,7 @@ struct TypeAlias {
     documentation: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 enum TypeDef {
     Base {
@@ -462,7 +488,7 @@ enum TypeDef {
     StringLiteral,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 enum BaseType {
     #[serde(rename = "null")]
     Null,

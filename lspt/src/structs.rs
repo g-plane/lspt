@@ -120,13 +120,14 @@ pub struct WorkDoneProgressOptions {
     pub work_done_progress: Option<bool>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// General text document registration options.
 pub struct TextDocumentRegistrationOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
-    pub document_selector: Union2<DocumentSelector, serde_json::Value>,
+    pub document_selector: Option<DocumentSelector>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1538,7 +1539,7 @@ pub struct SignatureHelp {
     /// In future version of the protocol this property might become
     /// mandatory (but still nullable) to better express the active parameter if
     /// the active signature does have any.
-    pub active_parameter: Option<Union2<u32, serde_json::Value>>,
+    pub active_parameter: Option<u32>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2433,7 +2434,7 @@ pub struct FileCreate {
     pub uri: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Describes textual changes on a text document. A TextDocumentEdit describes all changes
 /// on a document version Si and after they are applied move the document to version Si+1.
@@ -3025,16 +3026,17 @@ pub struct Unregistration {
     pub method: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// The initialize parameters
 pub struct _InitializeParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// The process Id of the parent process that started
     /// the server.
     ///
     /// Is `null` if the process has not been started by another process.
     /// If the parent process is not alive then the server should exit.
-    pub process_id: Union2<i32, serde_json::Value>,
+    pub process_id: Option<i32>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Information about the client
@@ -3059,15 +3061,16 @@ pub struct _InitializeParams {
     /// if no folder is open.
     ///
     /// @deprecated in favour of rootUri.
-    pub root_path: Option<Union2<String, serde_json::Value>>,
+    pub root_path: Option<String>,
 
     #[deprecated = "in favour of workspaceFolders."]
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// The rootUri of the workspace. Is null if no
     /// folder is open. If both `rootPath` and `rootUri` are set
     /// `rootUri` wins.
     ///
     /// @deprecated in favour of workspaceFolders.
-    pub root_uri: Union2<Uri, serde_json::Value>,
+    pub root_uri: Option<Uri>,
 
     /// The capabilities provided by the client (editor or tool)
     pub capabilities: ClientCapabilities,
@@ -3092,7 +3095,7 @@ pub struct WorkspaceFoldersInitializeParams {
     /// configured.
     ///
     /// @since 3.6.0
-    pub workspace_folders: Option<Union2<Vec<WorkspaceFolder>, serde_json::Value>>,
+    pub workspace_folders: Option<Vec<WorkspaceFolder>>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3656,7 +3659,7 @@ pub struct SignatureInformation {
     /// `SignatureHelp.activeParameter`.
     ///
     /// @since 3.16.0
-    pub active_parameter: Option<Union2<u32, serde_json::Value>>,
+    pub active_parameter: Option<u32>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3981,16 +3984,17 @@ pub struct SemanticTokensFullDelta {
     pub delta: Option<bool>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// A text document identifier to optionally denote a specific version of a text document.
 pub struct OptionalVersionedTextDocumentIdentifier {
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// The version number of this document. If a versioned text document identifier
     /// is sent from the server to the client and the file is not open in the editor
     /// (the server has not received an open notification before) the server can send
     /// `null` to indicate that the version is unknown and the content on disk is the
     /// truth (as specified with document content ownership).
-    pub version: Union2<i32, serde_json::Value>,
+    pub version: Option<i32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -4111,9 +4115,10 @@ pub struct WorkspaceFullDocumentDiagnosticReport {
     /// The URI for which diagnostic information is reported.
     pub uri: Uri,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// The version number for which the diagnostics are reported.
     /// If the document is not marked as open `null` can be provided.
-    pub version: Union2<i32, serde_json::Value>,
+    pub version: Option<i32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -4125,9 +4130,10 @@ pub struct WorkspaceUnchangedDocumentDiagnosticReport {
     /// The URI for which diagnostic information is reported.
     pub uri: Uri,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// The version number for which the diagnostics are reported.
     /// If the document is not marked as open `null` can be provided.
-    pub version: Union2<i32, serde_json::Value>,
+    pub version: Option<i32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
