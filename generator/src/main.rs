@@ -22,6 +22,7 @@ struct LspDef {
     requests: Vec<Request>,
     notifications: Vec<Notification>,
     structures: Vec<Structure>,
+    enumerations: Vec<Enumeration>,
     type_aliases: Vec<TypeAlias>,
 }
 
@@ -84,10 +85,7 @@ struct Property {
 #[serde(rename_all = "camelCase")]
 struct Enumeration {
     name: String,
-    #[serde(rename = "type")]
-    ty: TypeDef,
-    #[serde(default)]
-    supports_custom_values: bool,
+    values: EnumerationValues,
     documentation: Option<String>,
     deprecated: Option<String>,
     #[serde(default)]
@@ -95,17 +93,24 @@ struct Enumeration {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct EnumerationValue {
-    name: String,
-    value: StrOrNum,
+#[serde(untagged)]
+enum EnumerationValues {
+    Int(Vec<EnumerationIntValue>),
+    Str(Vec<EnumerationStrValue>),
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum StrOrNum {
-    Str(String),
-    Num(i32),
+#[serde(rename_all = "camelCase")]
+struct EnumerationStrValue {
+    name: String,
+    value: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct EnumerationIntValue {
+    name: String,
+    value: i32,
 }
 
 #[derive(Debug, Deserialize)]
