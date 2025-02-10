@@ -1,4 +1,4 @@
-use heck::ToUpperCamelCase;
+use heck::{ToSnakeCase, ToUpperCamelCase};
 use itertools::Itertools;
 use serde::Deserialize;
 use std::{env, fmt::Write, fs};
@@ -16,6 +16,31 @@ fn main() -> anyhow::Result<()> {
         .into_json::<LspDef>()?;
 
     fs::write(
+        "./lspt/src/structs.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use crate::*;
+use serde::{{Deserialize, Serialize}};
+{}
+",
+            gen_structs(lsp_def.structures, &lsp_def.enumerations)
+        ),
+    )?;
+
+    fs::write(
+        "./lspt/src/type_aliases.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use crate::*;
+{}
+",
+            gen_type_aliases(lsp_def.type_aliases)
+        ),
+    )?;
+
+    fs::write(
         "./lspt/src/enums.rs",
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
@@ -29,6 +54,97 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
     )?;
 
     Ok(())
+}
+
+fn gen_structs(structures: Vec<Structure>, enumerations: &[Enumeration]) -> String {
+    structures.iter().fold(String::new(), |mut output, structure| {
+        if structure.proposed {
+            output.push_str("\n#[cfg(feature = \"proposed\")]");
+        }
+        if let Some(deprecated) = &structure.deprecated {
+            let _ = write!(output, "\n#[deprecated = \"{deprecated}\"]");
+        }
+        let default = if can_derive_default(structure, &structures, enumerations) {
+            "Default, "
+        } else {
+            ""
+        };
+        let _ = write!(
+            output,
+            "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize)]"
+        );
+        output.push_str("\n#[serde(rename_all = \"camelCase\")]");
+        output.push_str(&gen_doc(structure.documentation.as_deref(), 0));
+        let _ = write!(output, "\npub struct {} {{", structure.name);
+        structure.properties.iter().fold(&mut output, |output, property| {
+            if property.proposed {
+                output.push_str("\n    #[cfg(feature = \"proposed\")]");
+            }
+            if let Some(deprecated) = &property.deprecated {
+                let _ = write!(output, "\n    #[deprecated = \"{deprecated}\"]");
+            }
+            let mut name = property.name.to_snake_case();
+            if name == "type" {
+                output.push_str("\n    #[serde(rename = \"type\")]");
+                name = "ty".into();
+            }
+            let mut ty = gen_type_def(&property.ty);
+            match &property.ty {
+                TypeDef::Ref { name } if name == &structure.name => {
+                    ty = format!("Box<{ty}>");
+                }
+                _ => {}
+            }
+            if property.optional {
+                output.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
+                output.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                let _ = write!(output, "\n    pub {name}: Option<{ty}>,");
+            } else {
+                output.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                let _ = write!(output, "\n    pub {name}: {ty},");
+            }
+            output.push('\n');
+            output
+        });
+        output.push_str("}\n");
+        output
+    })
+}
+fn can_derive_default(structure: &Structure, structures: &[Structure], enumerations: &[Enumeration]) -> bool {
+    structure.properties.iter().all(|prop| {
+        prop.optional
+            || match &prop.ty {
+                TypeDef::Ref { name } => {
+                    enumerations.iter().all(|enumeration| &enumeration.name != name)
+                        && structures
+                            .iter()
+                            .find(|structure| &structure.name == name)
+                            .is_some_and(|structure| can_derive_default(structure, structures, enumerations))
+                }
+                TypeDef::Or { .. } => false,
+                TypeDef::Base {
+                    name: BaseType::DocumentUri | BaseType::Uri,
+                } => false,
+                _ => true,
+            }
+    })
+}
+
+fn gen_type_aliases(type_aliases: Vec<TypeAlias>) -> String {
+    type_aliases
+        .into_iter()
+        .filter(|type_alias| !type_alias.name.starts_with("LSP"))
+        .fold(String::new(), |mut output, type_alias| {
+            output.push_str(&gen_doc(type_alias.documentation.as_deref(), 0));
+            let _ = write!(
+                output,
+                "\npub type {} = {};",
+                type_alias.name,
+                gen_type_def(&type_alias.ty)
+            );
+            output.push('\n');
+            output
+        })
 }
 
 fn gen_enums(enumerations: Vec<Enumeration>) -> String {
@@ -154,6 +270,36 @@ impl<'de> Deserialize<'de> for {name} {{
         .join("\n\n")
 }
 
+fn gen_type_def(type_def: &TypeDef) -> String {
+    match type_def {
+        TypeDef::Base { name } => gen_base_type(name).into(),
+        TypeDef::Ref { name } => match &**name {
+            "LSPAny" => "serde_json::Value",
+            "LSPObject" => "HashMap<String, serde_json::Value>",
+            name => name,
+        }
+        .into(),
+        TypeDef::Map { key, value } => format!("HashMap<{}, {}>", gen_type_def(key), gen_type_def(value)),
+        TypeDef::Or { items } => format!("Union{}<{}>", items.len(), items.iter().map(gen_type_def).join(", ")),
+        TypeDef::Array { element } => format!("Vec<{}>", gen_type_def(element)),
+        TypeDef::Tuple { items } => format!("({})", items.iter().map(gen_type_def).join(", ")),
+        TypeDef::Literal => "serde_json::Value".into(),
+        TypeDef::StringLiteral { .. } => "String".into(),
+        _ => unreachable!(),
+    }
+}
+
+fn gen_base_type(base_type: &BaseType) -> &'static str {
+    match base_type {
+        BaseType::Null => "serde_json::Value",
+        BaseType::Uinteger => "u32",
+        BaseType::Integer | BaseType::Decimal => "i32",
+        BaseType::String => "String",
+        BaseType::Boolean => "bool",
+        BaseType::DocumentUri | BaseType::Uri => "Uri",
+    }
+}
+
 fn gen_doc(doc: Option<&str>, indent: usize) -> String {
     doc.map(|doc| {
         doc.lines().fold(String::new(), |mut output, line| {
@@ -232,6 +378,9 @@ struct Property {
     #[serde(default)]
     optional: bool,
     documentation: Option<String>,
+    deprecated: Option<String>,
+    #[serde(default)]
+    proposed: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -310,9 +459,7 @@ enum TypeDef {
         items: Vec<TypeDef>,
     },
     Literal,
-    StringLiteral {
-        value: String,
-    },
+    StringLiteral,
 }
 
 #[derive(Debug, Deserialize)]
