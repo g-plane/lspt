@@ -16,5 +16,6 @@ url = { version = "2.5", optional = true }
 
 [features]
 indexmap = ["dep:indexmap"]
+proposed = []
 rustc-hash = ["dep:rustc-hash"]
 url = ["dep:url"]

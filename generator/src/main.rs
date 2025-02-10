@@ -1,5 +1,7 @@
+use heck::ToUpperCamelCase;
+use itertools::Itertools;
 use serde::Deserialize;
-use std::env;
+use std::{env, fmt::Write, fs};
 
 fn main() -> anyhow::Result<()> {
     let agent = if let Ok(proxy) = env::var("https_proxy") {
@@ -12,8 +14,159 @@ fn main() -> anyhow::Result<()> {
         .get("https://raw.githubusercontent.com/microsoft/lsprotocol/refs/heads/main/generator/lsp.json")
         .call()?
         .into_json::<LspDef>()?;
-    dbg!(lsp_def);
+
+    fs::write(
+        "./lspt/src/enums.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
+
+{}
+",
+            gen_enums(lsp_def.enumerations)
+        ),
+    )?;
+
     Ok(())
+}
+
+fn gen_enums(enumerations: Vec<Enumeration>) -> String {
+    enumerations
+        .into_iter()
+        .map(|enumeration| match enumeration.values {
+            EnumerationValues::Str(values) => {
+                let variants = values
+                    .into_iter()
+                    .map(|value| {
+                        format!(
+                            "{}    #[serde(rename = \"{}\")]{}\n    {},\n",
+                            if value.proposed {
+                                "    #[cfg(feature = \"proposed\")]\n"
+                            } else {
+                                ""
+                            },
+                            value.value,
+                            gen_doc(value.documentation.as_deref(), 4),
+                            value.name.to_upper_camel_case()
+                        )
+                    })
+                    .join("\n");
+                format!(
+                    "#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
+                    gen_doc(enumeration.documentation.as_deref(), 0),
+                    enumeration.name,
+                    variants
+                )
+            }
+            EnumerationValues::Int(mut values) => {
+                let name = enumeration.name;
+                values.iter_mut().for_each(|value| {
+                    value.name = value.name.to_upper_camel_case();
+                });
+                let variants = values.iter().fold(String::new(), |mut output, value| {
+                    let _ = write!(
+                        output,
+                        "{}{}\n    {} = {},\n",
+                        if value.proposed {
+                            "\n    #[cfg(feature = \"proposed\")]"
+                        } else {
+                            ""
+                        },
+                        gen_doc(value.documentation.as_deref(), 4),
+                        value.name,
+                        value.value,
+                    );
+                    output
+                });
+                let enum_def = format!(
+                    "#[derive(Clone, Debug, PartialEq, Eq)]{}\npub enum {name} {{{}}}",
+                    gen_doc(enumeration.documentation.as_deref(), 0),
+                    variants
+                );
+                let ty = if let TypeDef::Base {
+                    name: BaseType::Uinteger,
+                } = enumeration.ty
+                {
+                    "u32"
+                } else {
+                    "i32"
+                };
+                let ser = values.iter().fold(String::new(), |mut output, value| {
+                    let _ = write!(
+                        output,
+                        "{}\n{}{name}::{} => serializer.serialize_{ty}({}),",
+                        if value.proposed {
+                            "\n            #[cfg(feature = \"proposed\")]"
+                        } else {
+                            ""
+                        },
+                        " ".repeat(12),
+                        value.name,
+                        value.value,
+                    );
+                    output
+                });
+                let de = values.iter().fold(String::new(), |mut output, value| {
+                    let _ = write!(
+                        output,
+                        "{}\n{}{} => Ok({name}::{}),",
+                        if value.proposed {
+                            "\n            #[cfg(feature = \"proposed\")]"
+                        } else {
+                            ""
+                        },
+                        " ".repeat(12),
+                        value.value,
+                        value.name,
+                    );
+                    output
+                });
+                let expected = format!("one of {}", values.iter().map(|value| value.value).join(", "));
+                format!(
+                    "{enum_def}
+impl Serialize for {name} {{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {{
+        match self {{{ser}
+        }}
+    }}
+}}
+impl<'de> Deserialize<'de> for {name} {{
+    fn deserialize<D>(deserializer: D) -> Result<{name}, D::Error>
+    where
+        D: Deserializer<'de>,
+    {{
+        let value = {ty}::deserialize(deserializer)?;
+        match value {{{de}
+            value => Err(serde::de::Error::invalid_value(
+                serde::de::Unexpected::Signed(value as i64),
+                &\"{expected}\",
+            )),
+        }}
+    }}
+}}",
+                )
+            }
+        })
+        .join("\n\n")
+}
+
+fn gen_doc(doc: Option<&str>, indent: usize) -> String {
+    doc.map(|doc| {
+        doc.lines().fold(String::new(), |mut output, line| {
+            let _ = write!(
+                output,
+                "\n{}///{}{line}",
+                " ".repeat(indent),
+                if line.is_empty() { "" } else { " " }
+            );
+            output
+        })
+    })
+    .unwrap_or_default()
 }
 
 #[derive(Debug, Deserialize)]
@@ -85,6 +238,8 @@ struct Property {
 #[serde(rename_all = "camelCase")]
 struct Enumeration {
     name: String,
+    #[serde(rename = "type")]
+    ty: TypeDef,
     values: EnumerationValues,
     documentation: Option<String>,
     deprecated: Option<String>,
@@ -104,6 +259,9 @@ enum EnumerationValues {
 struct EnumerationStrValue {
     name: String,
     value: String,
+    documentation: Option<String>,
+    #[serde(default)]
+    proposed: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -111,6 +269,9 @@ struct EnumerationStrValue {
 struct EnumerationIntValue {
     name: String,
     value: i32,
+    documentation: Option<String>,
+    #[serde(default)]
+    proposed: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -167,7 +328,8 @@ enum BaseType {
     #[serde(rename = "boolean")]
     Boolean,
     DocumentUri,
-    URI,
+    #[serde(rename = "URI")]
+    Uri,
     #[serde(rename = "decimal")]
     Decimal,
 }
