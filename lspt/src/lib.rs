@@ -4,3 +4,5 @@
 pub use enums::*;
 
 mod enums;
+
+pub type LSPAny = serde_json::Value;
