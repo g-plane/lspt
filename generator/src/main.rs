@@ -93,16 +93,16 @@ fn gen_structs(lsp_def: &LspDef) -> String {
                 }
                 let mut optional = property.optional;
                 let type_def = if let TypeDef::Or { items } = &property.ty {
-                    let filter_items = items
+                    let filtered_items = items
                         .iter()
                         .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
                         .collect::<Vec<_>>();
-                    if filter_items.len() == items.len() {
+                    if filtered_items.len() == items.len() {
                         property.ty.clone()
                     } else {
                         optional = true;
                         TypeDef::Or {
-                            items: filter_items.into_iter().cloned().collect(),
+                            items: filtered_items.into_iter().cloned().collect(),
                         }
                     }
                 } else {
