@@ -16,6 +16,20 @@ fn main() -> anyhow::Result<()> {
         .into_json::<LspDef>()?;
 
     fs::write(
+        "./lspt/src/notifications.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use crate::*;
+use serde::{{Deserialize, Serialize}};
+
+{}
+",
+            gen_notifications(&lsp_def)
+        ),
+    )?;
+
+    fs::write(
         "./lspt/src/structs.rs",
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
@@ -54,6 +68,38 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
     )?;
 
     Ok(())
+}
+
+fn gen_notifications(lsp_def: &LspDef) -> String {
+    let mut output = lsp_def.notifications.iter().fold(
+        "#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = \"method\", content = \"params\")]
+pub enum Notification {"
+            .to_string(),
+        |mut output, notification| {
+            if notification.proposed {
+                output.push_str("\n    #[cfg(feature = \"proposed\")]");
+            }
+            let _ = write!(output, "\n    #[serde(rename = \"{}\")]", notification.method);
+            output.push_str(&gen_doc(notification.documentation.as_deref(), 4));
+            let _ = write!(
+                output,
+                "\n    {}",
+                notification.type_name.trim_end_matches("Notification")
+            );
+            if let Some(TypeDef::Ref { name }) = &notification.params {
+                let _ = write!(
+                    output,
+                    "({})",
+                    if name == "LSPAny" { "serde_json::Value" } else { name }
+                );
+            }
+            output.push_str(",\n");
+            output
+        },
+    );
+    output.push('}');
+    output
 }
 
 fn gen_structs(lsp_def: &LspDef) -> String {
