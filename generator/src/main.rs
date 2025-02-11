@@ -101,11 +101,8 @@ fn gen_structs(lsp_def: &LspDef) -> String {
                         property.ty.clone()
                     } else {
                         optional = true;
-                        match filter_items.first() {
-                            Some(item) if filter_items.len() == 1 => (*item).clone(),
-                            _ => TypeDef::Or {
-                                items: filter_items.into_iter().cloned().collect(),
-                            },
+                        TypeDef::Or {
+                            items: filter_items.into_iter().cloned().collect(),
                         }
                     }
                 } else {
@@ -321,7 +318,13 @@ fn gen_type_def(type_def: &TypeDef) -> String {
         }
         .into(),
         TypeDef::Map { key, value } => format!("HashMap<{}, {}>", gen_type_def(key), gen_type_def(value)),
-        TypeDef::Or { items } => format!("Union{}<{}>", items.len(), items.iter().map(gen_type_def).join(", ")),
+        TypeDef::Or { items } => {
+            if items.len() == 1 {
+                gen_type_def(items.first().unwrap())
+            } else {
+                format!("Union{}<{}>", items.len(), items.iter().map(gen_type_def).join(", "))
+            }
+        }
         TypeDef::Array { element } => format!("Vec<{}>", gen_type_def(element)),
         TypeDef::Tuple { items } => format!("({})", items.iter().map(gen_type_def).join(", ")),
         TypeDef::Literal => "serde_json::Value".into(),
