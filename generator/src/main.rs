@@ -24,7 +24,7 @@ use crate::*;
 use serde::{{Deserialize, Serialize}};
 {}
 ",
-            gen_structs(lsp_def.structures, &lsp_def.enumerations)
+            gen_structs(&lsp_def)
         ),
     )?;
 
@@ -36,7 +36,7 @@ use serde::{{Deserialize, Serialize}};
 use crate::*;
 {}
 ",
-            gen_type_aliases(lsp_def.type_aliases)
+            gen_type_aliases(&lsp_def)
         ),
     )?;
 
@@ -49,15 +49,16 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 
 {}
 ",
-            gen_enums(lsp_def.enumerations)
+            gen_enums(&lsp_def)
         ),
     )?;
 
     Ok(())
 }
 
-fn gen_structs(structures: Vec<Structure>, enumerations: &[Enumeration]) -> String {
-    structures
+fn gen_structs(lsp_def: &LspDef) -> String {
+    lsp_def
+        .structures
         .iter()
         .fold(String::new(), |mut output, structure| {
             if structure.proposed {
@@ -66,7 +67,7 @@ fn gen_structs(structures: Vec<Structure>, enumerations: &[Enumeration]) -> Stri
             if let Some(deprecated) = &structure.deprecated {
                 let _ = write!(output, "\n#[deprecated = \"{deprecated}\"]");
             }
-            let default = if can_derive_default(structure, &structures, enumerations) {
+            let default = if can_derive_default(structure, lsp_def) {
                 "Default, "
             } else {
                 ""
@@ -136,16 +137,17 @@ fn gen_structs(structures: Vec<Structure>, enumerations: &[Enumeration]) -> Stri
             "Vec<Union2<TextEdit, AnnotatedTextEdit>>",
         ) // hard-coded workaround
 }
-fn can_derive_default(structure: &Structure, structures: &[Structure], enumerations: &[Enumeration]) -> bool {
+fn can_derive_default(structure: &Structure, lsp_def: &LspDef) -> bool {
     structure.properties.iter().all(|prop| {
         prop.optional
             || match &prop.ty {
                 TypeDef::Ref { name } => {
-                    enumerations.iter().all(|enumeration| &enumeration.name != name)
-                        && structures
+                    lsp_def.enumerations.iter().all(|enumeration| &enumeration.name != name)
+                        && lsp_def
+                            .structures
                             .iter()
                             .find(|structure| &structure.name == name)
-                            .is_some_and(|structure| can_derive_default(structure, structures, enumerations))
+                            .is_some_and(|structure| can_derive_default(structure, lsp_def))
                 }
                 TypeDef::Or { items } => {
                     items
@@ -162,9 +164,10 @@ fn can_derive_default(structure: &Structure, structures: &[Structure], enumerati
     })
 }
 
-fn gen_type_aliases(type_aliases: Vec<TypeAlias>) -> String {
-    type_aliases
-        .into_iter()
+fn gen_type_aliases(lsp_def: &LspDef) -> String {
+    lsp_def
+        .type_aliases
+        .iter()
         .filter(|type_alias| !type_alias.name.starts_with("LSP"))
         .fold(String::new(), |mut output, type_alias| {
             output.push_str(&gen_doc(type_alias.documentation.as_deref(), 0));
@@ -179,13 +182,14 @@ fn gen_type_aliases(type_aliases: Vec<TypeAlias>) -> String {
         })
 }
 
-fn gen_enums(enumerations: Vec<Enumeration>) -> String {
-    enumerations
-        .into_iter()
-        .map(|enumeration| match enumeration.values {
+fn gen_enums(lsp_def: &LspDef) -> String {
+    lsp_def
+        .enumerations
+        .iter()
+        .map(|enumeration| match &enumeration.values {
             EnumerationValues::Str(values) => {
                 let variants = values
-                    .into_iter()
+                    .iter()
                     .map(|value| {
                         format!(
                             "{}    #[serde(rename = \"{}\")]{}\n    {},\n",
@@ -207,11 +211,16 @@ fn gen_enums(enumerations: Vec<Enumeration>) -> String {
                     variants
                 )
             }
-            EnumerationValues::Int(mut values) => {
-                let name = enumeration.name;
-                values.iter_mut().for_each(|value| {
-                    value.name = value.name.to_upper_camel_case();
-                });
+            EnumerationValues::Int(values) => {
+                let name = &enumeration.name;
+                let values = values
+                    .iter()
+                    .map(|value| {
+                        let mut value = value.clone();
+                        value.name = value.name.to_upper_camel_case();
+                        value
+                    })
+                    .collect::<Vec<_>>();
                 let variants = values.iter().fold(String::new(), |mut output, value| {
                     let _ = write!(
                         output,
@@ -428,14 +437,14 @@ struct Enumeration {
     proposed: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(untagged)]
 enum EnumerationValues {
     Int(Vec<EnumerationIntValue>),
     Str(Vec<EnumerationStrValue>),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct EnumerationStrValue {
     name: String,
@@ -445,7 +454,7 @@ struct EnumerationStrValue {
     proposed: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct EnumerationIntValue {
     name: String,
