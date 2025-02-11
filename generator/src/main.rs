@@ -275,102 +275,113 @@ fn gen_enums(lsp_def: &LspDef) -> String {
     lsp_def
         .enumerations
         .iter()
-        .map(|enumeration| match &enumeration.values {
-            EnumerationValues::Str(values) => {
-                let variants = values
-                    .iter()
-                    .map(|value| {
-                        format!(
-                            "{}    #[serde(rename = \"{}\")]{}\n    {},\n",
+        .map(|enumeration| {
+            let proposed = if enumeration.proposed {
+                "#[cfg(feature = \"proposed\")]\n"
+            } else {
+                ""
+            };
+            let deprecated = if let Some(deprecated) = &enumeration.deprecated {
+                format!("#[deprecated = \"{deprecated}\"]\n")
+            } else {
+                "".into()
+            };
+            match &enumeration.values {
+                EnumerationValues::Str(values) => {
+                    let variants = values
+                        .iter()
+                        .map(|value| {
+                            format!(
+                                "{}    #[serde(rename = \"{}\")]{}\n    {},\n",
+                                if value.proposed {
+                                    "    #[cfg(feature = \"proposed\")]\n"
+                                } else {
+                                    ""
+                                },
+                                value.value,
+                                gen_doc(value.documentation.as_deref(), 4),
+                                value.name.to_upper_camel_case()
+                            )
+                        })
+                        .join("\n");
+                    format!(
+                        "{proposed}{deprecated}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
+                        gen_doc(enumeration.documentation.as_deref(), 0),
+                        enumeration.name,
+                        variants
+                    )
+                }
+                EnumerationValues::Int(values) => {
+                    let name = &enumeration.name;
+                    let values = values
+                        .iter()
+                        .map(|value| {
+                            let mut value = value.clone();
+                            value.name = value.name.to_upper_camel_case();
+                            value
+                        })
+                        .collect::<Vec<_>>();
+                    let variants = values.iter().fold(String::new(), |mut output, value| {
+                        let _ = write!(
+                            output,
+                            "{}{}\n    {} = {},\n",
                             if value.proposed {
-                                "    #[cfg(feature = \"proposed\")]\n"
+                                "\n    #[cfg(feature = \"proposed\")]"
                             } else {
                                 ""
                             },
-                            value.value,
                             gen_doc(value.documentation.as_deref(), 4),
-                            value.name.to_upper_camel_case()
-                        )
-                    })
-                    .join("\n");
-                format!(
-                    "#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
-                    gen_doc(enumeration.documentation.as_deref(), 0),
-                    enumeration.name,
-                    variants
-                )
-            }
-            EnumerationValues::Int(values) => {
-                let name = &enumeration.name;
-                let values = values
-                    .iter()
-                    .map(|value| {
-                        let mut value = value.clone();
-                        value.name = value.name.to_upper_camel_case();
-                        value
-                    })
-                    .collect::<Vec<_>>();
-                let variants = values.iter().fold(String::new(), |mut output, value| {
-                    let _ = write!(
-                        output,
-                        "{}{}\n    {} = {},\n",
-                        if value.proposed {
-                            "\n    #[cfg(feature = \"proposed\")]"
-                        } else {
-                            ""
-                        },
-                        gen_doc(value.documentation.as_deref(), 4),
-                        value.name,
-                        value.value,
+                            value.name,
+                            value.value,
+                        );
+                        output
+                    });
+                    let enum_def = format!(
+                        "{proposed}{deprecated}#[derive(Clone, Debug, PartialEq, Eq)]{}\npub enum {name} {{{}}}",
+                        gen_doc(enumeration.documentation.as_deref(), 0),
+                        variants
                     );
-                    output
-                });
-                let enum_def = format!(
-                    "#[derive(Clone, Debug, PartialEq, Eq)]{}\npub enum {name} {{{}}}",
-                    gen_doc(enumeration.documentation.as_deref(), 0),
-                    variants
-                );
-                let ty = if let TypeDef::Base {
-                    name: BaseType::Uinteger,
-                } = enumeration.ty
-                {
-                    "u32"
-                } else {
-                    "i32"
-                };
-                let ser = values.iter().fold(String::new(), |mut output, value| {
-                    let _ = write!(
-                        output,
-                        "{}\n{}{name}::{} => serializer.serialize_{ty}({}),",
-                        if value.proposed {
-                            "\n            #[cfg(feature = \"proposed\")]"
-                        } else {
-                            ""
-                        },
-                        " ".repeat(12),
-                        value.name,
-                        value.value,
-                    );
-                    output
-                });
-                let de = values.iter().fold(String::new(), |mut output, value| {
-                    let _ = write!(
-                        output,
-                        "{}\n{}{} => Ok({name}::{}),",
-                        if value.proposed {
-                            "\n            #[cfg(feature = \"proposed\")]"
-                        } else {
-                            ""
-                        },
-                        " ".repeat(12),
-                        value.value,
-                        value.name,
-                    );
-                    output
-                });
-                let expected = format!("one of {}", values.iter().map(|value| value.value).join(", "));
-                format!(
-                    "{enum_def}
+                    let ty = if let TypeDef::Base {
+                        name: BaseType::Uinteger,
+                    } = enumeration.ty
+                    {
+                        "u32"
+                    } else {
+                        "i32"
+                    };
+                    let ser = values.iter().fold(String::new(), |mut output, value| {
+                        let _ = write!(
+                            output,
+                            "{}\n{}{name}::{} => serializer.serialize_{ty}({}),",
+                            if value.proposed {
+                                "\n            #[cfg(feature = \"proposed\")]"
+                            } else {
+                                ""
+                            },
+                            " ".repeat(12),
+                            value.name,
+                            value.value,
+                        );
+                        output
+                    });
+                    let de = values.iter().fold(String::new(), |mut output, value| {
+                        let _ = write!(
+                            output,
+                            "{}\n{}{} => Ok({name}::{}),",
+                            if value.proposed {
+                                "\n            #[cfg(feature = \"proposed\")]"
+                            } else {
+                                ""
+                            },
+                            " ".repeat(12),
+                            value.value,
+                            value.name,
+                        );
+                        output
+                    });
+                    let expected = format!("one of {}", values.iter().map(|value| value.value).join(", "));
+                    format!(
+                        "{enum_def}
 impl Serialize for {name} {{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -394,7 +405,8 @@ impl<'de> Deserialize<'de> for {name} {{
         }}
     }}
 }}",
-                )
+                    )
+                }
             }
         })
         .join("\n\n")
