@@ -276,11 +276,6 @@ fn gen_enums(lsp_def: &LspDef) -> String {
         .enumerations
         .iter()
         .map(|enumeration| {
-            let proposed = if enumeration.proposed {
-                "#[cfg(feature = \"proposed\")]\n"
-            } else {
-                ""
-            };
             let deprecated = if let Some(deprecated) = &enumeration.deprecated {
                 format!("#[deprecated = \"{deprecated}\"]\n")
             } else {
@@ -305,7 +300,7 @@ fn gen_enums(lsp_def: &LspDef) -> String {
                         })
                         .join("\n");
                     format!(
-                        "{proposed}{deprecated}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
+                        "{deprecated}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
                         gen_doc(enumeration.documentation.as_deref(), 0),
                         enumeration.name,
                         variants
@@ -337,7 +332,7 @@ fn gen_enums(lsp_def: &LspDef) -> String {
                         output
                     });
                     let enum_def = format!(
-                        "{proposed}{deprecated}#[derive(Clone, Debug, PartialEq, Eq)]{}\npub enum {name} {{{}}}",
+                        "{deprecated}#[derive(Clone, Debug, PartialEq, Eq)]{}\npub enum {name} {{{}}}",
                         gen_doc(enumeration.documentation.as_deref(), 0),
                         variants
                     );
@@ -536,8 +531,6 @@ struct Enumeration {
     values: EnumerationValues,
     documentation: Option<String>,
     deprecated: Option<String>,
-    #[serde(default)]
-    proposed: bool,
 }
 
 #[derive(Clone, Debug, Deserialize)]

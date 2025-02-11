@@ -1129,7 +1129,6 @@ pub enum MarkupKind {
     Markdown,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 /// Predefined Language kinds
 /// @since 3.18.0
@@ -1328,7 +1327,6 @@ pub enum LanguageKind {
     Yaml,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq)]
 /// Describes how an {@link InlineCompletionItemProvider inline completion provider} was triggered.
 ///
