@@ -1,10 +1,12 @@
 #![allow(rustdoc::bare_urls)]
 #![allow(rustdoc::invalid_html_tags)]
 
-pub use crate::enums::*;
+pub use crate::{enums::*, structs::*, type_aliases::*};
 use serde::{Deserialize, Serialize};
 
 mod enums;
+mod structs;
+mod type_aliases;
 
 #[cfg(all(feature = "indexmap", feature = "rustc-hash"))]
 pub type HashMap<K, V> = indexmap::IndexMap<K, V, rustc_hash::FxBuildHasher>;
