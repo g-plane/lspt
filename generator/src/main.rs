@@ -423,8 +423,6 @@ struct Request {
     params: Option<TypeDef>,
     result: Option<TypeDef>,
     partial_result: Option<TypeDef>,
-    registration_method: Option<String>,
-    registration_options: Option<TypeDef>,
     documentation: Option<String>,
     #[serde(default)]
     proposed: bool,
@@ -436,8 +434,6 @@ struct Notification {
     method: String,
     type_name: String,
     params: Option<TypeDef>,
-    registration_method: Option<String>,
-    registration_options: Option<TypeDef>,
     documentation: Option<String>,
     #[serde(default)]
     proposed: bool,
