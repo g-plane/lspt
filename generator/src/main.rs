@@ -16,6 +16,20 @@ fn main() -> anyhow::Result<()> {
         .into_json::<LspDef>()?;
 
     fs::write(
+        "./lspt/src/requests.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use crate::*;
+use serde::{{Deserialize, Serialize}};
+
+{}
+",
+            gen_requests(&lsp_def)
+        ),
+    )?;
+
+    fs::write(
         "./lspt/src/notifications.rs",
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
@@ -68,6 +82,38 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
     )?;
 
     Ok(())
+}
+
+fn gen_requests(lsp_def: &LspDef) -> String {
+    let mut output = lsp_def.requests.iter().fold(
+        "#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = \"method\")]
+pub enum Request {"
+            .to_string(),
+        |mut output, request| {
+            if request.proposed {
+                output.push_str("\n    #[cfg(feature = \"proposed\")]");
+            }
+            let _ = write!(output, "\n    #[serde(rename = \"{}\")]", request.method);
+            output.push_str(&gen_doc(request.documentation.as_deref(), 4));
+            let _ = write!(
+                output,
+                "\n    {} {{ id: u32",
+                request.type_name.trim_end_matches("Request")
+            );
+            if let Some(TypeDef::Ref { name }) = &request.params {
+                let _ = write!(
+                    output,
+                    ", params: {}",
+                    if name == "LSPAny" { "serde_json::Value" } else { name }
+                );
+            }
+            output.push_str(" },\n");
+            output
+        },
+    );
+    output.push('}');
+    output
 }
 
 fn gen_notifications(lsp_def: &LspDef) -> String {

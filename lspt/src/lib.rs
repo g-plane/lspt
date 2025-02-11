@@ -1,11 +1,12 @@
 #![allow(rustdoc::bare_urls)]
 #![allow(rustdoc::invalid_html_tags)]
 
-pub use crate::{enums::*, notifications::*, structs::*, type_aliases::*};
+pub use crate::{enums::*, notifications::*, requests::*, structs::*, type_aliases::*};
 use serde::{Deserialize, Serialize};
 
 mod enums;
 mod notifications;
+mod requests;
 mod structs;
 mod type_aliases;
 
