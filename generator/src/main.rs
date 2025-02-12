@@ -527,8 +527,6 @@ struct Request {
     method: String,
     type_name: String,
     params: Option<TypeRef>,
-    result: Option<TypeDef>,
-    partial_result: Option<TypeDef>,
     documentation: Option<String>,
     #[serde(default)]
     proposed: bool,
@@ -642,9 +640,7 @@ enum TypeDef {
     Or {
         items: Vec<TypeDef>,
     },
-    And {
-        items: Vec<TypeDef>,
-    },
+    And,
     Array {
         element: Box<TypeDef>,
     },
