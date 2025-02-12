@@ -152,6 +152,12 @@ fn gen_structs(lsp_def: &LspDef) -> String {
     lsp_def
         .structures
         .iter()
+        .filter(|structure| {
+            !matches!(
+                &*structure.name,
+                "TextDocumentPositionParams" | "_InitializeParams" | "TextDocumentRegistrationOptions"
+            )
+        })
         .fold(String::new(), |mut output, structure| {
             if structure.proposed {
                 output.push_str("\n#[cfg(feature = \"proposed\")]");
@@ -171,53 +177,56 @@ fn gen_structs(lsp_def: &LspDef) -> String {
             output.push_str("\n#[serde(rename_all = \"camelCase\")]");
             output.push_str(&gen_doc(structure.documentation.as_deref(), 0));
             let _ = write!(output, "\npub struct {} {{", structure.name);
-            structure.properties.iter().fold(&mut output, |output, property| {
-                if property.proposed {
-                    output.push_str("\n    #[cfg(feature = \"proposed\")]");
-                }
-                if let Some(deprecated) = &property.deprecated {
-                    let _ = write!(output, "\n    #[deprecated = \"{deprecated}\"]");
-                }
-                let mut name = property.name.to_snake_case();
-                if name == "type" {
-                    output.push_str("\n    #[serde(rename = \"type\")]");
-                    name = "ty".into();
-                }
-                let mut optional = property.optional;
-                let type_def = if let TypeDef::Or { items } = &property.ty {
-                    let filtered_items = items
-                        .iter()
-                        .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
-                        .collect::<Vec<_>>();
-                    if filtered_items.len() == items.len() {
-                        property.ty.clone()
-                    } else {
-                        optional = true;
-                        TypeDef::Or {
-                            items: filtered_items.into_iter().cloned().collect(),
+            get_extends(structure, lsp_def)
+                .iter()
+                .chain(structure.properties.iter())
+                .fold(&mut output, |output, property| {
+                    if property.proposed {
+                        output.push_str("\n    #[cfg(feature = \"proposed\")]");
+                    }
+                    if let Some(deprecated) = &property.deprecated {
+                        let _ = write!(output, "\n    #[deprecated = \"{deprecated}\"]");
+                    }
+                    let mut name = property.name.to_snake_case();
+                    if name == "type" {
+                        output.push_str("\n    #[serde(rename = \"type\")]");
+                        name = "ty".into();
+                    }
+                    let mut optional = property.optional;
+                    let type_def = if let TypeDef::Or { items } = &property.ty {
+                        let filtered_items = items
+                            .iter()
+                            .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
+                            .collect::<Vec<_>>();
+                        if filtered_items.len() == items.len() {
+                            property.ty.clone()
+                        } else {
+                            optional = true;
+                            TypeDef::Or {
+                                items: filtered_items.into_iter().cloned().collect(),
+                            }
                         }
+                    } else {
+                        property.ty.clone()
+                    };
+                    let mut ty = gen_type_def(&type_def);
+                    match &type_def {
+                        TypeDef::Ref(TypeRef { name }) if name == &structure.name => {
+                            ty = format!("Box<{ty}>");
+                        }
+                        _ => {}
                     }
-                } else {
-                    property.ty.clone()
-                };
-                let mut ty = gen_type_def(&type_def);
-                match &type_def {
-                    TypeDef::Ref(TypeRef { name }) if name == &structure.name => {
-                        ty = format!("Box<{ty}>");
+                    if optional {
+                        output.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
+                        output.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                        let _ = write!(output, "\n    pub {name}: Option<{ty}>,");
+                    } else {
+                        output.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                        let _ = write!(output, "\n    pub {name}: {ty},");
                     }
-                    _ => {}
-                }
-                if optional {
-                    output.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
-                    output.push_str(&gen_doc(property.documentation.as_deref(), 4));
-                    let _ = write!(output, "\n    pub {name}: Option<{ty}>,");
-                } else {
-                    output.push_str(&gen_doc(property.documentation.as_deref(), 4));
-                    let _ = write!(output, "\n    pub {name}: {ty},");
-                }
-                output.push('\n');
-                output
-            });
+                    output.push('\n');
+                    output
+                });
             output.push_str("}\n");
             output
         })
@@ -227,30 +236,57 @@ fn gen_structs(lsp_def: &LspDef) -> String {
         ) // hard-coded workaround
 }
 fn can_derive_default(structure: &Structure, lsp_def: &LspDef) -> bool {
-    structure.properties.iter().all(|prop| {
-        prop.optional
-            || match &prop.ty {
-                TypeDef::Ref(TypeRef { name }) => {
-                    lsp_def.enumerations.iter().all(|enumeration| &enumeration.name != name)
-                        && lsp_def
-                            .structures
+    !structure
+        .extends
+        .iter()
+        .any(|extend| matches!(&*extend.name, "TextDocumentIdentifier" | "TextDocumentPositionParams"))
+        && structure.properties.iter().all(|prop| {
+            prop.optional
+                || match &prop.ty {
+                    TypeDef::Ref(TypeRef { name }) => {
+                        lsp_def.enumerations.iter().all(|enumeration| &enumeration.name != name)
+                            && lsp_def
+                                .structures
+                                .iter()
+                                .find(|structure| &structure.name == name)
+                                .is_some_and(|structure| can_derive_default(structure, lsp_def))
+                    }
+                    TypeDef::Or { items } => {
+                        items
                             .iter()
-                            .find(|structure| &structure.name == name)
-                            .is_some_and(|structure| can_derive_default(structure, lsp_def))
+                            .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
+                            .count()
+                            <= 1
+                    }
+                    TypeDef::Base {
+                        name: BaseType::DocumentUri | BaseType::Uri,
+                    } => false,
+                    _ => true,
                 }
-                TypeDef::Or { items } => {
-                    items
-                        .iter()
-                        .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
-                        .count()
-                        <= 1
-                }
-                TypeDef::Base {
-                    name: BaseType::DocumentUri | BaseType::Uri,
-                } => false,
-                _ => true,
-            }
-    })
+        })
+}
+fn get_extends(structure: &Structure, lsp_def: &LspDef) -> Vec<Property> {
+    structure
+        .extends
+        .iter()
+        .filter_map(|extend| lsp_def.structures.iter().find(|it| it.name == extend.name))
+        .fold(Vec::new(), |mut output, extend| {
+            output.append(
+                &mut extend
+                    .properties
+                    .iter()
+                    .filter(|extend_property| {
+                        !structure
+                            .properties
+                            .iter()
+                            .any(|property| property.name == extend_property.name)
+                    })
+                    .cloned()
+                    .collect(),
+            );
+            output.append(&mut get_extends(extend, lsp_def));
+            output
+        })
 }
 
 fn gen_type_aliases(lsp_def: &LspDef) -> String {
@@ -508,7 +544,7 @@ struct Structure {
     proposed: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Property {
     name: String,
