@@ -101,7 +101,7 @@ pub enum Request {"
                 "\n    {} {{ id: u32",
                 request.type_name.trim_end_matches("Request")
             );
-            if let Some(TypeDef::Ref { name }) = &request.params {
+            if let Some(TypeRef { name }) = &request.params {
                 let _ = write!(
                     output,
                     ", params: {}",
@@ -133,7 +133,7 @@ pub enum Notification {"
                 "\n    {}",
                 notification.type_name.trim_end_matches("Notification")
             );
-            if let Some(TypeDef::Ref { name }) = &notification.params {
+            if let Some(TypeRef { name }) = &notification.params {
                 let _ = write!(
                     output,
                     "({})",
@@ -202,7 +202,7 @@ fn gen_structs(lsp_def: &LspDef) -> String {
                 };
                 let mut ty = gen_type_def(&type_def);
                 match &type_def {
-                    TypeDef::Ref { name } if name == &structure.name => {
+                    TypeDef::Ref(TypeRef { name }) if name == &structure.name => {
                         ty = format!("Box<{ty}>");
                     }
                     _ => {}
@@ -230,7 +230,7 @@ fn can_derive_default(structure: &Structure, lsp_def: &LspDef) -> bool {
     structure.properties.iter().all(|prop| {
         prop.optional
             || match &prop.ty {
-                TypeDef::Ref { name } => {
+                TypeDef::Ref(TypeRef { name }) => {
                     lsp_def.enumerations.iter().all(|enumeration| &enumeration.name != name)
                         && lsp_def
                             .structures
@@ -410,7 +410,7 @@ impl<'de> Deserialize<'de> for {name} {{
 fn gen_type_def(type_def: &TypeDef) -> String {
     match type_def {
         TypeDef::Base { name } => gen_base_type(name).into(),
-        TypeDef::Ref { name } => match &**name {
+        TypeDef::Ref(TypeRef { name }) => match &**name {
             "LSPAny" => "serde_json::Value",
             "LSPObject" => "HashMap<String, serde_json::Value>",
             name => name,
@@ -473,7 +473,7 @@ struct LspDef {
 struct Request {
     method: String,
     type_name: String,
-    params: Option<TypeDef>,
+    params: Option<TypeRef>,
     result: Option<TypeDef>,
     partial_result: Option<TypeDef>,
     documentation: Option<String>,
@@ -486,7 +486,7 @@ struct Request {
 struct Notification {
     method: String,
     type_name: String,
-    params: Option<TypeDef>,
+    params: Option<TypeRef>,
     documentation: Option<String>,
     #[serde(default)]
     proposed: bool,
@@ -499,9 +499,9 @@ struct Structure {
     #[serde(default)]
     properties: Vec<Property>,
     #[serde(default)]
-    extends: Vec<TypeDef>,
+    extends: Vec<TypeRef>,
     #[serde(default)]
-    mixins: Vec<TypeDef>,
+    mixins: Vec<TypeRef>,
     documentation: Option<String>,
     deprecated: Option<String>,
     #[serde(default)]
@@ -570,15 +570,18 @@ struct TypeAlias {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+struct TypeRef {
+    name: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 enum TypeDef {
     Base {
         name: BaseType,
     },
     #[serde(rename = "reference")]
-    Ref {
-        name: String,
-    },
+    Ref(TypeRef),
     Map {
         key: Box<TypeDef>,
         value: Box<TypeDef>,
