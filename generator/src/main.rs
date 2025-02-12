@@ -155,7 +155,12 @@ fn gen_structs(lsp_def: &LspDef) -> String {
         .filter(|structure| {
             !matches!(
                 &*structure.name,
-                "TextDocumentPositionParams" | "_InitializeParams" | "TextDocumentRegistrationOptions"
+                "TextDocumentPositionParams"
+                    | "_InitializeParams"
+                    | "TextDocumentRegistrationOptions"
+                    | "WorkDoneProgressOptions"
+                    | "PartialResultParams"
+                    | "StaticRegistrationOptions"
             )
         })
         .fold(String::new(), |mut output, structure| {
@@ -180,6 +185,7 @@ fn gen_structs(lsp_def: &LspDef) -> String {
             get_extends(structure, lsp_def)
                 .iter()
                 .chain(structure.properties.iter())
+                .chain(get_mixins(structure, lsp_def).iter())
                 .fold(&mut output, |output, property| {
                     if property.proposed {
                         output.push_str("\n    #[cfg(feature = \"proposed\")]");
@@ -285,6 +291,17 @@ fn get_extends(structure: &Structure, lsp_def: &LspDef) -> Vec<Property> {
                     .collect(),
             );
             output.append(&mut get_extends(extend, lsp_def));
+            output
+        })
+}
+fn get_mixins(structure: &Structure, lsp_def: &LspDef) -> Vec<Property> {
+    structure
+        .mixins
+        .iter()
+        .filter_map(|mixin| lsp_def.structures.iter().find(|it| it.name == mixin.name))
+        .fold(Vec::new(), |mut output, mixin| {
+            output.append(&mut mixin.properties.clone());
+            output.append(&mut get_mixins(mixin, lsp_def));
             output
         })
 }

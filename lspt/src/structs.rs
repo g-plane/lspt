@@ -11,6 +11,15 @@ pub struct ImplementationParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -30,6 +39,11 @@ pub struct ImplementationRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -40,6 +54,15 @@ pub struct TypeDefinitionParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,6 +72,11 @@ pub struct TypeDefinitionRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -84,6 +112,15 @@ pub struct ConfigurationParams {
 pub struct DocumentColorParams {
     /// The text document.
     pub text_document: TextDocumentIdentifier,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -104,6 +141,11 @@ pub struct DocumentColorRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -118,6 +160,15 @@ pub struct ColorPresentationParams {
 
     /// The range where the color would be inserted. Serves as a context.
     pub range: Range,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -140,19 +191,21 @@ pub struct ColorPresentation {
     pub additional_text_edits: Option<Vec<TextEdit>>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct WorkDoneProgressOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub work_done_progress: Option<bool>,
-}
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Parameters for a {@link FoldingRangeRequest}.
 pub struct FoldingRangeParams {
     /// The text document.
     pub text_document: TextDocumentIdentifier,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -198,6 +251,11 @@ pub struct FoldingRangeRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -208,6 +266,15 @@ pub struct DeclarationParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -217,6 +284,11 @@ pub struct DeclarationRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -228,6 +300,15 @@ pub struct SelectionRangeParams {
 
     /// The positions inside the text document.
     pub positions: Vec<Position>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -250,6 +331,11 @@ pub struct SelectionRangeRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -277,6 +363,10 @@ pub struct CallHierarchyPrepareParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -326,6 +416,11 @@ pub struct CallHierarchyRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -335,6 +430,15 @@ pub struct CallHierarchyRegistrationOptions {
 /// @since 3.16.0
 pub struct CallHierarchyIncomingCallsParams {
     pub item: CallHierarchyItem,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -358,6 +462,15 @@ pub struct CallHierarchyIncomingCall {
 /// @since 3.16.0
 pub struct CallHierarchyOutgoingCallsParams {
     pub item: CallHierarchyItem,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -381,6 +494,15 @@ pub struct CallHierarchyOutgoingCall {
 pub struct SemanticTokensParams {
     /// The text document.
     pub text_document: TextDocumentIdentifier,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -425,6 +547,11 @@ pub struct SemanticTokensRegistrationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a full document.
     pub full: Option<Union2<bool, SemanticTokensFullDelta>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -437,6 +564,15 @@ pub struct SemanticTokensDeltaParams {
     /// The result id of a previous response. The result Id can either point to a full response
     /// or a delta response depending on what was received last.
     pub previous_result_id: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -466,6 +602,15 @@ pub struct SemanticTokensRangeParams {
 
     /// The range the semantic tokens are requested for.
     pub range: Range,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -516,6 +661,10 @@ pub struct LinkedEditingRangeParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -542,6 +691,11 @@ pub struct LinkedEditingRangeRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -638,6 +792,15 @@ pub struct MonikerParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -681,6 +844,10 @@ pub struct TypeHierarchyPrepareParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -731,6 +898,11 @@ pub struct TypeHierarchyRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -740,6 +912,15 @@ pub struct TypeHierarchyRegistrationOptions {
 /// @since 3.17.0
 pub struct TypeHierarchySupertypesParams {
     pub item: TypeHierarchyItem,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -749,6 +930,15 @@ pub struct TypeHierarchySupertypesParams {
 /// @since 3.17.0
 pub struct TypeHierarchySubtypesParams {
     pub item: TypeHierarchyItem,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -766,6 +956,10 @@ pub struct InlineValueParams {
     /// Additional information about the context in which inline values were
     /// requested.
     pub context: InlineValueContext,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -778,6 +972,11 @@ pub struct InlineValueRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -791,6 +990,10 @@ pub struct InlayHintParams {
 
     /// The document range for which inlay hints should be computed.
     pub range: Range,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -865,6 +1068,11 @@ pub struct InlayHintRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -883,6 +1091,15 @@ pub struct DocumentDiagnosticParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The result id of a previous response if provided.
     pub previous_result_id: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -927,6 +1144,11 @@ pub struct DiagnosticRegistrationOptions {
 
     /// The server provides support for workspace diagnostics as well.
     pub workspace_diagnostics: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -942,6 +1164,15 @@ pub struct WorkspaceDiagnosticParams {
     /// The currently known diagnostic reports with their
     /// previous result ids.
     pub previous_result_ids: Vec<PreviousResultId>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -989,6 +1220,11 @@ pub struct NotebookDocumentSyncRegistrationOptions {
     /// Whether save notification should be forwarded to
     /// the server. Will only be honored if mode === `notebook`.
     pub save: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1060,6 +1296,10 @@ pub struct InlineCompletionParams {
     /// Additional information about the context in which inline completions were
     /// requested.
     pub context: InlineCompletionContext,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[cfg(feature = "proposed")]
@@ -1110,6 +1350,11 @@ pub struct InlineCompletionRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[cfg(feature = "proposed")]
@@ -1149,6 +1394,11 @@ pub struct TextDocumentContentResult {
 pub struct TextDocumentContentRegistrationOptions {
     /// The schemes for which the server provides content.
     pub schemes: Vec<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The id used to register the request. The id can be used to deregister
+    /// the request again. See also Registration#id.
+    pub id: Option<String>,
 }
 
 #[cfg(feature = "proposed")]
@@ -1483,6 +1733,15 @@ pub struct CompletionParams {
     /// The completion context. This is only available it the client specifies
     /// to send this using the client capability `textDocument.completion.contextSupport === true`
     pub context: Option<CompletionContext>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -1752,6 +2011,10 @@ pub struct HoverParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1793,6 +2056,10 @@ pub struct SignatureHelpParams {
     ///
     /// @since 3.15.0
     pub context: Option<SignatureHelpContext>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -1868,6 +2135,15 @@ pub struct DefinitionParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -1891,6 +2167,15 @@ pub struct ReferenceParams {
     pub position: Position,
 
     pub context: ReferenceContext,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -1912,6 +2197,15 @@ pub struct DocumentHighlightParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -1944,6 +2238,15 @@ pub struct DocumentHighlightRegistrationOptions {
 pub struct DocumentSymbolParams {
     /// The text document.
     pub text_document: TextDocumentIdentifier,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -2063,6 +2366,15 @@ pub struct CodeActionParams {
 
     /// Context carrying additional information.
     pub context: CodeActionContext,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2220,6 +2532,15 @@ pub struct WorkspaceSymbolParams {
     /// characters of *query* appear in their order in a candidate symbol.
     /// Servers shouldn't use prefix, substring, or similar strict matching.
     pub query: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -2280,6 +2601,15 @@ pub struct WorkspaceSymbolRegistrationOptions {
 pub struct CodeLensParams {
     /// The document to request code lens for.
     pub text_document: TextDocumentIdentifier,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2323,6 +2653,15 @@ pub struct CodeLensRegistrationOptions {
 pub struct DocumentLinkParams {
     /// The document to provide document links for.
     pub text_document: TextDocumentIdentifier,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2376,6 +2715,10 @@ pub struct DocumentFormattingParams {
 
     /// The format options.
     pub options: FormattingOptions,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2400,6 +2743,10 @@ pub struct DocumentRangeFormattingParams {
 
     /// The format options
     pub options: FormattingOptions,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2436,6 +2783,10 @@ pub struct DocumentRangesFormattingParams {
 
     /// The format options
     pub options: FormattingOptions,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -2491,6 +2842,10 @@ pub struct RenameParams {
     /// request must return a {@link ResponseError} with an
     /// appropriate message set.
     pub new_name: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2517,6 +2872,10 @@ pub struct PrepareRenameParams {
 
     /// The position inside the text document.
     pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2529,6 +2888,10 @@ pub struct ExecuteCommandParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Arguments that the command should be invoked with.
     pub arguments: Option<Vec<serde_json::Value>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2699,15 +3062,6 @@ pub struct WorkDoneProgressParams {
     pub work_done_token: Option<ProgressToken>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PartialResultParams {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report partial results (e.g. streaming) to
-    /// the client.
-    pub partial_result_token: Option<ProgressToken>,
-}
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Represents the connection of two locations. Provides additional metadata over normal {@link Location locations},
@@ -2756,22 +3110,17 @@ pub struct Range {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ImplementationOptions {}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Static registration options to be returned in the initialize
-/// request.
-pub struct StaticRegistrationOptions {
+pub struct ImplementationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
-    /// The id used to register the request. The id can be used to deregister
-    /// the request again. See also Registration#id.
-    pub id: Option<String>,
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct TypeDefinitionOptions {}
+pub struct TypeDefinitionOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -2823,15 +3172,24 @@ pub struct Color {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentColorOptions {}
+pub struct DocumentColorOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FoldingRangeOptions {}
+pub struct FoldingRangeOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeclarationOptions {}
+pub struct DeclarationOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -2875,14 +3233,20 @@ pub struct Position {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SelectionRangeOptions {}
+pub struct SelectionRangeOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Call hierarchy options used during static registration.
 ///
 /// @since 3.16.0
-pub struct CallHierarchyOptions {}
+pub struct CallHierarchyOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -2899,6 +3263,9 @@ pub struct SemanticTokensOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a full document.
     pub full: Option<Union2<bool, SemanticTokensFullDelta>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -2918,7 +3285,10 @@ pub struct SemanticTokensEdit {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct LinkedEditingRangeOptions {}
+pub struct LinkedEditingRangeOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -3077,14 +3447,20 @@ pub struct FileDelete {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MonikerOptions {}
+pub struct MonikerOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Type hierarchy options used during static registration.
 ///
 /// @since 3.17.0
-pub struct TypeHierarchyOptions {}
+pub struct TypeHierarchyOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -3153,7 +3529,10 @@ pub struct InlineValueEvaluatableExpression {
 /// Inline value options used during static registration.
 ///
 /// @since 3.17.0
-pub struct InlineValueOptions {}
+pub struct InlineValueOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -3235,6 +3614,9 @@ pub struct InlayHintOptions {
     /// The server provides support to resolve additional
     /// information for an inlay hint item.
     pub resolve_provider: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3349,6 +3731,9 @@ pub struct DiagnosticOptions {
 
     /// The server provides support for workspace diagnostics as well.
     pub workspace_diagnostics: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -3520,7 +3905,10 @@ pub struct StringValue {
 ///
 /// @since 3.18.0
 /// @proposed
-pub struct InlineCompletionOptions {}
+pub struct InlineCompletionOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4073,12 +4461,18 @@ pub struct CompletionOptions {
     ///
     /// @since 3.17.0
     pub completion_item: Option<ServerCompletionItemOptions>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Hover options.
-pub struct HoverOptions {}
+pub struct HoverOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -4159,12 +4553,18 @@ pub struct SignatureHelpOptions {
     ///
     /// @since 3.15.0
     pub retrigger_characters: Option<Vec<String>>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Server Capabilities for a {@link DefinitionRequest}.
-pub struct DefinitionOptions {}
+pub struct DefinitionOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -4178,12 +4578,18 @@ pub struct ReferenceContext {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Reference options.
-pub struct ReferenceOptions {}
+pub struct ReferenceOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Provider options for a {@link DocumentHighlightRequest}.
-pub struct DocumentHighlightOptions {}
+pub struct DocumentHighlightOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -4219,6 +4625,9 @@ pub struct DocumentSymbolOptions {
     ///
     /// @since 3.16.0
     pub label: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4295,6 +4704,9 @@ pub struct CodeActionOptions {
     ///
     /// @since 3.16.0
     pub resolve_provider: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -4316,6 +4728,9 @@ pub struct WorkspaceSymbolOptions {
     ///
     /// @since 3.17.0
     pub resolve_provider: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4325,6 +4740,9 @@ pub struct CodeLensOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Code lens has a resolve provider as well.
     pub resolve_provider: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4334,6 +4752,9 @@ pub struct DocumentLinkOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Document links have a resolve provider as well.
     pub resolve_provider: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4368,7 +4789,10 @@ pub struct FormattingOptions {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Provider options for a {@link DocumentFormattingRequest}.
-pub struct DocumentFormattingOptions {}
+pub struct DocumentFormattingOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -4381,6 +4805,9 @@ pub struct DocumentRangeFormattingOptions {
     /// @since 3.18.0
     /// @proposed
     pub ranges_support: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4404,6 +4831,9 @@ pub struct RenameOptions {
     ///
     /// @since version 3.12.0
     pub prepare_provider: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4428,6 +4858,9 @@ pub struct PrepareRenameDefaultBehavior {
 pub struct ExecuteCommandOptions {
     /// The commands to be executed on the server
     pub commands: Vec<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
 }
 
 #[cfg(feature = "proposed")]
