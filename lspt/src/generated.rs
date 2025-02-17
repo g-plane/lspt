@@ -8134,6 +8134,9 @@ pub enum SemanticTokenTypes {
     #[serde(rename = "label")]
     /// @since 3.18.0
     Label,
+
+    #[serde(untagged)]
+    Custom_(String),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -8172,6 +8175,9 @@ pub enum SemanticTokenModifiers {
 
     #[serde(rename = "defaultLibrary")]
     DefaultLibrary,
+
+    #[serde(untagged)]
+    Custom_(String),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -8324,6 +8330,9 @@ pub enum FoldingRangeKind {
     #[serde(rename = "region")]
     /// Folding range for a region (e.g. `#region`)
     Region,
+
+    #[serde(untagged)]
+    Custom_(String),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -9112,6 +9121,9 @@ pub enum CodeActionKind {
     ///
     /// @since 3.18.0
     Notebook,
+
+    #[serde(untagged)]
+    Custom_(String),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -9375,6 +9387,9 @@ pub enum LanguageKind {
 
     #[serde(rename = "yaml")]
     Yaml,
+
+    #[serde(untagged)]
+    Custom_(String),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -9440,6 +9455,9 @@ pub enum PositionEncodingKind {
     /// so this `PositionEncodingKind` may also be used for an
     /// encoding-agnostic representation of character offsets.
     Utf32,
+
+    #[serde(untagged)]
+    Custom_(String),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

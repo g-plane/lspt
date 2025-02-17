@@ -309,7 +309,7 @@ fn gen_enums(lsp_def: &LspDef) -> String {
             };
             match &enumeration.values {
                 EnumerationValues::Str(values) => {
-                    let variants = values
+                    let mut variants = values
                         .iter()
                         .map(|value| {
                             format!(
@@ -325,6 +325,9 @@ fn gen_enums(lsp_def: &LspDef) -> String {
                             )
                         })
                         .join("\n");
+                    if enumeration.supports_custom_values {
+                        variants.push_str("\n    #[serde(untagged)]\n    Custom_(String),\n");
+                    }
                     format!(
                         "{deprecated}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
                         gen_doc(enumeration.documentation.as_deref(), 0),
@@ -557,6 +560,8 @@ struct Enumeration {
     values: EnumerationValues,
     documentation: Option<String>,
     deprecated: Option<String>,
+    #[serde(default)]
+    supports_custom_values: bool,
 }
 
 #[derive(Clone, Debug, Deserialize)]
