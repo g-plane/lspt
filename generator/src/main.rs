@@ -131,9 +131,14 @@ fn gen_structs(lsp_def: &LspDef) -> String {
             } else {
                 ""
             };
+            let additional_derives = if structure.name == "Position" {
+                ", Copy, PartialOrd, Ord"
+            } else {
+                ""
+            };
             let _ = write!(
                 output,
-                "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize)]"
+                "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize{additional_derives})]"
             );
             output.push_str("\n#[serde(rename_all = \"camelCase\")]");
             output.push_str(&gen_doc(structure.documentation.as_deref(), 0));

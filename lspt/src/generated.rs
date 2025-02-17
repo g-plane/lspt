@@ -3776,7 +3776,7 @@ pub struct DeclarationOptions {
     pub work_done_progress: Option<bool>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, Copy, PartialOrd, Ord)]
 #[serde(rename_all = "camelCase")]
 /// Position in a text document expressed as zero-based line and character
 /// offset. Prior to 3.17 the offsets were always based on a UTF-16 string
