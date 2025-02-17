@@ -8,49 +8,42 @@ pub trait Request {
     type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }
 
-#[derive(Debug)]
 pub enum ImplementationRequest {}
 impl Request for ImplementationRequest {
     const METHOD: &'static str = "textDocument/implementation";
     type Params = ImplementationParams;
 }
 
-#[derive(Debug)]
 pub enum TypeDefinitionRequest {}
 impl Request for TypeDefinitionRequest {
     const METHOD: &'static str = "textDocument/typeDefinition";
     type Params = TypeDefinitionParams;
 }
 
-#[derive(Debug)]
 pub enum WorkspaceFoldersRequest {}
 impl Request for WorkspaceFoldersRequest {
     const METHOD: &'static str = "workspace/workspaceFolders";
     type Params = ();
 }
 
-#[derive(Debug)]
 pub enum ConfigurationRequest {}
 impl Request for ConfigurationRequest {
     const METHOD: &'static str = "workspace/configuration";
     type Params = ConfigurationParams;
 }
 
-#[derive(Debug)]
 pub enum DocumentColorRequest {}
 impl Request for DocumentColorRequest {
     const METHOD: &'static str = "textDocument/documentColor";
     type Params = DocumentColorParams;
 }
 
-#[derive(Debug)]
 pub enum ColorPresentationRequest {}
 impl Request for ColorPresentationRequest {
     const METHOD: &'static str = "textDocument/colorPresentation";
     type Params = ColorPresentationParams;
 }
 
-#[derive(Debug)]
 pub enum FoldingRangeRequest {}
 impl Request for FoldingRangeRequest {
     const METHOD: &'static str = "textDocument/foldingRange";
@@ -58,7 +51,6 @@ impl Request for FoldingRangeRequest {
 }
 
 #[cfg(feature = "proposed")]
-#[derive(Debug)]
 pub enum FoldingRangeRefreshRequest {}
 #[cfg(feature = "proposed")]
 impl Request for FoldingRangeRefreshRequest {
@@ -66,189 +58,162 @@ impl Request for FoldingRangeRefreshRequest {
     type Params = ();
 }
 
-#[derive(Debug)]
 pub enum DeclarationRequest {}
 impl Request for DeclarationRequest {
     const METHOD: &'static str = "textDocument/declaration";
     type Params = DeclarationParams;
 }
 
-#[derive(Debug)]
 pub enum SelectionRangeRequest {}
 impl Request for SelectionRangeRequest {
     const METHOD: &'static str = "textDocument/selectionRange";
     type Params = SelectionRangeParams;
 }
 
-#[derive(Debug)]
 pub enum WorkDoneProgressCreateRequest {}
 impl Request for WorkDoneProgressCreateRequest {
     const METHOD: &'static str = "window/workDoneProgress/create";
     type Params = WorkDoneProgressCreateParams;
 }
 
-#[derive(Debug)]
 pub enum CallHierarchyPrepareRequest {}
 impl Request for CallHierarchyPrepareRequest {
     const METHOD: &'static str = "textDocument/prepareCallHierarchy";
     type Params = CallHierarchyPrepareParams;
 }
 
-#[derive(Debug)]
 pub enum CallHierarchyIncomingCallsRequest {}
 impl Request for CallHierarchyIncomingCallsRequest {
     const METHOD: &'static str = "callHierarchy/incomingCalls";
     type Params = CallHierarchyIncomingCallsParams;
 }
 
-#[derive(Debug)]
 pub enum CallHierarchyOutgoingCallsRequest {}
 impl Request for CallHierarchyOutgoingCallsRequest {
     const METHOD: &'static str = "callHierarchy/outgoingCalls";
     type Params = CallHierarchyOutgoingCallsParams;
 }
 
-#[derive(Debug)]
 pub enum SemanticTokensRequest {}
 impl Request for SemanticTokensRequest {
     const METHOD: &'static str = "textDocument/semanticTokens/full";
     type Params = SemanticTokensParams;
 }
 
-#[derive(Debug)]
 pub enum SemanticTokensDeltaRequest {}
 impl Request for SemanticTokensDeltaRequest {
     const METHOD: &'static str = "textDocument/semanticTokens/full/delta";
     type Params = SemanticTokensDeltaParams;
 }
 
-#[derive(Debug)]
 pub enum SemanticTokensRangeRequest {}
 impl Request for SemanticTokensRangeRequest {
     const METHOD: &'static str = "textDocument/semanticTokens/range";
     type Params = SemanticTokensRangeParams;
 }
 
-#[derive(Debug)]
 pub enum SemanticTokensRefreshRequest {}
 impl Request for SemanticTokensRefreshRequest {
     const METHOD: &'static str = "workspace/semanticTokens/refresh";
     type Params = ();
 }
 
-#[derive(Debug)]
 pub enum ShowDocumentRequest {}
 impl Request for ShowDocumentRequest {
     const METHOD: &'static str = "window/showDocument";
     type Params = ShowDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum LinkedEditingRangeRequest {}
 impl Request for LinkedEditingRangeRequest {
     const METHOD: &'static str = "textDocument/linkedEditingRange";
     type Params = LinkedEditingRangeParams;
 }
 
-#[derive(Debug)]
 pub enum WillCreateFilesRequest {}
 impl Request for WillCreateFilesRequest {
     const METHOD: &'static str = "workspace/willCreateFiles";
     type Params = CreateFilesParams;
 }
 
-#[derive(Debug)]
 pub enum WillRenameFilesRequest {}
 impl Request for WillRenameFilesRequest {
     const METHOD: &'static str = "workspace/willRenameFiles";
     type Params = RenameFilesParams;
 }
 
-#[derive(Debug)]
 pub enum WillDeleteFilesRequest {}
 impl Request for WillDeleteFilesRequest {
     const METHOD: &'static str = "workspace/willDeleteFiles";
     type Params = DeleteFilesParams;
 }
 
-#[derive(Debug)]
 pub enum MonikerRequest {}
 impl Request for MonikerRequest {
     const METHOD: &'static str = "textDocument/moniker";
     type Params = MonikerParams;
 }
 
-#[derive(Debug)]
 pub enum TypeHierarchyPrepareRequest {}
 impl Request for TypeHierarchyPrepareRequest {
     const METHOD: &'static str = "textDocument/prepareTypeHierarchy";
     type Params = TypeHierarchyPrepareParams;
 }
 
-#[derive(Debug)]
 pub enum TypeHierarchySupertypesRequest {}
 impl Request for TypeHierarchySupertypesRequest {
     const METHOD: &'static str = "typeHierarchy/supertypes";
     type Params = TypeHierarchySupertypesParams;
 }
 
-#[derive(Debug)]
 pub enum TypeHierarchySubtypesRequest {}
 impl Request for TypeHierarchySubtypesRequest {
     const METHOD: &'static str = "typeHierarchy/subtypes";
     type Params = TypeHierarchySubtypesParams;
 }
 
-#[derive(Debug)]
 pub enum InlineValueRequest {}
 impl Request for InlineValueRequest {
     const METHOD: &'static str = "textDocument/inlineValue";
     type Params = InlineValueParams;
 }
 
-#[derive(Debug)]
 pub enum InlineValueRefreshRequest {}
 impl Request for InlineValueRefreshRequest {
     const METHOD: &'static str = "workspace/inlineValue/refresh";
     type Params = ();
 }
 
-#[derive(Debug)]
 pub enum InlayHintRequest {}
 impl Request for InlayHintRequest {
     const METHOD: &'static str = "textDocument/inlayHint";
     type Params = InlayHintParams;
 }
 
-#[derive(Debug)]
 pub enum InlayHintResolveRequest {}
 impl Request for InlayHintResolveRequest {
     const METHOD: &'static str = "inlayHint/resolve";
     type Params = InlayHint;
 }
 
-#[derive(Debug)]
 pub enum InlayHintRefreshRequest {}
 impl Request for InlayHintRefreshRequest {
     const METHOD: &'static str = "workspace/inlayHint/refresh";
     type Params = ();
 }
 
-#[derive(Debug)]
 pub enum DocumentDiagnosticRequest {}
 impl Request for DocumentDiagnosticRequest {
     const METHOD: &'static str = "textDocument/diagnostic";
     type Params = DocumentDiagnosticParams;
 }
 
-#[derive(Debug)]
 pub enum WorkspaceDiagnosticRequest {}
 impl Request for WorkspaceDiagnosticRequest {
     const METHOD: &'static str = "workspace/diagnostic";
     type Params = WorkspaceDiagnosticParams;
 }
 
-#[derive(Debug)]
 pub enum DiagnosticRefreshRequest {}
 impl Request for DiagnosticRefreshRequest {
     const METHOD: &'static str = "workspace/diagnostic/refresh";
@@ -256,7 +221,6 @@ impl Request for DiagnosticRefreshRequest {
 }
 
 #[cfg(feature = "proposed")]
-#[derive(Debug)]
 pub enum InlineCompletionRequest {}
 #[cfg(feature = "proposed")]
 impl Request for InlineCompletionRequest {
@@ -265,7 +229,6 @@ impl Request for InlineCompletionRequest {
 }
 
 #[cfg(feature = "proposed")]
-#[derive(Debug)]
 pub enum TextDocumentContentRequest {}
 #[cfg(feature = "proposed")]
 impl Request for TextDocumentContentRequest {
@@ -274,7 +237,6 @@ impl Request for TextDocumentContentRequest {
 }
 
 #[cfg(feature = "proposed")]
-#[derive(Debug)]
 pub enum TextDocumentContentRefreshRequest {}
 #[cfg(feature = "proposed")]
 impl Request for TextDocumentContentRefreshRequest {
@@ -282,175 +244,150 @@ impl Request for TextDocumentContentRefreshRequest {
     type Params = TextDocumentContentRefreshParams;
 }
 
-#[derive(Debug)]
 pub enum RegistrationRequest {}
 impl Request for RegistrationRequest {
     const METHOD: &'static str = "client/registerCapability";
     type Params = RegistrationParams;
 }
 
-#[derive(Debug)]
 pub enum UnregistrationRequest {}
 impl Request for UnregistrationRequest {
     const METHOD: &'static str = "client/unregisterCapability";
     type Params = UnregistrationParams;
 }
 
-#[derive(Debug)]
 pub enum InitializeRequest {}
 impl Request for InitializeRequest {
     const METHOD: &'static str = "initialize";
     type Params = InitializeParams;
 }
 
-#[derive(Debug)]
 pub enum ShutdownRequest {}
 impl Request for ShutdownRequest {
     const METHOD: &'static str = "shutdown";
     type Params = ();
 }
 
-#[derive(Debug)]
 pub enum ShowMessageRequest {}
 impl Request for ShowMessageRequest {
     const METHOD: &'static str = "window/showMessageRequest";
     type Params = ShowMessageRequestParams;
 }
 
-#[derive(Debug)]
 pub enum WillSaveTextDocumentWaitUntilRequest {}
 impl Request for WillSaveTextDocumentWaitUntilRequest {
     const METHOD: &'static str = "textDocument/willSaveWaitUntil";
     type Params = WillSaveTextDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum CompletionRequest {}
 impl Request for CompletionRequest {
     const METHOD: &'static str = "textDocument/completion";
     type Params = CompletionParams;
 }
 
-#[derive(Debug)]
 pub enum CompletionResolveRequest {}
 impl Request for CompletionResolveRequest {
     const METHOD: &'static str = "completionItem/resolve";
     type Params = CompletionItem;
 }
 
-#[derive(Debug)]
 pub enum HoverRequest {}
 impl Request for HoverRequest {
     const METHOD: &'static str = "textDocument/hover";
     type Params = HoverParams;
 }
 
-#[derive(Debug)]
 pub enum SignatureHelpRequest {}
 impl Request for SignatureHelpRequest {
     const METHOD: &'static str = "textDocument/signatureHelp";
     type Params = SignatureHelpParams;
 }
 
-#[derive(Debug)]
 pub enum DefinitionRequest {}
 impl Request for DefinitionRequest {
     const METHOD: &'static str = "textDocument/definition";
     type Params = DefinitionParams;
 }
 
-#[derive(Debug)]
 pub enum ReferencesRequest {}
 impl Request for ReferencesRequest {
     const METHOD: &'static str = "textDocument/references";
     type Params = ReferenceParams;
 }
 
-#[derive(Debug)]
 pub enum DocumentHighlightRequest {}
 impl Request for DocumentHighlightRequest {
     const METHOD: &'static str = "textDocument/documentHighlight";
     type Params = DocumentHighlightParams;
 }
 
-#[derive(Debug)]
 pub enum DocumentSymbolRequest {}
 impl Request for DocumentSymbolRequest {
     const METHOD: &'static str = "textDocument/documentSymbol";
     type Params = DocumentSymbolParams;
 }
 
-#[derive(Debug)]
 pub enum CodeActionRequest {}
 impl Request for CodeActionRequest {
     const METHOD: &'static str = "textDocument/codeAction";
     type Params = CodeActionParams;
 }
 
-#[derive(Debug)]
 pub enum CodeActionResolveRequest {}
 impl Request for CodeActionResolveRequest {
     const METHOD: &'static str = "codeAction/resolve";
     type Params = CodeAction;
 }
 
-#[derive(Debug)]
 pub enum WorkspaceSymbolRequest {}
 impl Request for WorkspaceSymbolRequest {
     const METHOD: &'static str = "workspace/symbol";
     type Params = WorkspaceSymbolParams;
 }
 
-#[derive(Debug)]
 pub enum WorkspaceSymbolResolveRequest {}
 impl Request for WorkspaceSymbolResolveRequest {
     const METHOD: &'static str = "workspaceSymbol/resolve";
     type Params = WorkspaceSymbol;
 }
 
-#[derive(Debug)]
 pub enum CodeLensRequest {}
 impl Request for CodeLensRequest {
     const METHOD: &'static str = "textDocument/codeLens";
     type Params = CodeLensParams;
 }
 
-#[derive(Debug)]
 pub enum CodeLensResolveRequest {}
 impl Request for CodeLensResolveRequest {
     const METHOD: &'static str = "codeLens/resolve";
     type Params = CodeLens;
 }
 
-#[derive(Debug)]
 pub enum CodeLensRefreshRequest {}
 impl Request for CodeLensRefreshRequest {
     const METHOD: &'static str = "workspace/codeLens/refresh";
     type Params = ();
 }
 
-#[derive(Debug)]
 pub enum DocumentLinkRequest {}
 impl Request for DocumentLinkRequest {
     const METHOD: &'static str = "textDocument/documentLink";
     type Params = DocumentLinkParams;
 }
 
-#[derive(Debug)]
 pub enum DocumentLinkResolveRequest {}
 impl Request for DocumentLinkResolveRequest {
     const METHOD: &'static str = "documentLink/resolve";
     type Params = DocumentLink;
 }
 
-#[derive(Debug)]
 pub enum DocumentFormattingRequest {}
 impl Request for DocumentFormattingRequest {
     const METHOD: &'static str = "textDocument/formatting";
     type Params = DocumentFormattingParams;
 }
 
-#[derive(Debug)]
 pub enum DocumentRangeFormattingRequest {}
 impl Request for DocumentRangeFormattingRequest {
     const METHOD: &'static str = "textDocument/rangeFormatting";
@@ -458,7 +395,6 @@ impl Request for DocumentRangeFormattingRequest {
 }
 
 #[cfg(feature = "proposed")]
-#[derive(Debug)]
 pub enum DocumentRangesFormattingRequest {}
 #[cfg(feature = "proposed")]
 impl Request for DocumentRangesFormattingRequest {
@@ -466,35 +402,30 @@ impl Request for DocumentRangesFormattingRequest {
     type Params = DocumentRangesFormattingParams;
 }
 
-#[derive(Debug)]
 pub enum DocumentOnTypeFormattingRequest {}
 impl Request for DocumentOnTypeFormattingRequest {
     const METHOD: &'static str = "textDocument/onTypeFormatting";
     type Params = DocumentOnTypeFormattingParams;
 }
 
-#[derive(Debug)]
 pub enum RenameRequest {}
 impl Request for RenameRequest {
     const METHOD: &'static str = "textDocument/rename";
     type Params = RenameParams;
 }
 
-#[derive(Debug)]
 pub enum PrepareRenameRequest {}
 impl Request for PrepareRenameRequest {
     const METHOD: &'static str = "textDocument/prepareRename";
     type Params = PrepareRenameParams;
 }
 
-#[derive(Debug)]
 pub enum ExecuteCommandRequest {}
 impl Request for ExecuteCommandRequest {
     const METHOD: &'static str = "workspace/executeCommand";
     type Params = ExecuteCommandParams;
 }
 
-#[derive(Debug)]
 pub enum ApplyWorkspaceEditRequest {}
 impl Request for ApplyWorkspaceEditRequest {
     const METHOD: &'static str = "workspace/applyEdit";
@@ -506,182 +437,156 @@ pub trait Notification {
     const METHOD: &'static str;
 }
 
-#[derive(Debug)]
 pub enum DidChangeWorkspaceFoldersNotification {}
 impl Notification for DidChangeWorkspaceFoldersNotification {
     const METHOD: &'static str = "workspace/didChangeWorkspaceFolders";
     type Params = DidChangeWorkspaceFoldersParams;
 }
 
-#[derive(Debug)]
 pub enum WorkDoneProgressCancelNotification {}
 impl Notification for WorkDoneProgressCancelNotification {
     const METHOD: &'static str = "window/workDoneProgress/cancel";
     type Params = WorkDoneProgressCancelParams;
 }
 
-#[derive(Debug)]
 pub enum DidCreateFilesNotification {}
 impl Notification for DidCreateFilesNotification {
     const METHOD: &'static str = "workspace/didCreateFiles";
     type Params = CreateFilesParams;
 }
 
-#[derive(Debug)]
 pub enum DidRenameFilesNotification {}
 impl Notification for DidRenameFilesNotification {
     const METHOD: &'static str = "workspace/didRenameFiles";
     type Params = RenameFilesParams;
 }
 
-#[derive(Debug)]
 pub enum DidDeleteFilesNotification {}
 impl Notification for DidDeleteFilesNotification {
     const METHOD: &'static str = "workspace/didDeleteFiles";
     type Params = DeleteFilesParams;
 }
 
-#[derive(Debug)]
 pub enum DidOpenNotebookDocumentNotification {}
 impl Notification for DidOpenNotebookDocumentNotification {
     const METHOD: &'static str = "notebookDocument/didOpen";
     type Params = DidOpenNotebookDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum DidChangeNotebookDocumentNotification {}
 impl Notification for DidChangeNotebookDocumentNotification {
     const METHOD: &'static str = "notebookDocument/didChange";
     type Params = DidChangeNotebookDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum DidSaveNotebookDocumentNotification {}
 impl Notification for DidSaveNotebookDocumentNotification {
     const METHOD: &'static str = "notebookDocument/didSave";
     type Params = DidSaveNotebookDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum DidCloseNotebookDocumentNotification {}
 impl Notification for DidCloseNotebookDocumentNotification {
     const METHOD: &'static str = "notebookDocument/didClose";
     type Params = DidCloseNotebookDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum InitializedNotification {}
 impl Notification for InitializedNotification {
     const METHOD: &'static str = "initialized";
     type Params = InitializedParams;
 }
 
-#[derive(Debug)]
 pub enum ExitNotification {}
 impl Notification for ExitNotification {
     const METHOD: &'static str = "exit";
     type Params = ();
 }
 
-#[derive(Debug)]
 pub enum DidChangeConfigurationNotification {}
 impl Notification for DidChangeConfigurationNotification {
     const METHOD: &'static str = "workspace/didChangeConfiguration";
     type Params = DidChangeConfigurationParams;
 }
 
-#[derive(Debug)]
 pub enum ShowMessageNotification {}
 impl Notification for ShowMessageNotification {
     const METHOD: &'static str = "window/showMessage";
     type Params = ShowMessageParams;
 }
 
-#[derive(Debug)]
 pub enum LogMessageNotification {}
 impl Notification for LogMessageNotification {
     const METHOD: &'static str = "window/logMessage";
     type Params = LogMessageParams;
 }
 
-#[derive(Debug)]
 pub enum TelemetryEventNotification {}
 impl Notification for TelemetryEventNotification {
     const METHOD: &'static str = "telemetry/event";
     type Params = serde_json::Value;
 }
 
-#[derive(Debug)]
 pub enum DidOpenTextDocumentNotification {}
 impl Notification for DidOpenTextDocumentNotification {
     const METHOD: &'static str = "textDocument/didOpen";
     type Params = DidOpenTextDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum DidChangeTextDocumentNotification {}
 impl Notification for DidChangeTextDocumentNotification {
     const METHOD: &'static str = "textDocument/didChange";
     type Params = DidChangeTextDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum DidCloseTextDocumentNotification {}
 impl Notification for DidCloseTextDocumentNotification {
     const METHOD: &'static str = "textDocument/didClose";
     type Params = DidCloseTextDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum DidSaveTextDocumentNotification {}
 impl Notification for DidSaveTextDocumentNotification {
     const METHOD: &'static str = "textDocument/didSave";
     type Params = DidSaveTextDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum WillSaveTextDocumentNotification {}
 impl Notification for WillSaveTextDocumentNotification {
     const METHOD: &'static str = "textDocument/willSave";
     type Params = WillSaveTextDocumentParams;
 }
 
-#[derive(Debug)]
 pub enum DidChangeWatchedFilesNotification {}
 impl Notification for DidChangeWatchedFilesNotification {
     const METHOD: &'static str = "workspace/didChangeWatchedFiles";
     type Params = DidChangeWatchedFilesParams;
 }
 
-#[derive(Debug)]
 pub enum PublishDiagnosticsNotification {}
 impl Notification for PublishDiagnosticsNotification {
     const METHOD: &'static str = "textDocument/publishDiagnostics";
     type Params = PublishDiagnosticsParams;
 }
 
-#[derive(Debug)]
 pub enum SetTraceNotification {}
 impl Notification for SetTraceNotification {
     const METHOD: &'static str = "$/setTrace";
     type Params = SetTraceParams;
 }
 
-#[derive(Debug)]
 pub enum LogTraceNotification {}
 impl Notification for LogTraceNotification {
     const METHOD: &'static str = "$/logTrace";
     type Params = LogTraceParams;
 }
 
-#[derive(Debug)]
 pub enum CancelNotification {}
 impl Notification for CancelNotification {
     const METHOD: &'static str = "$/cancelRequest";
     type Params = CancelParams;
 }
 
-#[derive(Debug)]
 pub enum ProgressNotification {}
 impl Notification for ProgressNotification {
     const METHOD: &'static str = "$/progress";
