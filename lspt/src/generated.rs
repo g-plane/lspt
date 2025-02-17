@@ -9519,7 +9519,7 @@ impl<'de> Deserialize<'de> for WatchKind {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Copy)]
 /// The diagnostic's severity.
 pub enum DiagnosticSeverity {
     /// Reports an error.

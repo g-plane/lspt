@@ -345,8 +345,12 @@ fn gen_enums(lsp_def: &LspDef) -> String {
                         );
                         output
                     });
+                    let additional_derives = match &*enumeration.name {
+                        "DiagnosticSeverity" => ", Copy",
+                        _ => "",
+                    };
                     let enum_def = format!(
-                        "{deprecated}#[derive(Clone, Debug, PartialEq, Eq)]{}\npub enum {name} {{{}}}",
+                        "{deprecated}#[derive(Clone, Debug, PartialEq, Eq{additional_derives})]{}\npub enum {name} {{{}}}",
                         gen_doc(enumeration.documentation.as_deref(), 0),
                         variants
                     );
