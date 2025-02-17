@@ -23,8 +23,15 @@ fn main() -> anyhow::Result<()> {
 use super::{{HashMap, Union2, Union3, Union4, Uri}};
 use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 
+pub trait Request {{
+    const METHOD: &'static str;
+    type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
+}}
 {}
-
+pub trait Notification {{
+    type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
+    const METHOD: &'static str;
+}}
 {}
 {}
 {}
@@ -41,67 +48,72 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 }
 
 fn gen_requests(lsp_def: &LspDef) -> String {
-    let mut output = lsp_def.requests.iter().fold(
-        "#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = \"method\")]
-pub enum Request {"
-            .to_string(),
-        |mut output, request| {
-            if request.proposed {
-                output.push_str("\n    #[cfg(feature = \"proposed\")]");
-            }
-            let _ = write!(output, "\n    #[serde(rename = \"{}\")]", request.method);
-            output.push_str(&gen_doc(request.documentation.as_deref(), 4));
-            let _ = write!(
-                output,
-                "\n    {} {{ id: u32",
-                request.type_name.trim_end_matches("Request")
-            );
+    lsp_def.requests.iter().fold(String::new(), |mut output, request| {
+        if request.proposed {
+            output.push_str("\n#[cfg(feature = \"proposed\")]");
+        }
+        let _ = write!(output, "\npub enum {} {{}}", request.type_name);
+        if request.proposed {
+            output.push_str("\n#[cfg(feature = \"proposed\")]");
+        }
+        let _ = write!(
+            output,
+            "
+impl Request for {} {{
+    const METHOD: &'static str = \"{}\";
+    type Params = {};
+}}
+",
+            request.type_name,
+            request.method,
             if let Some(TypeRef { name }) = &request.params {
-                let _ = write!(
-                    output,
-                    ", params: {}",
-                    if name == "LSPAny" { "serde_json::Value" } else { name }
-                );
+                if name == "LSPAny" {
+                    "serde_json::Value"
+                } else {
+                    name
+                }
+            } else {
+                "()"
             }
-            output.push_str(" },\n");
-            output
-        },
-    );
-    output.push('}');
-    output
+        );
+        output
+    })
 }
 
 fn gen_notifications(lsp_def: &LspDef) -> String {
-    let mut output = lsp_def.notifications.iter().fold(
-        "#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = \"method\", content = \"params\")]
-pub enum Notification {"
-            .to_string(),
-        |mut output, notification| {
+    lsp_def
+        .notifications
+        .iter()
+        .fold(String::new(), |mut output, notification| {
             if notification.proposed {
-                output.push_str("\n    #[cfg(feature = \"proposed\")]");
+                output.push_str("\n#[cfg(feature = \"proposed\")]");
             }
-            let _ = write!(output, "\n    #[serde(rename = \"{}\")]", notification.method);
-            output.push_str(&gen_doc(notification.documentation.as_deref(), 4));
+            let _ = write!(output, "\npub enum {} {{}}", notification.type_name);
+            if notification.proposed {
+                output.push_str("\n#[cfg(feature = \"proposed\")]");
+            }
             let _ = write!(
                 output,
-                "\n    {}",
-                notification.type_name.trim_end_matches("Notification")
+                "
+impl Notification for {} {{
+    const METHOD: &'static str = \"{}\";
+    type Params = {};
+}}
+",
+                notification.type_name,
+                notification.method,
+                if let Some(TypeRef { name }) = &notification.params {
+                    if name == "LSPAny" {
+                        "serde_json::Value"
+                    } else {
+                        name
+                    }
+                } else {
+                    "()"
+                }
             );
-            if let Some(TypeRef { name }) = &notification.params {
-                let _ = write!(
-                    output,
-                    "({})",
-                    if name == "LSPAny" { "serde_json::Value" } else { name }
-                );
-            }
-            output.push_str(",\n");
             output
-        },
-    );
-    output.push('}');
-    output
+        })
 }
 
 fn gen_structs(lsp_def: &LspDef) -> String {
@@ -492,7 +504,6 @@ struct Request {
     method: String,
     type_name: String,
     params: Option<TypeRef>,
-    documentation: Option<String>,
     #[serde(default)]
     proposed: bool,
 }
@@ -503,7 +514,6 @@ struct Notification {
     method: String,
     type_name: String,
     params: Option<TypeRef>,
-    documentation: Option<String>,
     #[serde(default)]
     proposed: bool,
 }
