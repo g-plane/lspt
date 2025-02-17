@@ -1,6 +1,6 @@
 // DO NOT EDIT THIS GENERATED FILE.
 
-use super::{HashMap, Union2, Union3, Union4,Uri};
+use super::{HashMap, Union2, Union3, Union4, Uri};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

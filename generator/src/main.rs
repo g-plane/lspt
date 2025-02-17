@@ -20,7 +20,7 @@ fn main() -> anyhow::Result<()> {
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use super::{{HashMap, Union2, Union3, Union4,Uri}};
+use super::{{HashMap, Union2, Union3, Union4, Uri}};
 use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 
 {}
