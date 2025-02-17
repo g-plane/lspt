@@ -16,68 +16,24 @@ fn main() -> anyhow::Result<()> {
         .into_json::<LspDef>()?;
 
     fs::write(
-        "./lspt/src/requests.rs",
+        "./lspt/src/generated.rs",
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use crate::*;
-use serde::{{Deserialize, Serialize}};
-
-{}
-",
-            gen_requests(&lsp_def)
-        ),
-    )?;
-
-    fs::write(
-        "./lspt/src/notifications.rs",
-        format!(
-            "// DO NOT EDIT THIS GENERATED FILE.
-
-use crate::*;
-use serde::{{Deserialize, Serialize}};
-
-{}
-",
-            gen_notifications(&lsp_def)
-        ),
-    )?;
-
-    fs::write(
-        "./lspt/src/structs.rs",
-        format!(
-            "// DO NOT EDIT THIS GENERATED FILE.
-
-use crate::*;
-use serde::{{Deserialize, Serialize}};
-{}
-",
-            gen_structs(&lsp_def)
-        ),
-    )?;
-
-    fs::write(
-        "./lspt/src/type_aliases.rs",
-        format!(
-            "// DO NOT EDIT THIS GENERATED FILE.
-
-use crate::*;
-{}
-",
-            gen_type_aliases(&lsp_def)
-        ),
-    )?;
-
-    fs::write(
-        "./lspt/src/enums.rs",
-        format!(
-            "// DO NOT EDIT THIS GENERATED FILE.
-
+use super::{{HashMap, Union2, Union3, Union4,Uri}};
 use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 
 {}
-",
-            gen_enums(&lsp_def)
+
+{}
+{}
+{}
+{}",
+            gen_requests(&lsp_def),
+            gen_notifications(&lsp_def),
+            gen_structs(&lsp_def),
+            gen_enums(&lsp_def),
+            gen_type_aliases(&lsp_def),
         ),
     )?;
 

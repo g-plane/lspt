@@ -1,6 +1,4 @@
 max_width = 120
 ignore = [
-    "lspt/src/enums.rs",
-    "lspt/src/structs.rs",
-    "lspt/src/type_aliases.rs",
+    "lspt/src/generated.rs",
 ]
