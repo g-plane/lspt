@@ -3672,7 +3672,7 @@ pub struct LocationLink {
     pub target_selection_range: Range,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, Copy)]
 #[serde(rename_all = "camelCase")]
 /// A range in a text document expressed as (zero-based) start and end positions.
 ///

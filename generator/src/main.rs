@@ -131,10 +131,10 @@ fn gen_structs(lsp_def: &LspDef) -> String {
             } else {
                 ""
             };
-            let additional_derives = if structure.name == "Position" {
-                ", Copy, PartialOrd, Ord"
-            } else {
-                ""
+            let additional_derives = match &*structure.name {
+                "Position" => ", Copy, PartialOrd, Ord",
+                "Range" => ", Copy",
+                _ => "",
             };
             let _ = write!(
                 output,
