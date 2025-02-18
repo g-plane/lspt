@@ -3,7 +3,7 @@
 Types of [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
 
 This is library is inspired by [lsprotocol](https://github.com/microsoft/lsprotocol).
-The `Request` and `Notification` trait is inspired by [lsp-types](https://github.com/gluon-lang/lsp-types).
+The `Request` and `Notification` traits are inspired by [lsp-types](https://github.com/gluon-lang/lsp-types).
 
 ## Contributing
 
