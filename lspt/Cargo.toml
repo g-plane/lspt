@@ -20,3 +20,6 @@ indexmap = ["dep:indexmap"]
 proposed = []
 rustc-hash = ["dep:rustc-hash"]
 url = ["dep:url"]
+
+[package.metadata.docs.rs]
+features = ["proposed"]

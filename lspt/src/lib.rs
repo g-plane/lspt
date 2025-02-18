@@ -1,3 +1,4 @@
+#![doc = include_str!("../README.md")]
 #![allow(rustdoc::bare_urls)]
 #![allow(rustdoc::invalid_html_tags)]
 
