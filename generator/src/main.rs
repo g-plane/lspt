@@ -16,30 +16,69 @@ fn main() -> anyhow::Result<()> {
         .into_json::<LspDef>()?;
 
     fs::write(
-        "./lspt/src/generated.rs",
+        "./lspt/src/generated/request.rs",
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use super::{{HashMap, Union2, Union3, Union4, Uri}};
-use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
+use crate::*;
 
 pub trait Request {{
     const METHOD: &'static str;
     type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }}
-{}
+{}",
+            gen_requests(&lsp_def),
+        ),
+    )?;
+
+    fs::write(
+        "./lspt/src/generated/notification.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use crate::*;
+
 pub trait Notification {{
     const METHOD: &'static str;
     type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }}
-{}
-{}
-{}
 {}",
-            gen_requests(&lsp_def),
             gen_notifications(&lsp_def),
+        ),
+    )?;
+
+    fs::write(
+        "./lspt/src/generated/structs.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use crate::*;
+use serde::{{Deserialize, Serialize}};
+{}",
             gen_structs(&lsp_def),
+        ),
+    )?;
+
+    fs::write(
+        "./lspt/src/generated/enums.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
+
+{}
+",
             gen_enums(&lsp_def),
+        ),
+    )?;
+
+    fs::write(
+        "./lspt/src/generated/type_aliases.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+use crate::*;
+{}",
             gen_type_aliases(&lsp_def),
         ),
     )?;
