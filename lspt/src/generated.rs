@@ -433,8 +433,8 @@ impl Request for ApplyWorkspaceEditRequest {
 }
 
 pub trait Notification {
-    type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
     const METHOD: &'static str;
+    type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }
 
 pub enum DidChangeWorkspaceFoldersNotification {}
