@@ -1,6 +1,7 @@
 // DO NOT EDIT THIS GENERATED FILE.
 
-use crate::*;
+use serde::Serialize;
+use super::*;
 
 pub trait Notification {
     const METHOD: &'static str;

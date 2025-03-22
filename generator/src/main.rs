@@ -20,7 +20,8 @@ fn main() -> anyhow::Result<()> {
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use crate::*;
+use serde::Serialize;
+use super::*;
 
 pub trait Request {{
     const METHOD: &'static str;
@@ -36,7 +37,8 @@ pub trait Request {{
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use crate::*;
+use serde::Serialize;
+use super::*;
 
 pub trait Notification {{
     const METHOD: &'static str;
@@ -52,8 +54,9 @@ pub trait Notification {{
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use crate::*;
+use crate::{{HashMap, Union2, Union3, Union4, Uri}};
 use serde::{{Deserialize, Serialize}};
+use super::*;
 {}",
             gen_structs(&lsp_def),
         ),
@@ -77,7 +80,8 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use crate::*;
+use super::*;
+use crate::{{Union2, Union3}};
 {}",
             gen_type_aliases(&lsp_def),
         ),

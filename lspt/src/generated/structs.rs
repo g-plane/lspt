@@ -1,7 +1,8 @@
 // DO NOT EDIT THIS GENERATED FILE.
 
-use crate::*;
+use crate::{HashMap, Union2, Union3, Union4, Uri};
 use serde::{Deserialize, Serialize};
+use super::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
