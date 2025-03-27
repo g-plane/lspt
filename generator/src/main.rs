@@ -1,4 +1,5 @@
 use heck::{ToSnakeCase, ToUpperCamelCase};
+use indexmap::IndexSet;
 use itertools::Itertools;
 use serde::Deserialize;
 use std::{env, fmt::Write, fs};
@@ -20,12 +21,14 @@ fn main() -> anyhow::Result<()> {
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
+use crate::{{Union2, Union3, Union4}};
 use serde::Serialize;
 use super::*;
 
 pub trait Request {{
     const METHOD: &'static str;
     type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
+    type Result: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }}
 {}",
             gen_requests(&lsp_def),
@@ -99,12 +102,46 @@ fn gen_requests(lsp_def: &LspDef) -> String {
         if request.proposed {
             output.push_str("\n#[cfg(feature = \"proposed\")]");
         }
+        let mut optional = false;
+        let mut result_types = if let Some(TypeDef::Or { items }) = &request.result {
+            let filtered_items = items
+                .iter()
+                .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
+                .cloned()
+                .collect::<IndexSet<_>>();
+            if filtered_items.len() != items.len() {
+                optional = true;
+            }
+            filtered_items
+        } else {
+            request.result.iter().cloned().collect()
+        };
+        if let Some(TypeDef::Or { items }) = &request.partial_result {
+            result_types.extend(items.iter().cloned());
+        } else {
+            result_types.extend(request.partial_result.iter().cloned())
+        }
+        let result = if optional {
+            format!(
+                "Option<{}>",
+                gen_type_def(&TypeDef::Or {
+                    items: result_types.into_iter().collect()
+                })
+            )
+        } else if matches!(request.result, Some(TypeDef::Base { name: BaseType::Null }) | None) {
+            "()".into()
+        } else {
+            gen_type_def(&TypeDef::Or {
+                items: result_types.into_iter().collect(),
+            })
+        };
         let _ = write!(
             output,
             "
 impl Request for {} {{
     const METHOD: &'static str = \"{}\";
     type Params = {};
+    type Result = {result};
 }}
 ",
             request.type_name,
@@ -550,6 +587,8 @@ struct Request {
     method: String,
     type_name: String,
     params: Option<TypeRef>,
+    result: Option<TypeDef>,
+    partial_result: Option<TypeDef>,
     #[serde(default)]
     proposed: bool,
 }
@@ -643,12 +682,12 @@ struct TypeAlias {
     documentation: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Hash)]
 struct TypeRef {
     name: String,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 enum TypeDef {
     Base {
@@ -674,7 +713,7 @@ enum TypeDef {
     StringLiteral,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq, Hash)]
 enum BaseType {
     #[serde(rename = "null")]
     Null,

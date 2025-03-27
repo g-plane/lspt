@@ -92,6 +92,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "heck",
+ "indexmap",
  "itertools",
  "serde",
  "ureq",
