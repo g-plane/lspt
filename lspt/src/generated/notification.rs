@@ -8,157 +8,157 @@ pub trait Notification {
     type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }
 
-pub enum DidChangeWorkspaceFoldersNotification {}
+pub enum DidChangeWorkspaceFolders {}
 impl Notification for DidChangeWorkspaceFoldersNotification {
     const METHOD: &'static str = "workspace/didChangeWorkspaceFolders";
     type Params = DidChangeWorkspaceFoldersParams;
 }
 
-pub enum WorkDoneProgressCancelNotification {}
+pub enum WorkDoneProgressCancel {}
 impl Notification for WorkDoneProgressCancelNotification {
     const METHOD: &'static str = "window/workDoneProgress/cancel";
     type Params = WorkDoneProgressCancelParams;
 }
 
-pub enum DidCreateFilesNotification {}
+pub enum DidCreateFiles {}
 impl Notification for DidCreateFilesNotification {
     const METHOD: &'static str = "workspace/didCreateFiles";
     type Params = CreateFilesParams;
 }
 
-pub enum DidRenameFilesNotification {}
+pub enum DidRenameFiles {}
 impl Notification for DidRenameFilesNotification {
     const METHOD: &'static str = "workspace/didRenameFiles";
     type Params = RenameFilesParams;
 }
 
-pub enum DidDeleteFilesNotification {}
+pub enum DidDeleteFiles {}
 impl Notification for DidDeleteFilesNotification {
     const METHOD: &'static str = "workspace/didDeleteFiles";
     type Params = DeleteFilesParams;
 }
 
-pub enum DidOpenNotebookDocumentNotification {}
+pub enum DidOpenNotebookDocument {}
 impl Notification for DidOpenNotebookDocumentNotification {
     const METHOD: &'static str = "notebookDocument/didOpen";
     type Params = DidOpenNotebookDocumentParams;
 }
 
-pub enum DidChangeNotebookDocumentNotification {}
+pub enum DidChangeNotebookDocument {}
 impl Notification for DidChangeNotebookDocumentNotification {
     const METHOD: &'static str = "notebookDocument/didChange";
     type Params = DidChangeNotebookDocumentParams;
 }
 
-pub enum DidSaveNotebookDocumentNotification {}
+pub enum DidSaveNotebookDocument {}
 impl Notification for DidSaveNotebookDocumentNotification {
     const METHOD: &'static str = "notebookDocument/didSave";
     type Params = DidSaveNotebookDocumentParams;
 }
 
-pub enum DidCloseNotebookDocumentNotification {}
+pub enum DidCloseNotebookDocument {}
 impl Notification for DidCloseNotebookDocumentNotification {
     const METHOD: &'static str = "notebookDocument/didClose";
     type Params = DidCloseNotebookDocumentParams;
 }
 
-pub enum InitializedNotification {}
+pub enum Initialized {}
 impl Notification for InitializedNotification {
     const METHOD: &'static str = "initialized";
     type Params = InitializedParams;
 }
 
-pub enum ExitNotification {}
+pub enum Exit {}
 impl Notification for ExitNotification {
     const METHOD: &'static str = "exit";
     type Params = ();
 }
 
-pub enum DidChangeConfigurationNotification {}
+pub enum DidChangeConfiguration {}
 impl Notification for DidChangeConfigurationNotification {
     const METHOD: &'static str = "workspace/didChangeConfiguration";
     type Params = DidChangeConfigurationParams;
 }
 
-pub enum ShowMessageNotification {}
+pub enum ShowMessage {}
 impl Notification for ShowMessageNotification {
     const METHOD: &'static str = "window/showMessage";
     type Params = ShowMessageParams;
 }
 
-pub enum LogMessageNotification {}
+pub enum LogMessage {}
 impl Notification for LogMessageNotification {
     const METHOD: &'static str = "window/logMessage";
     type Params = LogMessageParams;
 }
 
-pub enum TelemetryEventNotification {}
+pub enum TelemetryEvent {}
 impl Notification for TelemetryEventNotification {
     const METHOD: &'static str = "telemetry/event";
     type Params = serde_json::Value;
 }
 
-pub enum DidOpenTextDocumentNotification {}
+pub enum DidOpenTextDocument {}
 impl Notification for DidOpenTextDocumentNotification {
     const METHOD: &'static str = "textDocument/didOpen";
     type Params = DidOpenTextDocumentParams;
 }
 
-pub enum DidChangeTextDocumentNotification {}
+pub enum DidChangeTextDocument {}
 impl Notification for DidChangeTextDocumentNotification {
     const METHOD: &'static str = "textDocument/didChange";
     type Params = DidChangeTextDocumentParams;
 }
 
-pub enum DidCloseTextDocumentNotification {}
+pub enum DidCloseTextDocument {}
 impl Notification for DidCloseTextDocumentNotification {
     const METHOD: &'static str = "textDocument/didClose";
     type Params = DidCloseTextDocumentParams;
 }
 
-pub enum DidSaveTextDocumentNotification {}
+pub enum DidSaveTextDocument {}
 impl Notification for DidSaveTextDocumentNotification {
     const METHOD: &'static str = "textDocument/didSave";
     type Params = DidSaveTextDocumentParams;
 }
 
-pub enum WillSaveTextDocumentNotification {}
+pub enum WillSaveTextDocument {}
 impl Notification for WillSaveTextDocumentNotification {
     const METHOD: &'static str = "textDocument/willSave";
     type Params = WillSaveTextDocumentParams;
 }
 
-pub enum DidChangeWatchedFilesNotification {}
+pub enum DidChangeWatchedFiles {}
 impl Notification for DidChangeWatchedFilesNotification {
     const METHOD: &'static str = "workspace/didChangeWatchedFiles";
     type Params = DidChangeWatchedFilesParams;
 }
 
-pub enum PublishDiagnosticsNotification {}
+pub enum PublishDiagnostics {}
 impl Notification for PublishDiagnosticsNotification {
     const METHOD: &'static str = "textDocument/publishDiagnostics";
     type Params = PublishDiagnosticsParams;
 }
 
-pub enum SetTraceNotification {}
+pub enum SetTrace {}
 impl Notification for SetTraceNotification {
     const METHOD: &'static str = "$/setTrace";
     type Params = SetTraceParams;
 }
 
-pub enum LogTraceNotification {}
+pub enum LogTrace {}
 impl Notification for LogTraceNotification {
     const METHOD: &'static str = "$/logTrace";
     type Params = LogTraceParams;
 }
 
-pub enum CancelNotification {}
+pub enum Cancel {}
 impl Notification for CancelNotification {
     const METHOD: &'static str = "$/cancelRequest";
     type Params = CancelParams;
 }
 
-pub enum ProgressNotification {}
+pub enum Progress {}
 impl Notification for ProgressNotification {
     const METHOD: &'static str = "$/progress";
     type Params = ProgressParams;
