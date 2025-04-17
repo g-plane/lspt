@@ -98,11 +98,7 @@ fn gen_requests(lsp_def: &LspDef) -> String {
         if request.proposed {
             output.push_str("\n#[cfg(feature = \"proposed\")]");
         }
-        let _ = write!(
-            output,
-            "\npub enum {} {{}}",
-            request.type_name.trim_end_matches("Request")
-        );
+        let _ = write!(output, "\npub enum {} {{}}", request.type_name);
         if request.proposed {
             output.push_str("\n#[cfg(feature = \"proposed\")]");
         }
@@ -172,11 +168,7 @@ fn gen_notifications(lsp_def: &LspDef) -> String {
             if notification.proposed {
                 output.push_str("\n#[cfg(feature = \"proposed\")]");
             }
-            let _ = write!(
-                output,
-                "\npub enum {} {{}}",
-                notification.type_name.trim_end_matches("Notification")
-            );
+            let _ = write!(output, "\npub enum {} {{}}", notification.type_name);
             if notification.proposed {
                 output.push_str("\n#[cfg(feature = \"proposed\")]");
             }
