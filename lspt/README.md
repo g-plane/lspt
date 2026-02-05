@@ -14,8 +14,6 @@ enable the `url` feature and it will switch to `url::Url`.
 
 ## Hashmap Implementation
 
-By default, this library uses [`std::collections::HashMap`] as hashmap implementation.
+By default, this library uses [`rustc_hash::FxHashMap`] as hashmap implementation, but can be disabled.
 
-You can enable the `rustc-hash` feature for faster hashing,
-or enable the `indexmap` feature for preserve the order in map.
-Or, enable both of them.
+You can also enable the `indexmap` feature for preserve the order in map.
