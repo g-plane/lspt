@@ -239,12 +239,10 @@ fn gen_structs(lsp_def: &LspDef) -> String {
                 .iter()
                 .chain(structure.properties.iter())
                 .chain(get_mixins(structure, lsp_def).iter())
+                .filter(|property| !property.deprecated.is_some())
                 .fold(&mut output, |output, property| {
                     if property.proposed {
                         output.push_str("\n    #[cfg(feature = \"proposed\")]");
-                    }
-                    if let Some(deprecated) = &property.deprecated {
-                        let _ = write!(output, "\n    #[deprecated = \"{deprecated}\"]");
                     }
                     let mut name = property.name.to_snake_case();
                     if name == "type" {

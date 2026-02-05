@@ -1454,23 +1454,6 @@ pub struct InitializeParams {
     /// @since 3.16.0
     pub locale: Option<String>,
 
-    #[deprecated = "in favour of rootUri."]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The rootPath of the workspace. Is null
-    /// if no folder is open.
-    ///
-    /// @deprecated in favour of rootUri.
-    pub root_path: Option<String>,
-
-    #[deprecated = "in favour of workspaceFolders."]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The rootUri of the workspace. Is null if no
-    /// folder is open. If both `rootPath` and `rootUri` are set
-    /// `rootUri` wins.
-    ///
-    /// @deprecated in favour of workspaceFolders.
-    pub root_uri: Option<Uri>,
-
     /// The capabilities provided by the client (editor or tool)
     pub capabilities: ClientCapabilities,
 
@@ -1784,12 +1767,6 @@ pub struct CompletionItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A human-readable string that represents a doc-comment.
     pub documentation: Option<Union2<String, MarkupContent>>,
-
-    #[deprecated = "Use `tags` instead."]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Indicates if this item is deprecated.
-    /// @deprecated Use `tags` instead.
-    pub deprecated: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Select this item when showing.
@@ -2274,13 +2251,6 @@ pub struct SymbolInformation {
     /// symbols.
     pub container_name: Option<String>,
 
-    #[deprecated = "Use tags instead"]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Indicates if this symbol is deprecated.
-    ///
-    /// @deprecated Use tags instead
-    pub deprecated: Option<bool>,
-
     /// The location of this symbol. The location's range is used by a tool
     /// to reveal the location in the editor. If the symbol is selected in the
     /// tool the range's start information is used to position the cursor. So
@@ -2316,13 +2286,6 @@ pub struct DocumentSymbol {
     ///
     /// @since 3.16.0
     pub tags: Option<Vec<SymbolTag>>,
-
-    #[deprecated = "Use tags instead"]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Indicates if this symbol is deprecated.
-    ///
-    /// @deprecated Use tags instead
-    pub deprecated: Option<bool>,
 
     /// The range enclosing this symbol not including leading/trailing whitespace but everything else
     /// like comments. This information is typically used to determine if the clients cursor is
@@ -5287,13 +5250,6 @@ pub struct WorkspaceOptions {
 pub struct TextDocumentContentChangePartial {
     /// The range of the document that changed.
     pub range: Range,
-
-    #[deprecated = "use range instead."]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The optional length of the range that got replaced.
-    ///
-    /// @deprecated use range instead.
-    pub range_length: Option<u32>,
 
     /// The new text for the provided range.
     pub text: String,

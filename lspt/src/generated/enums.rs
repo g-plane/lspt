@@ -1144,7 +1144,6 @@ pub enum MarkupKind {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 /// Predefined Language kinds
 /// @since 3.18.0
-/// @proposed
 pub enum LanguageKind {
     #[serde(rename = "abap")]
     Abap,
