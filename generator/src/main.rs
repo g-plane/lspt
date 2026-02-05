@@ -147,11 +147,7 @@ impl Request for {} {{
             request.type_name,
             request.method,
             if let Some(TypeRef { name }) = &request.params {
-                if name == "LSPAny" {
-                    "serde_json::Value"
-                } else {
-                    name
-                }
+                if name == "LSPAny" { "serde_json::Value" } else { name }
             } else {
                 "()"
             }
@@ -183,11 +179,7 @@ impl Notification for {} {{
                 notification.type_name,
                 notification.method,
                 if let Some(TypeRef { name }) = &notification.params {
-                    if name == "LSPAny" {
-                        "serde_json::Value"
-                    } else {
-                        name
-                    }
+                    if name == "LSPAny" { "serde_json::Value" } else { name }
                 } else {
                     "()"
                 }

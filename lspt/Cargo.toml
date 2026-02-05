@@ -5,7 +5,7 @@ description = "Language Server Protocol (LSP) types made easy."
 authors = ["Pig Fang <g-plane@hotmail.com>"]
 repository = "https://github.com/g-plane/lspt"
 license = "MIT"
-edition = "2021"
+edition = "2024"
 keywords = ["lsp"]
 
 [dependencies]
