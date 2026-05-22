@@ -30,7 +30,9 @@ pub trait Request {{
     type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
     type Result: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }}
+{}
 {}",
+            gen_request_macros(&lsp_def),
             gen_requests(&lsp_def),
         ),
     )?;
@@ -47,7 +49,9 @@ pub trait Notification {{
     const METHOD: &'static str;
     type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }}
+{}
 {}",
+            gen_notification_macros(&lsp_def),
             gen_notifications(&lsp_def),
         ),
     )?;
@@ -91,6 +95,76 @@ use crate::{{Union2, Union3}};
     )?;
 
     Ok(())
+}
+
+fn gen_request_macros(lsp_def: &LspDef) -> String {
+    let stable_arms = gen_method_macro_arms(
+        lsp_def
+            .requests
+            .iter()
+            .filter(|request| !request.proposed)
+            .map(|request| (&request.method, &request.type_name)),
+        "request",
+    );
+    let all_arms = gen_method_macro_arms(
+        lsp_def
+            .requests
+            .iter()
+            .map(|request| (&request.method, &request.type_name)),
+        "request",
+    );
+
+    format!(
+        r#"
+#[cfg(all(feature = "macros", not(feature = "proposed")))]
+#[macro_export]
+macro_rules! lsp_request {{
+{stable_arms}}}
+
+#[cfg(all(feature = "macros", feature = "proposed"))]
+#[macro_export]
+macro_rules! lsp_request {{
+{all_arms}}}
+"#
+    )
+}
+
+fn gen_notification_macros(lsp_def: &LspDef) -> String {
+    let stable_arms = gen_method_macro_arms(
+        lsp_def
+            .notifications
+            .iter()
+            .filter(|notification| !notification.proposed)
+            .map(|notification| (&notification.method, &notification.type_name)),
+        "notification",
+    );
+    let all_arms = gen_method_macro_arms(
+        lsp_def
+            .notifications
+            .iter()
+            .map(|notification| (&notification.method, &notification.type_name)),
+        "notification",
+    );
+
+    format!(
+        r#"
+#[cfg(all(feature = "macros", not(feature = "proposed")))]
+#[macro_export]
+macro_rules! lsp_notification {{
+{stable_arms}}}
+
+#[cfg(all(feature = "macros", feature = "proposed"))]
+#[macro_export]
+macro_rules! lsp_notification {{
+{all_arms}}}
+"#
+    )
+}
+
+fn gen_method_macro_arms<'a>(methods: impl Iterator<Item = (&'a String, &'a String)>, module: &str) -> String {
+    methods
+        .map(|(method, type_name)| format!("    (\"{method}\") => {{ $crate::{module}::{type_name} }};\n"))
+        .join("")
 }
 
 fn gen_requests(lsp_def: &LspDef) -> String {
