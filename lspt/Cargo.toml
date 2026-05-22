@@ -17,7 +17,8 @@ url = { version = "2.5", features = ["serde"], optional = true }
 
 [features]
 default = ["rustc-hash"]
+macros = []
 proposed = []
 
 [package.metadata.docs.rs]
-features = ["proposed"]
+features = ["macros", "proposed"]
