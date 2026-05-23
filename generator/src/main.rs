@@ -220,6 +220,7 @@ fn gen_requests(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
         } else {
             result_types.extend(request.partial_result.iter().cloned())
         }
+        let response_name = gen_request_response_name(&request.type_name);
         let result = if optional {
             format!(
                 "Option<{}>",
@@ -228,7 +229,7 @@ fn gen_requests(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                         items: result_types.into_iter().collect()
                     },
                     unions,
-                    &format!("{}Result", request.type_name),
+                    &response_name,
                     request.proposed,
                     None,
                 )
@@ -241,7 +242,7 @@ fn gen_requests(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                     items: result_types.into_iter().collect(),
                 },
                 unions,
-                &format!("{}Result", request.type_name),
+                &response_name,
                 request.proposed,
                 None,
             )
@@ -265,6 +266,10 @@ impl Request for {} {{
         );
         output
     })
+}
+
+fn gen_request_response_name(type_name: &str) -> String {
+    format!("{}Response", type_name.strip_suffix("Request").unwrap_or(type_name))
 }
 
 fn gen_notifications(lsp_def: &LspDef) -> String {

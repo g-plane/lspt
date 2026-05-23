@@ -198,7 +198,7 @@ pub enum NotebookDocumentFilter {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ImplementationRequestResult {
+pub enum ImplementationResponse {
     Definition(Definition),
     DefinitionLinkList(Vec<DefinitionLink>),
     LocationList(Vec<Location>),
@@ -206,7 +206,7 @@ pub enum ImplementationRequestResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum TypeDefinitionRequestResult {
+pub enum TypeDefinitionResponse {
     Definition(Definition),
     DefinitionLinkList(Vec<DefinitionLink>),
     LocationList(Vec<Location>),
@@ -214,7 +214,7 @@ pub enum TypeDefinitionRequestResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DeclarationRequestResult {
+pub enum DeclarationResponse {
     Declaration(Declaration),
     DeclarationLinkList(Vec<DeclarationLink>),
     LocationList(Vec<Location>),
@@ -222,14 +222,14 @@ pub enum DeclarationRequestResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum SemanticTokensRequestResult {
+pub enum SemanticTokensResponse {
     SemanticTokens(SemanticTokens),
     SemanticTokensPartialResult(SemanticTokensPartialResult),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum SemanticTokensDeltaRequestResult {
+pub enum SemanticTokensDeltaResponse {
     SemanticTokens(SemanticTokens),
     SemanticTokensDelta(SemanticTokensDelta),
     SemanticTokensPartialResult(SemanticTokensPartialResult),
@@ -238,21 +238,21 @@ pub enum SemanticTokensDeltaRequestResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum SemanticTokensRangeRequestResult {
+pub enum SemanticTokensRangeResponse {
     SemanticTokens(SemanticTokens),
     SemanticTokensPartialResult(SemanticTokensPartialResult),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DocumentDiagnosticRequestResult {
+pub enum DocumentDiagnosticResponse {
     DocumentDiagnosticReport(DocumentDiagnosticReport),
     DocumentDiagnosticReportPartialResult(DocumentDiagnosticReportPartialResult),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum WorkspaceDiagnosticRequestResult {
+pub enum WorkspaceDiagnosticResponse {
     WorkspaceDiagnosticReport(WorkspaceDiagnosticReport),
     WorkspaceDiagnosticReportPartialResult(WorkspaceDiagnosticReportPartialResult),
 }
@@ -260,7 +260,7 @@ pub enum WorkspaceDiagnosticRequestResult {
 #[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum InlineCompletionRequestResult {
+pub enum InlineCompletionResponse {
     /// `InlineCompletionList`.
     List(InlineCompletionList),
     /// `InlineCompletionItemList`.
@@ -269,7 +269,7 @@ pub enum InlineCompletionRequestResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CompletionRequestResult {
+pub enum CompletionResponse {
     /// `CompletionItemList`.
     ItemList(Vec<CompletionItem>),
     /// `CompletionList`.
@@ -278,7 +278,7 @@ pub enum CompletionRequestResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DefinitionRequestResult {
+pub enum DefinitionResponse {
     Definition(Definition),
     DefinitionLinkList(Vec<DefinitionLink>),
     LocationList(Vec<Location>),
@@ -286,21 +286,21 @@ pub enum DefinitionRequestResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DocumentSymbolRequestResult {
+pub enum DocumentSymbolResponse {
     SymbolInformationList(Vec<SymbolInformation>),
     DocumentSymbolList(Vec<DocumentSymbol>),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CodeActionRequestResultItem {
+pub enum CodeActionResponseItem {
     Command(Command),
     CodeAction(CodeAction),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum WorkspaceSymbolRequestResult {
+pub enum WorkspaceSymbolResponse {
     SymbolInformationList(Vec<SymbolInformation>),
     WorkspaceSymbolList(Vec<WorkspaceSymbol>),
 }

@@ -157,14 +157,14 @@ pub enum ImplementationRequest {}
 impl Request for ImplementationRequest {
     const METHOD: &'static str = "textDocument/implementation";
     type Params = ImplementationParams;
-    type Result = Option<ImplementationRequestResult>;
+    type Result = Option<ImplementationResponse>;
 }
 
 pub enum TypeDefinitionRequest {}
 impl Request for TypeDefinitionRequest {
     const METHOD: &'static str = "textDocument/typeDefinition";
     type Params = TypeDefinitionParams;
-    type Result = Option<TypeDefinitionRequestResult>;
+    type Result = Option<TypeDefinitionResponse>;
 }
 
 pub enum WorkspaceFoldersRequest {}
@@ -215,7 +215,7 @@ pub enum DeclarationRequest {}
 impl Request for DeclarationRequest {
     const METHOD: &'static str = "textDocument/declaration";
     type Params = DeclarationParams;
-    type Result = Option<DeclarationRequestResult>;
+    type Result = Option<DeclarationResponse>;
 }
 
 pub enum SelectionRangeRequest {}
@@ -257,21 +257,21 @@ pub enum SemanticTokensRequest {}
 impl Request for SemanticTokensRequest {
     const METHOD: &'static str = "textDocument/semanticTokens/full";
     type Params = SemanticTokensParams;
-    type Result = Option<SemanticTokensRequestResult>;
+    type Result = Option<SemanticTokensResponse>;
 }
 
 pub enum SemanticTokensDeltaRequest {}
 impl Request for SemanticTokensDeltaRequest {
     const METHOD: &'static str = "textDocument/semanticTokens/full/delta";
     type Params = SemanticTokensDeltaParams;
-    type Result = Option<SemanticTokensDeltaRequestResult>;
+    type Result = Option<SemanticTokensDeltaResponse>;
 }
 
 pub enum SemanticTokensRangeRequest {}
 impl Request for SemanticTokensRangeRequest {
     const METHOD: &'static str = "textDocument/semanticTokens/range";
     type Params = SemanticTokensRangeParams;
-    type Result = Option<SemanticTokensRangeRequestResult>;
+    type Result = Option<SemanticTokensRangeResponse>;
 }
 
 pub enum SemanticTokensRefreshRequest {}
@@ -383,14 +383,14 @@ pub enum DocumentDiagnosticRequest {}
 impl Request for DocumentDiagnosticRequest {
     const METHOD: &'static str = "textDocument/diagnostic";
     type Params = DocumentDiagnosticParams;
-    type Result = DocumentDiagnosticRequestResult;
+    type Result = DocumentDiagnosticResponse;
 }
 
 pub enum WorkspaceDiagnosticRequest {}
 impl Request for WorkspaceDiagnosticRequest {
     const METHOD: &'static str = "workspace/diagnostic";
     type Params = WorkspaceDiagnosticParams;
-    type Result = WorkspaceDiagnosticRequestResult;
+    type Result = WorkspaceDiagnosticResponse;
 }
 
 pub enum DiagnosticRefreshRequest {}
@@ -406,7 +406,7 @@ pub enum InlineCompletionRequest {}
 impl Request for InlineCompletionRequest {
     const METHOD: &'static str = "textDocument/inlineCompletion";
     type Params = InlineCompletionParams;
-    type Result = Option<InlineCompletionRequestResult>;
+    type Result = Option<InlineCompletionResponse>;
 }
 
 #[cfg(feature = "proposed")]
@@ -473,7 +473,7 @@ pub enum CompletionRequest {}
 impl Request for CompletionRequest {
     const METHOD: &'static str = "textDocument/completion";
     type Params = CompletionParams;
-    type Result = Option<CompletionRequestResult>;
+    type Result = Option<CompletionResponse>;
 }
 
 pub enum CompletionResolveRequest {}
@@ -501,7 +501,7 @@ pub enum DefinitionRequest {}
 impl Request for DefinitionRequest {
     const METHOD: &'static str = "textDocument/definition";
     type Params = DefinitionParams;
-    type Result = Option<DefinitionRequestResult>;
+    type Result = Option<DefinitionResponse>;
 }
 
 pub enum ReferencesRequest {}
@@ -522,14 +522,14 @@ pub enum DocumentSymbolRequest {}
 impl Request for DocumentSymbolRequest {
     const METHOD: &'static str = "textDocument/documentSymbol";
     type Params = DocumentSymbolParams;
-    type Result = Option<DocumentSymbolRequestResult>;
+    type Result = Option<DocumentSymbolResponse>;
 }
 
 pub enum CodeActionRequest {}
 impl Request for CodeActionRequest {
     const METHOD: &'static str = "textDocument/codeAction";
     type Params = CodeActionParams;
-    type Result = Option<Vec<CodeActionRequestResultItem>>;
+    type Result = Option<Vec<CodeActionResponseItem>>;
 }
 
 pub enum CodeActionResolveRequest {}
@@ -543,7 +543,7 @@ pub enum WorkspaceSymbolRequest {}
 impl Request for WorkspaceSymbolRequest {
     const METHOD: &'static str = "workspace/symbol";
     type Params = WorkspaceSymbolParams;
-    type Result = Option<WorkspaceSymbolRequestResult>;
+    type Result = Option<WorkspaceSymbolResponse>;
 }
 
 pub enum WorkspaceSymbolResolveRequest {}
