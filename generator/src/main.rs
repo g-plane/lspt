@@ -659,6 +659,7 @@ struct UnionDef {
 
 struct UnionVariant {
     name: String,
+    original_name: Option<String>,
     ty: String,
 }
 
@@ -705,7 +706,14 @@ fn gen_unions(unions: &UnionRegistry) -> String {
             let variants = union
                 .variants
                 .iter()
-                .map(|variant| format!("    {}({}),", variant.name, variant.ty))
+                .map(|variant| {
+                    let original_name = variant
+                        .original_name
+                        .as_ref()
+                        .map(|name| format!("    /// `{name}`.\n"))
+                        .unwrap_or_default();
+                    format!("{original_name}    {}({}),", variant.name, variant.ty)
+                })
                 .join("\n");
             format!(
                 "{}{}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]\npub enum {} {{\n{}\n}}",
@@ -748,23 +756,20 @@ fn gen_type_def(
             if items.len() == 1 {
                 gen_type_def(items.first().unwrap(), unions, name_hint, proposed, documentation)
             } else {
-                let variant_names = items
-                    .iter()
-                    .map(gen_variant_name)
-                    .enumerate()
-                    .fold(IndexSet::new(), |mut names, (index, name)| {
-                        let name = unique_variant_name(&names, name, index);
-                        names.insert(name);
-                        names
-                    })
-                    .into_iter()
-                    .collect::<Vec<_>>();
+                let original_variant_names = items.iter().map(gen_variant_name).collect::<Vec<_>>();
+                let variant_names = shorten_variant_names(original_variant_names.clone());
                 let variants = items
                     .iter()
+                    .zip(original_variant_names)
                     .zip(variant_names)
-                    .map(|(item, variant_name)| {
+                    .map(|((item, original_name), variant_name)| {
                         let ty = gen_type_def(item, unions, &format!("{name_hint}{variant_name}"), proposed, None);
-                        UnionVariant { name: variant_name, ty }
+                        let original_name = (original_name != variant_name).then_some(original_name);
+                        UnionVariant {
+                            name: variant_name,
+                            original_name,
+                            ty,
+                        }
                     })
                     .collect();
                 unions.push(name_hint.to_upper_camel_case(), variants, documentation, proposed)
@@ -835,6 +840,118 @@ fn gen_variant_name(type_def: &TypeDef) -> String {
         TypeDef::StringLiteral => "String".into(),
         _ => unreachable!(),
     }
+}
+
+fn shorten_variant_names(names: Vec<String>) -> Vec<String> {
+    let segments = names
+        .iter()
+        .map(|name| split_upper_camel_case(name))
+        .collect::<Vec<_>>();
+    let named_variant_indices = names
+        .iter()
+        .enumerate()
+        .filter_map(|(index, name)| (!is_base_variant_name(name)).then_some(index))
+        .collect::<Vec<_>>();
+    let candidate_segments = shortened_variant_segments(&segments, &named_variant_indices);
+
+    names
+        .into_iter()
+        .enumerate()
+        .fold(IndexSet::new(), |mut shortened_names, (index, name)| {
+            let candidate = candidate_segments
+                .as_ref()
+                .and_then(|segments| segments.get(&index))
+                .map(|segments| segments.concat())
+                .unwrap_or(name);
+            let name = unique_variant_name(&shortened_names, candidate, index);
+            shortened_names.insert(name);
+            shortened_names
+        })
+        .into_iter()
+        .collect()
+}
+
+fn shortened_variant_segments(
+    segments: &[Vec<String>],
+    indices: &[usize],
+) -> Option<std::collections::HashMap<usize, Vec<String>>> {
+    if indices.len() < 2 {
+        return None;
+    }
+
+    let selected = indices
+        .iter()
+        .map(|index| segments[*index].as_slice())
+        .collect::<Vec<_>>();
+    let prefix_len = common_prefix_len_all(&selected);
+    if prefix_len == 0 || selected.iter().any(|segments| prefix_len >= segments.len()) {
+        return None;
+    }
+
+    let mut shortened = indices
+        .iter()
+        .map(|index| (*index, segments[*index][prefix_len..].to_vec()))
+        .collect::<std::collections::HashMap<_, _>>();
+
+    let selected = shortened.values().map(Vec::as_slice).collect::<Vec<_>>();
+    let suffix_len = common_suffix_len_all(&selected);
+    if suffix_len >= 2 && selected.iter().all(|segments| suffix_len < segments.len()) {
+        for segments in shortened.values_mut() {
+            segments.truncate(segments.len() - suffix_len);
+        }
+    }
+
+    Some(shortened)
+}
+
+fn split_upper_camel_case(name: &str) -> Vec<String> {
+    let chars = name.char_indices().collect::<Vec<_>>();
+    let mut segments = Vec::new();
+    let mut segment_start = 0;
+
+    for (index, &(byte_index, ch)) in chars.iter().enumerate().skip(1) {
+        let previous = chars[index - 1].1;
+        let next = chars.get(index + 1).map(|(_, ch)| *ch);
+        if ch.is_uppercase() && (!previous.is_uppercase() || next.is_some_and(char::is_lowercase)) {
+            segments.push(name[segment_start..byte_index].to_string());
+            segment_start = byte_index;
+        }
+    }
+
+    segments.push(name[segment_start..].to_string());
+    segments
+}
+
+fn common_prefix_len_all(items: &[&[String]]) -> usize {
+    let Some(first) = items.first() else {
+        return 0;
+    };
+
+    first
+        .iter()
+        .enumerate()
+        .take_while(|(index, segment)| items.iter().all(|item| item.get(*index) == Some(segment)))
+        .count()
+}
+
+fn common_suffix_len_all(items: &[&[String]]) -> usize {
+    let Some(first) = items.first() else {
+        return 0;
+    };
+
+    first
+        .iter()
+        .rev()
+        .enumerate()
+        .take_while(|(index, segment)| items.iter().all(|item| item.iter().rev().nth(*index) == Some(segment)))
+        .count()
+}
+
+fn is_base_variant_name(name: &str) -> bool {
+    matches!(
+        name,
+        "Boolean" | "Decimal" | "DocumentUri" | "Integer" | "Null" | "String" | "UInteger" | "Uri"
+    )
 }
 
 fn unique_variant_name(names: &IndexSet<String>, name: String, index: usize) -> String {
