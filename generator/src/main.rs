@@ -2,7 +2,16 @@ use heck::{ToSnakeCase, ToUpperCamelCase};
 use indexmap::IndexSet;
 use itertools::Itertools;
 use serde::Deserialize;
-use std::{env, fmt::Write, fs};
+use std::{env, fmt::Write, fs, process::Command};
+
+const GENERATED_FILES: &[&str] = &[
+    "./lspt/src/generated/request.rs",
+    "./lspt/src/generated/notification.rs",
+    "./lspt/src/generated/structs.rs",
+    "./lspt/src/generated/enums.rs",
+    "./lspt/src/generated/unions.rs",
+    "./lspt/src/generated/type_aliases.rs",
+];
 
 fn main() -> anyhow::Result<()> {
     let agent = if let Ok(proxy) = env::var("https_proxy") {
@@ -15,13 +24,20 @@ fn main() -> anyhow::Result<()> {
         .get("https://raw.githubusercontent.com/microsoft/lsprotocol/refs/heads/main/generator/lsp.json")
         .call()?
         .into_json::<LspDef>()?;
+    let mut unions = UnionRegistry::default();
+
+    let type_aliases = gen_type_aliases(&lsp_def, &mut unions);
+    let requests = gen_requests(&lsp_def, &mut unions);
+    let notifications = gen_notifications(&lsp_def);
+    let structs = gen_structs(&lsp_def, &mut unions);
+    let enums = gen_enums(&lsp_def);
+    let unions = gen_unions(&unions);
 
     fs::write(
         "./lspt/src/generated/request.rs",
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use crate::{{Union2, Union3, Union4}};
 use serde::Serialize;
 use super::*;
 
@@ -33,7 +49,7 @@ pub trait Request {{
 {}
 {}",
             gen_request_macros(&lsp_def),
-            gen_requests(&lsp_def),
+            requests,
         ),
     )?;
 
@@ -52,7 +68,7 @@ pub trait Notification {{
 {}
 {}",
             gen_notification_macros(&lsp_def),
-            gen_notifications(&lsp_def),
+            notifications,
         ),
     )?;
 
@@ -61,11 +77,11 @@ pub trait Notification {{
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use crate::{{HashMap, Union2, Union3, Union4, Uri}};
+use crate::{{HashMap, Uri}};
 use serde::{{Deserialize, Serialize}};
 use super::*;
 {}",
-            gen_structs(&lsp_def),
+            structs,
         ),
     )?;
 
@@ -78,7 +94,26 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 
 {}
 ",
-            gen_enums(&lsp_def),
+            enums,
+        ),
+    )?;
+
+    fs::write(
+        "./lspt/src/generated/unions.rs",
+        format!(
+            "// DO NOT EDIT THIS GENERATED FILE.
+
+#![allow(deprecated)]
+#![allow(clippy::doc_lazy_continuation)]
+#![allow(clippy::large_enum_variant)]
+#![allow(rustdoc::invalid_codeblock_attributes)]
+#![allow(unused_imports)]
+
+use crate::{{HashMap, Uri}};
+use serde::{{Deserialize, Serialize}};
+use super::*;
+{}",
+            unions,
         ),
     )?;
 
@@ -88,12 +123,19 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
             "// DO NOT EDIT THIS GENERATED FILE.
 
 use super::*;
-use crate::{{Union2, Union3}};
 {}",
-            gen_type_aliases(&lsp_def),
+            type_aliases,
         ),
     )?;
 
+    format_generated_files()?;
+
+    Ok(())
+}
+
+fn format_generated_files() -> anyhow::Result<()> {
+    let status = Command::new("rustfmt").args(GENERATED_FILES).status()?;
+    anyhow::ensure!(status.success(), "rustfmt failed to format generated files");
     Ok(())
 }
 
@@ -167,7 +209,7 @@ fn gen_method_macro_arms<'a>(methods: impl Iterator<Item = (&'a String, &'a Stri
         .join("")
 }
 
-fn gen_requests(lsp_def: &LspDef) -> String {
+fn gen_requests(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
     lsp_def.requests.iter().fold(String::new(), |mut output, request| {
         if request.proposed {
             output.push_str("\n#[cfg(feature = \"proposed\")]");
@@ -198,16 +240,28 @@ fn gen_requests(lsp_def: &LspDef) -> String {
         let result = if optional {
             format!(
                 "Option<{}>",
-                gen_type_def(&TypeDef::Or {
-                    items: result_types.into_iter().collect()
-                })
+                gen_type_def(
+                    &TypeDef::Or {
+                        items: result_types.into_iter().collect()
+                    },
+                    unions,
+                    &format!("{}Result", request.type_name),
+                    request.proposed,
+                    None,
+                )
             )
         } else if matches!(request.result, Some(TypeDef::Base { name: BaseType::Null }) | None) {
             "()".into()
         } else {
-            gen_type_def(&TypeDef::Or {
-                items: result_types.into_iter().collect(),
-            })
+            gen_type_def(
+                &TypeDef::Or {
+                    items: result_types.into_iter().collect(),
+                },
+                unions,
+                &format!("{}Result", request.type_name),
+                request.proposed,
+                None,
+            )
         };
         let _ = write!(
             output,
@@ -262,7 +316,7 @@ impl Notification for {} {{
         })
 }
 
-fn gen_structs(lsp_def: &LspDef) -> String {
+fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
     lsp_def
         .structures
         .iter()
@@ -305,7 +359,7 @@ fn gen_structs(lsp_def: &LspDef) -> String {
                 .iter()
                 .chain(structure.properties.iter())
                 .chain(get_mixins(structure, lsp_def).iter())
-                .filter(|property| !property.deprecated.is_some())
+                .filter(|property| property.deprecated.is_none())
                 .fold(&mut output, |output, property| {
                     if property.proposed {
                         output.push_str("\n    #[cfg(feature = \"proposed\")]");
@@ -332,7 +386,13 @@ fn gen_structs(lsp_def: &LspDef) -> String {
                     } else {
                         property.ty.clone()
                     };
-                    let mut ty = gen_type_def(&type_def);
+                    let mut ty = gen_type_def(
+                        &type_def,
+                        unions,
+                        &format!("{}{}", structure.name, property.name.to_upper_camel_case()),
+                        structure.proposed || property.proposed,
+                        None,
+                    );
                     match &type_def {
                         TypeDef::Ref(TypeRef { name }) if name == &structure.name => {
                             ty = format!("Box<{ty}>");
@@ -353,10 +413,6 @@ fn gen_structs(lsp_def: &LspDef) -> String {
             output.push_str("}\n");
             output
         })
-        .replace(
-            "Vec<Union3<TextEdit, AnnotatedTextEdit, SnippetTextEdit>>",
-            "Vec<Union2<TextEdit, AnnotatedTextEdit>>",
-        ) // hard-coded workaround
 }
 fn can_derive_default(structure: &Structure, lsp_def: &LspDef) -> bool {
     !structure
@@ -423,20 +479,24 @@ fn get_mixins(structure: &Structure, lsp_def: &LspDef) -> Vec<Property> {
         })
 }
 
-fn gen_type_aliases(lsp_def: &LspDef) -> String {
+fn gen_type_aliases(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
     lsp_def
         .type_aliases
         .iter()
         .filter(|type_alias| !type_alias.name.starts_with("LSP"))
         .fold(String::new(), |mut output, type_alias| {
-            output.push_str(&gen_doc(type_alias.documentation.as_deref(), 0));
-            let _ = write!(
-                output,
-                "\npub type {} = {};",
-                type_alias.name,
-                gen_type_def(&type_alias.ty)
+            let ty = gen_type_def(
+                &type_alias.ty,
+                unions,
+                &type_alias.name,
+                false,
+                type_alias.documentation.as_deref(),
             );
-            output.push('\n');
+            if !is_multi_union(&type_alias.ty) {
+                output.push_str(&gen_doc(type_alias.documentation.as_deref(), 0));
+                let _ = write!(output, "\npub type {} = {ty};", type_alias.name);
+                output.push('\n');
+            }
             output
         })
 }
@@ -584,7 +644,92 @@ impl<'de> Deserialize<'de> for {name} {{
         .join("\n\n")
 }
 
-fn gen_type_def(type_def: &TypeDef) -> String {
+#[derive(Default)]
+struct UnionRegistry {
+    names: IndexSet<String>,
+    definitions: Vec<UnionDef>,
+}
+
+struct UnionDef {
+    name: String,
+    variants: Vec<UnionVariant>,
+    documentation: Option<String>,
+    proposed: bool,
+}
+
+struct UnionVariant {
+    name: String,
+    ty: String,
+}
+
+impl UnionRegistry {
+    fn push(
+        &mut self,
+        name: String,
+        variants: Vec<UnionVariant>,
+        documentation: Option<&str>,
+        proposed: bool,
+    ) -> String {
+        let name = self.unique_name(name);
+        self.definitions.push(UnionDef {
+            name: name.clone(),
+            variants,
+            documentation: documentation.map(str::to_string),
+            proposed,
+        });
+        name
+    }
+
+    fn unique_name(&mut self, name: String) -> String {
+        if self.names.insert(name.clone()) {
+            return name;
+        }
+
+        for index in 2.. {
+            let candidate = format!("{name}{index}");
+            if self.names.insert(candidate.clone()) {
+                return candidate;
+            }
+        }
+
+        unreachable!()
+    }
+}
+
+fn gen_unions(unions: &UnionRegistry) -> String {
+    unions
+        .definitions
+        .iter()
+        .map(|union| {
+            let doc = gen_doc(union.documentation.as_deref(), 0);
+            let variants = union
+                .variants
+                .iter()
+                .map(|variant| format!("    {}({}),", variant.name, variant.ty))
+                .join("\n");
+            format!(
+                "{}{}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]\npub enum {} {{\n{}\n}}",
+                if union.proposed {
+                    "#[cfg(feature = \"proposed\")]\n"
+                } else {
+                    ""
+                },
+                doc,
+                if doc.is_empty() { "" } else { "\n" },
+                union.name,
+                variants,
+            )
+        })
+        .join("\n\n")
+}
+
+fn gen_type_def(
+    type_def: &TypeDef,
+    unions: &mut UnionRegistry,
+    name_hint: &str,
+    proposed: bool,
+    documentation: Option<&str>,
+) -> String {
     match type_def {
         TypeDef::Base { name } => gen_base_type(name).into(),
         TypeDef::Ref(TypeRef { name }) => match &**name {
@@ -593,20 +738,118 @@ fn gen_type_def(type_def: &TypeDef) -> String {
             name => name,
         }
         .into(),
-        TypeDef::Map { key, value } => format!("HashMap<{}, {}>", gen_type_def(key), gen_type_def(value)),
+        TypeDef::Map { key, value } => format!(
+            "HashMap<{}, {}>",
+            gen_type_def(key, unions, &format!("{name_hint}Key"), proposed, None),
+            gen_type_def(value, unions, &format!("{name_hint}Value"), proposed, None)
+        ),
         TypeDef::Or { items } => {
+            let items = normalize_union_items(items);
             if items.len() == 1 {
-                gen_type_def(items.first().unwrap())
+                gen_type_def(items.first().unwrap(), unions, name_hint, proposed, documentation)
             } else {
-                format!("Union{}<{}>", items.len(), items.iter().map(gen_type_def).join(", "))
+                let variant_names = items
+                    .iter()
+                    .map(gen_variant_name)
+                    .enumerate()
+                    .fold(IndexSet::new(), |mut names, (index, name)| {
+                        let name = unique_variant_name(&names, name, index);
+                        names.insert(name);
+                        names
+                    })
+                    .into_iter()
+                    .collect::<Vec<_>>();
+                let variants = items
+                    .iter()
+                    .zip(variant_names)
+                    .map(|(item, variant_name)| {
+                        let ty = gen_type_def(item, unions, &format!("{name_hint}{variant_name}"), proposed, None);
+                        UnionVariant { name: variant_name, ty }
+                    })
+                    .collect();
+                unions.push(name_hint.to_upper_camel_case(), variants, documentation, proposed)
             }
         }
-        TypeDef::Array { element } => format!("Vec<{}>", gen_type_def(element)),
-        TypeDef::Tuple { items } => format!("({})", items.iter().map(gen_type_def).join(", ")),
+        TypeDef::Array { element } => format!(
+            "Vec<{}>",
+            gen_type_def(element, unions, &format!("{name_hint}Item"), proposed, None)
+        ),
+        TypeDef::Tuple { items } => format!(
+            "({})",
+            items
+                .iter()
+                .enumerate()
+                .map(|(index, item)| gen_type_def(item, unions, &format!("{name_hint}Item{index}"), proposed, None))
+                .join(", ")
+        ),
         TypeDef::Literal => "serde_json::Value".into(),
-        TypeDef::StringLiteral { .. } => "String".into(),
+        TypeDef::StringLiteral => "String".into(),
         _ => unreachable!(),
     }
+}
+
+fn is_multi_union(type_def: &TypeDef) -> bool {
+    matches!(type_def, TypeDef::Or { items } if normalize_union_items(items).len() > 1)
+}
+
+fn normalize_union_items(items: &[TypeDef]) -> Vec<TypeDef> {
+    if items.len() == 3
+        && matches!(items.first(), Some(item) if is_ref(item, "TextEdit"))
+        && matches!(items.get(1), Some(item) if is_ref(item, "AnnotatedTextEdit"))
+        && matches!(items.get(2), Some(item) if is_ref(item, "SnippetTextEdit"))
+    {
+        return items[..2].to_vec();
+    }
+
+    items.to_vec()
+}
+
+fn is_ref(type_def: &TypeDef, expected: &str) -> bool {
+    matches!(type_def, TypeDef::Ref(TypeRef { name }) if name == expected)
+}
+
+fn gen_variant_name(type_def: &TypeDef) -> String {
+    match type_def {
+        TypeDef::Base { name } => match name {
+            BaseType::Null => "Null",
+            BaseType::Uinteger => "UInteger",
+            BaseType::Integer => "Integer",
+            BaseType::String => "String",
+            BaseType::Boolean => "Boolean",
+            BaseType::DocumentUri => "DocumentUri",
+            BaseType::Uri => "Uri",
+            BaseType::Decimal => "Decimal",
+        }
+        .into(),
+        TypeDef::Ref(TypeRef { name }) => match &**name {
+            "LSPAny" => "Value",
+            "LSPObject" => "Object",
+            name => name,
+        }
+        .to_upper_camel_case(),
+        TypeDef::Map { value, .. } => format!("{}Map", gen_variant_name(value)),
+        TypeDef::Or { .. } => "Union".into(),
+        TypeDef::Array { element } => format!("{}List", gen_variant_name(element)),
+        TypeDef::Tuple { .. } => "Tuple".into(),
+        TypeDef::Literal => "Object".into(),
+        TypeDef::StringLiteral => "String".into(),
+        _ => unreachable!(),
+    }
+}
+
+fn unique_variant_name(names: &IndexSet<String>, name: String, index: usize) -> String {
+    if !names.contains(&name) {
+        return name;
+    }
+
+    for suffix in 2.. {
+        let candidate = format!("{name}{suffix}");
+        if !names.contains(&candidate) {
+            return candidate;
+        }
+    }
+
+    format!("Variant{index}")
 }
 
 fn gen_base_type(base_type: &BaseType) -> &'static str {
