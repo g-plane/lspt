@@ -20,7 +20,8 @@ use super::*;
 #[serde(untagged)]
 pub enum Definition {
     Location(Location),
-    LocationList(Vec<Location>),
+    /// `LocationList`.
+    List(Vec<Location>),
 }
 
 
@@ -29,7 +30,8 @@ pub enum Definition {
 #[serde(untagged)]
 pub enum Declaration {
     Location(Location),
-    LocationList(Vec<Location>),
+    /// `LocationList`.
+    List(Vec<Location>),
 }
 
 
@@ -125,7 +127,8 @@ pub enum TextDocumentContentChangeEvent {
 #[serde(untagged)]
 pub enum MarkedString {
     String(String),
-    MarkedStringWithLanguage(MarkedStringWithLanguage),
+    /// `MarkedStringWithLanguage`.
+    WithLanguage(MarkedStringWithLanguage),
 }
 
 
@@ -224,37 +227,44 @@ pub enum DeclarationResponse {
 #[serde(untagged)]
 pub enum SemanticTokensResponse {
     SemanticTokens(SemanticTokens),
-    SemanticTokensPartialResult(SemanticTokensPartialResult),
+    /// `SemanticTokensPartialResult`.
+    PartialResult(SemanticTokensPartialResult),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SemanticTokensDeltaResponse {
     SemanticTokens(SemanticTokens),
-    SemanticTokensDelta(SemanticTokensDelta),
-    SemanticTokensPartialResult(SemanticTokensPartialResult),
-    SemanticTokensDeltaPartialResult(SemanticTokensDeltaPartialResult),
+    /// `SemanticTokensDelta`.
+    Delta(SemanticTokensDelta),
+    /// `SemanticTokensPartialResult`.
+    PartialResult(SemanticTokensPartialResult),
+    /// `SemanticTokensDeltaPartialResult`.
+    DeltaPartialResult(SemanticTokensDeltaPartialResult),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SemanticTokensRangeResponse {
     SemanticTokens(SemanticTokens),
-    SemanticTokensPartialResult(SemanticTokensPartialResult),
+    /// `SemanticTokensPartialResult`.
+    PartialResult(SemanticTokensPartialResult),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DocumentDiagnosticResponse {
     DocumentDiagnosticReport(DocumentDiagnosticReport),
-    DocumentDiagnosticReportPartialResult(DocumentDiagnosticReportPartialResult),
+    /// `DocumentDiagnosticReportPartialResult`.
+    PartialResult(DocumentDiagnosticReportPartialResult),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum WorkspaceDiagnosticResponse {
     WorkspaceDiagnosticReport(WorkspaceDiagnosticReport),
-    WorkspaceDiagnosticReportPartialResult(WorkspaceDiagnosticReportPartialResult),
+    /// `WorkspaceDiagnosticReportPartialResult`.
+    PartialResult(WorkspaceDiagnosticReportPartialResult),
 }
 
 #[cfg(feature = "proposed")]
@@ -316,7 +326,8 @@ pub enum SemanticTokensRegistrationOptionsRange {
 #[serde(untagged)]
 pub enum SemanticTokensRegistrationOptionsFull {
     Boolean(bool),
-    SemanticTokensFullDelta(SemanticTokensFullDelta),
+    /// `SemanticTokensFullDelta`.
+    FullDelta(SemanticTokensFullDelta),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -332,7 +343,8 @@ pub enum WorkspaceEditDocumentChangesItem {
 #[serde(untagged)]
 pub enum InlayHintLabel {
     String(String),
-    InlayHintLabelPartList(Vec<InlayHintLabelPart>),
+    /// `InlayHintLabelPartList`.
+    PartList(Vec<InlayHintLabelPart>),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -344,9 +356,11 @@ pub enum InlayHintTooltip {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DocumentDiagnosticReportPartialResultRelatedDocumentsValue {
-    FullDocumentDiagnosticReport(FullDocumentDiagnosticReport),
-    UnchangedDocumentDiagnosticReport(UnchangedDocumentDiagnosticReport),
+pub enum RelatedDocumentDiagnosticReport {
+    /// `FullDocumentDiagnosticReport`.
+    Full(FullDocumentDiagnosticReport),
+    /// `UnchangedDocumentDiagnosticReport`.
+    Unchanged(UnchangedDocumentDiagnosticReport),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -399,7 +413,8 @@ pub enum HoverContents {
 #[serde(untagged)]
 pub enum WorkspaceSymbolLocation {
     Location(Location),
-    LocationUriOnly(LocationUriOnly),
+    /// `LocationUriOnly`.
+    UriOnly(LocationUriOnly),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -420,7 +435,8 @@ pub enum SemanticTokensOptionsRange {
 #[serde(untagged)]
 pub enum SemanticTokensOptionsFull {
     Boolean(bool),
-    SemanticTokensFullDelta(SemanticTokensFullDelta),
+    /// `SemanticTokensFullDelta`.
+    FullDelta(SemanticTokensFullDelta),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -439,20 +455,6 @@ pub enum InlayHintLabelPartTooltip {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum RelatedFullDocumentDiagnosticReportRelatedDocumentsValue {
-    FullDocumentDiagnosticReport(FullDocumentDiagnosticReport),
-    UnchangedDocumentDiagnosticReport(UnchangedDocumentDiagnosticReport),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum RelatedUnchangedDocumentDiagnosticReportRelatedDocumentsValue {
-    FullDocumentDiagnosticReport(FullDocumentDiagnosticReport),
-    UnchangedDocumentDiagnosticReport(UnchangedDocumentDiagnosticReport),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum NotebookDocumentSyncOptionsNotebookSelectorItem {
     /// `NotebookDocumentFilterWithNotebook`.
     Notebook(NotebookDocumentFilterWithNotebook),
@@ -462,7 +464,7 @@ pub enum NotebookDocumentSyncOptionsNotebookSelectorItem {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesTextDocumentSync {
+pub enum TextDocumentSync {
     /// `TextDocumentSyncOptions`.
     Options(TextDocumentSyncOptions),
     /// `TextDocumentSyncKind`.
@@ -471,7 +473,7 @@ pub enum ServerCapabilitiesTextDocumentSync {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesNotebookDocumentSync {
+pub enum NotebookDocumentSync {
     /// `NotebookDocumentSyncOptions`.
     Options(NotebookDocumentSyncOptions),
     /// `NotebookDocumentSyncRegistrationOptions`.
@@ -480,14 +482,15 @@ pub enum ServerCapabilitiesNotebookDocumentSync {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesHoverProvider {
+pub enum HoverProvider {
     Boolean(bool),
-    HoverOptions(HoverOptions),
+    /// `HoverOptions`.
+    Options(HoverOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesDeclarationProvider {
+pub enum DeclarationProvider {
     Boolean(bool),
     /// `DeclarationOptions`.
     Options(DeclarationOptions),
@@ -497,14 +500,15 @@ pub enum ServerCapabilitiesDeclarationProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesDefinitionProvider {
+pub enum DefinitionProvider {
     Boolean(bool),
-    DefinitionOptions(DefinitionOptions),
+    /// `DefinitionOptions`.
+    Options(DefinitionOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesTypeDefinitionProvider {
+pub enum TypeDefinitionProvider {
     Boolean(bool),
     /// `TypeDefinitionOptions`.
     Options(TypeDefinitionOptions),
@@ -514,7 +518,7 @@ pub enum ServerCapabilitiesTypeDefinitionProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesImplementationProvider {
+pub enum ImplementationProvider {
     Boolean(bool),
     /// `ImplementationOptions`.
     Options(ImplementationOptions),
@@ -524,35 +528,38 @@ pub enum ServerCapabilitiesImplementationProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesReferencesProvider {
+pub enum ReferencesProvider {
     Boolean(bool),
     ReferenceOptions(ReferenceOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesDocumentHighlightProvider {
+pub enum DocumentHighlightProvider {
     Boolean(bool),
-    DocumentHighlightOptions(DocumentHighlightOptions),
+    /// `DocumentHighlightOptions`.
+    Options(DocumentHighlightOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesDocumentSymbolProvider {
+pub enum DocumentSymbolProvider {
     Boolean(bool),
-    DocumentSymbolOptions(DocumentSymbolOptions),
+    /// `DocumentSymbolOptions`.
+    Options(DocumentSymbolOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesCodeActionProvider {
+pub enum CodeActionProvider {
     Boolean(bool),
-    CodeActionOptions(CodeActionOptions),
+    /// `CodeActionOptions`.
+    Options(CodeActionOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesColorProvider {
+pub enum ColorProvider {
     Boolean(bool),
     /// `DocumentColorOptions`.
     Options(DocumentColorOptions),
@@ -562,35 +569,39 @@ pub enum ServerCapabilitiesColorProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesWorkspaceSymbolProvider {
+pub enum WorkspaceSymbolProvider {
     Boolean(bool),
-    WorkspaceSymbolOptions(WorkspaceSymbolOptions),
+    /// `WorkspaceSymbolOptions`.
+    Options(WorkspaceSymbolOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesDocumentFormattingProvider {
+pub enum DocumentFormattingProvider {
     Boolean(bool),
-    DocumentFormattingOptions(DocumentFormattingOptions),
+    /// `DocumentFormattingOptions`.
+    Options(DocumentFormattingOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesDocumentRangeFormattingProvider {
+pub enum DocumentRangeFormattingProvider {
     Boolean(bool),
-    DocumentRangeFormattingOptions(DocumentRangeFormattingOptions),
+    /// `DocumentRangeFormattingOptions`.
+    Options(DocumentRangeFormattingOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesRenameProvider {
+pub enum RenameProvider {
     Boolean(bool),
-    RenameOptions(RenameOptions),
+    /// `RenameOptions`.
+    Options(RenameOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesFoldingRangeProvider {
+pub enum FoldingRangeProvider {
     Boolean(bool),
     /// `FoldingRangeOptions`.
     Options(FoldingRangeOptions),
@@ -600,7 +611,7 @@ pub enum ServerCapabilitiesFoldingRangeProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesSelectionRangeProvider {
+pub enum SelectionRangeProvider {
     Boolean(bool),
     /// `SelectionRangeOptions`.
     Options(SelectionRangeOptions),
@@ -610,7 +621,7 @@ pub enum ServerCapabilitiesSelectionRangeProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesCallHierarchyProvider {
+pub enum CallHierarchyProvider {
     Boolean(bool),
     /// `CallHierarchyOptions`.
     Options(CallHierarchyOptions),
@@ -620,7 +631,7 @@ pub enum ServerCapabilitiesCallHierarchyProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesLinkedEditingRangeProvider {
+pub enum LinkedEditingRangeProvider {
     Boolean(bool),
     /// `LinkedEditingRangeOptions`.
     Options(LinkedEditingRangeOptions),
@@ -630,7 +641,7 @@ pub enum ServerCapabilitiesLinkedEditingRangeProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesSemanticTokensProvider {
+pub enum SemanticTokensProvider {
     /// `SemanticTokensOptions`.
     Options(SemanticTokensOptions),
     /// `SemanticTokensRegistrationOptions`.
@@ -639,7 +650,7 @@ pub enum ServerCapabilitiesSemanticTokensProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesMonikerProvider {
+pub enum MonikerProvider {
     Boolean(bool),
     /// `MonikerOptions`.
     Options(MonikerOptions),
@@ -649,7 +660,7 @@ pub enum ServerCapabilitiesMonikerProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesTypeHierarchyProvider {
+pub enum TypeHierarchyProvider {
     Boolean(bool),
     /// `TypeHierarchyOptions`.
     Options(TypeHierarchyOptions),
@@ -659,7 +670,7 @@ pub enum ServerCapabilitiesTypeHierarchyProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesInlineValueProvider {
+pub enum InlineValueProvider {
     Boolean(bool),
     /// `InlineValueOptions`.
     Options(InlineValueOptions),
@@ -669,7 +680,7 @@ pub enum ServerCapabilitiesInlineValueProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesInlayHintProvider {
+pub enum InlayHintProvider {
     Boolean(bool),
     /// `InlayHintOptions`.
     Options(InlayHintOptions),
@@ -679,7 +690,7 @@ pub enum ServerCapabilitiesInlayHintProvider {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesDiagnosticProvider {
+pub enum DiagnosticProvider {
     /// `DiagnosticOptions`.
     Options(DiagnosticOptions),
     /// `DiagnosticRegistrationOptions`.
@@ -689,9 +700,10 @@ pub enum ServerCapabilitiesDiagnosticProvider {
 #[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ServerCapabilitiesInlineCompletionProvider {
+pub enum InlineCompletionProvider {
     Boolean(bool),
-    InlineCompletionOptions(InlineCompletionOptions),
+    /// `InlineCompletionOptions`.
+    Options(InlineCompletionOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -764,7 +776,8 @@ pub enum ParameterInformationDocumentation {
 #[serde(untagged)]
 pub enum NotebookCellTextDocumentFilterNotebook {
     String(String),
-    NotebookDocumentFilter(NotebookDocumentFilter),
+    /// `NotebookDocumentFilter`.
+    DocumentFilter(NotebookDocumentFilter),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -792,5 +805,6 @@ pub enum ClientSemanticTokensRequestOptionsRange {
 #[serde(untagged)]
 pub enum ClientSemanticTokensRequestOptionsFull {
     Boolean(bool),
-    ClientSemanticTokensRequestFullDelta(ClientSemanticTokensRequestFullDelta),
+    /// `ClientSemanticTokensRequestFullDelta`.
+    FullDelta(ClientSemanticTokensRequestFullDelta),
 }

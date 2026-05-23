@@ -1109,7 +1109,7 @@ pub struct DocumentDiagnosticParams {
 ///
 /// @since 3.17.0
 pub struct DocumentDiagnosticReportPartialResult {
-    pub related_documents: HashMap<Uri, DocumentDiagnosticReportPartialResultRelatedDocumentsValue>,
+    pub related_documents: HashMap<Uri, RelatedDocumentDiagnosticReport>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3609,7 +3609,7 @@ pub struct RelatedFullDocumentDiagnosticReport {
     /// a.cpp and result in errors in a header file b.hpp.
     ///
     /// @since 3.17.0
-    pub related_documents: Option<HashMap<Uri, RelatedFullDocumentDiagnosticReportRelatedDocumentsValue>>,
+    pub related_documents: Option<HashMap<Uri, RelatedDocumentDiagnosticReport>>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3636,7 +3636,7 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
     /// a.cpp and result in errors in a header file b.hpp.
     ///
     /// @since 3.17.0
-    pub related_documents: Option<HashMap<Uri, RelatedUnchangedDocumentDiagnosticReportRelatedDocumentsValue>>,
+    pub related_documents: Option<HashMap<Uri, RelatedDocumentDiagnosticReport>>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3949,13 +3949,13 @@ pub struct ServerCapabilities {
     /// Defines how text documents are synced. Is either a detailed structure
     /// defining each notification or for backwards compatibility the
     /// TextDocumentSyncKind number.
-    pub text_document_sync: Option<ServerCapabilitiesTextDocumentSync>,
+    pub text_document_sync: Option<TextDocumentSync>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Defines how notebook documents are synced.
     ///
     /// @since 3.17.0
-    pub notebook_document_sync: Option<ServerCapabilitiesNotebookDocumentSync>,
+    pub notebook_document_sync: Option<NotebookDocumentSync>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides completion support.
@@ -3963,7 +3963,7 @@ pub struct ServerCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides hover support.
-    pub hover_provider: Option<ServerCapabilitiesHoverProvider>,
+    pub hover_provider: Option<HoverProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides signature help support.
@@ -3971,37 +3971,37 @@ pub struct ServerCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides Goto Declaration support.
-    pub declaration_provider: Option<ServerCapabilitiesDeclarationProvider>,
+    pub declaration_provider: Option<DeclarationProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides goto definition support.
-    pub definition_provider: Option<ServerCapabilitiesDefinitionProvider>,
+    pub definition_provider: Option<DefinitionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides Goto Type Definition support.
-    pub type_definition_provider: Option<ServerCapabilitiesTypeDefinitionProvider>,
+    pub type_definition_provider: Option<TypeDefinitionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides Goto Implementation support.
-    pub implementation_provider: Option<ServerCapabilitiesImplementationProvider>,
+    pub implementation_provider: Option<ImplementationProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides find references support.
-    pub references_provider: Option<ServerCapabilitiesReferencesProvider>,
+    pub references_provider: Option<ReferencesProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document highlight support.
-    pub document_highlight_provider: Option<ServerCapabilitiesDocumentHighlightProvider>,
+    pub document_highlight_provider: Option<DocumentHighlightProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document symbol support.
-    pub document_symbol_provider: Option<ServerCapabilitiesDocumentSymbolProvider>,
+    pub document_symbol_provider: Option<DocumentSymbolProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides code actions. CodeActionOptions may only be
     /// specified if the client states that it supports
     /// `codeActionLiteralSupport` in its initial `initialize` request.
-    pub code_action_provider: Option<ServerCapabilitiesCodeActionProvider>,
+    pub code_action_provider: Option<CodeActionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides code lens.
@@ -4013,19 +4013,19 @@ pub struct ServerCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides color provider support.
-    pub color_provider: Option<ServerCapabilitiesColorProvider>,
+    pub color_provider: Option<ColorProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides workspace symbol support.
-    pub workspace_symbol_provider: Option<ServerCapabilitiesWorkspaceSymbolProvider>,
+    pub workspace_symbol_provider: Option<WorkspaceSymbolProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document formatting.
-    pub document_formatting_provider: Option<ServerCapabilitiesDocumentFormattingProvider>,
+    pub document_formatting_provider: Option<DocumentFormattingProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document range formatting.
-    pub document_range_formatting_provider: Option<ServerCapabilitiesDocumentRangeFormattingProvider>,
+    pub document_range_formatting_provider: Option<DocumentRangeFormattingProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document formatting on typing.
@@ -4035,15 +4035,15 @@ pub struct ServerCapabilities {
     /// The server provides rename support. RenameOptions may only be
     /// specified if the client states that it supports
     /// `prepareSupport` in its initial `initialize` request.
-    pub rename_provider: Option<ServerCapabilitiesRenameProvider>,
+    pub rename_provider: Option<RenameProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides folding provider support.
-    pub folding_range_provider: Option<ServerCapabilitiesFoldingRangeProvider>,
+    pub folding_range_provider: Option<FoldingRangeProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides selection range support.
-    pub selection_range_provider: Option<ServerCapabilitiesSelectionRangeProvider>,
+    pub selection_range_provider: Option<SelectionRangeProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides execute command support.
@@ -4053,49 +4053,49 @@ pub struct ServerCapabilities {
     /// The server provides call hierarchy support.
     ///
     /// @since 3.16.0
-    pub call_hierarchy_provider: Option<ServerCapabilitiesCallHierarchyProvider>,
+    pub call_hierarchy_provider: Option<CallHierarchyProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides linked editing range support.
     ///
     /// @since 3.16.0
-    pub linked_editing_range_provider: Option<ServerCapabilitiesLinkedEditingRangeProvider>,
+    pub linked_editing_range_provider: Option<LinkedEditingRangeProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides semantic tokens support.
     ///
     /// @since 3.16.0
-    pub semantic_tokens_provider: Option<ServerCapabilitiesSemanticTokensProvider>,
+    pub semantic_tokens_provider: Option<SemanticTokensProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides moniker support.
     ///
     /// @since 3.16.0
-    pub moniker_provider: Option<ServerCapabilitiesMonikerProvider>,
+    pub moniker_provider: Option<MonikerProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides type hierarchy support.
     ///
     /// @since 3.17.0
-    pub type_hierarchy_provider: Option<ServerCapabilitiesTypeHierarchyProvider>,
+    pub type_hierarchy_provider: Option<TypeHierarchyProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides inline values.
     ///
     /// @since 3.17.0
-    pub inline_value_provider: Option<ServerCapabilitiesInlineValueProvider>,
+    pub inline_value_provider: Option<InlineValueProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides inlay hints.
     ///
     /// @since 3.17.0
-    pub inlay_hint_provider: Option<ServerCapabilitiesInlayHintProvider>,
+    pub inlay_hint_provider: Option<InlayHintProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server has support for pull model diagnostics.
     ///
     /// @since 3.17.0
-    pub diagnostic_provider: Option<ServerCapabilitiesDiagnosticProvider>,
+    pub diagnostic_provider: Option<DiagnosticProvider>,
 
     #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4103,7 +4103,7 @@ pub struct ServerCapabilities {
     ///
     /// @since 3.18.0
     /// @proposed
-    pub inline_completion_provider: Option<ServerCapabilitiesInlineCompletionProvider>,
+    pub inline_completion_provider: Option<InlineCompletionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Workspace specific server capabilities.

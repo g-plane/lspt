@@ -201,52 +201,7 @@ fn gen_requests(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
         if request.proposed {
             output.push_str("\n#[cfg(feature = \"proposed\")]");
         }
-        let mut optional = false;
-        let mut result_types = if let Some(TypeDef::Or { items }) = &request.result {
-            let filtered_items = items
-                .iter()
-                .filter(|item| !matches!(item, TypeDef::Base { name: BaseType::Null }))
-                .cloned()
-                .collect::<IndexSet<_>>();
-            if filtered_items.len() != items.len() {
-                optional = true;
-            }
-            filtered_items
-        } else {
-            request.result.iter().cloned().collect()
-        };
-        if let Some(TypeDef::Or { items }) = &request.partial_result {
-            result_types.extend(items.iter().cloned());
-        } else {
-            result_types.extend(request.partial_result.iter().cloned())
-        }
-        let response_name = gen_request_response_name(&request.type_name);
-        let result = if optional {
-            format!(
-                "Option<{}>",
-                gen_type_def(
-                    &TypeDef::Or {
-                        items: result_types.into_iter().collect()
-                    },
-                    unions,
-                    &response_name,
-                    request.proposed,
-                    None,
-                )
-            )
-        } else if matches!(request.result, Some(TypeDef::Base { name: BaseType::Null }) | None) {
-            "()".into()
-        } else {
-            gen_type_def(
-                &TypeDef::Or {
-                    items: result_types.into_iter().collect(),
-                },
-                unions,
-                &response_name,
-                request.proposed,
-                None,
-            )
-        };
+        let result = gen_request_result(request, unions);
         let _ = write!(
             output,
             "
@@ -266,6 +221,51 @@ impl Request for {} {{
         );
         output
     })
+}
+
+fn gen_request_result(request: &Request, unions: &mut UnionRegistry) -> String {
+    let mut optional = false;
+    let mut result_types = IndexSet::new();
+    if let Some(result) = &request.result {
+        extend_result_types(result, &mut result_types, &mut optional);
+    }
+    if let Some(partial_result) = &request.partial_result {
+        extend_result_types(partial_result, &mut result_types, &mut optional);
+    }
+
+    if result_types.is_empty() {
+        return "()".into();
+    }
+
+    let response_name = gen_request_response_name(&request.type_name);
+    let result = gen_type_def(
+        &TypeDef::Or {
+            items: result_types.into_iter().collect(),
+        },
+        unions,
+        &UnionContext::request_response(&response_name),
+        request.proposed,
+        None,
+    );
+    if optional { format!("Option<{result}>") } else { result }
+}
+
+fn extend_result_types(type_def: &TypeDef, result_types: &mut IndexSet<TypeDef>, optional: &mut bool) {
+    match type_def {
+        TypeDef::Or { items } => {
+            for item in items {
+                if matches!(item, TypeDef::Base { name: BaseType::Null }) {
+                    *optional = true;
+                } else {
+                    result_types.insert(item.clone());
+                }
+            }
+        }
+        TypeDef::Base { name: BaseType::Null } => {}
+        type_def => {
+            result_types.insert(type_def.clone());
+        }
+    }
 }
 
 fn gen_request_response_name(type_name: &str) -> String {
@@ -377,7 +377,7 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                     let mut ty = gen_type_def(
                         &type_def,
                         unions,
-                        &format!("{}{}", structure.name, property.name.to_upper_camel_case()),
+                        &UnionContext::struct_field(&structure.name, &property.name),
                         structure.proposed || property.proposed,
                         None,
                     );
@@ -476,7 +476,7 @@ fn gen_type_aliases(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
             let ty = gen_type_def(
                 &type_alias.ty,
                 unions,
-                &type_alias.name,
+                &UnionContext::type_alias(&type_alias.name),
                 false,
                 type_alias.documentation.as_deref(),
             );
@@ -639,12 +639,14 @@ struct UnionRegistry {
 }
 
 struct UnionDef {
+    requested_name: String,
     name: String,
     variants: Vec<UnionVariant>,
     documentation: Option<String>,
     proposed: bool,
 }
 
+#[derive(Clone, PartialEq, Eq)]
 struct UnionVariant {
     name: String,
     original_name: Option<String>,
@@ -659,8 +661,19 @@ impl UnionRegistry {
         documentation: Option<&str>,
         proposed: bool,
     ) -> String {
-        let name = self.unique_name(name);
+        let requested_name = name;
+        if let Some(definition) = self
+            .definitions
+            .iter_mut()
+            .find(|definition| definition.requested_name == requested_name && definition.variants == variants)
+        {
+            definition.proposed &= proposed;
+            return definition.name.clone();
+        }
+
+        let name = self.unique_name(requested_name.clone());
         self.definitions.push(UnionDef {
+            requested_name,
             name: name.clone(),
             variants,
             documentation: documentation.map(str::to_string),
@@ -683,6 +696,103 @@ impl UnionRegistry {
 
         unreachable!()
     }
+}
+
+#[derive(Clone)]
+enum UnionContext {
+    TypeAlias(String),
+    RequestResponse(String),
+    StructField { parent: String, field: String },
+    MapKey(Box<UnionContext>),
+    MapValue(Box<UnionContext>),
+    ArrayItem(Box<UnionContext>),
+    TupleItem { parent: Box<UnionContext>, index: usize },
+    Variant { parent: Box<UnionContext>, name: String },
+}
+
+impl UnionContext {
+    fn type_alias(name: &str) -> Self {
+        Self::TypeAlias(name.into())
+    }
+
+    fn request_response(name: &str) -> Self {
+        Self::RequestResponse(name.into())
+    }
+
+    fn struct_field(parent: &str, field: &str) -> Self {
+        Self::StructField {
+            parent: parent.into(),
+            field: field.into(),
+        }
+    }
+
+    fn map_key(&self) -> Self {
+        Self::MapKey(Box::new(self.clone()))
+    }
+
+    fn map_value(&self) -> Self {
+        Self::MapValue(Box::new(self.clone()))
+    }
+
+    fn array_item(&self) -> Self {
+        Self::ArrayItem(Box::new(self.clone()))
+    }
+
+    fn tuple_item(&self, index: usize) -> Self {
+        Self::TupleItem {
+            parent: Box::new(self.clone()),
+            index,
+        }
+    }
+
+    fn variant(&self, name: &str) -> Self {
+        Self::Variant {
+            parent: Box::new(self.clone()),
+            name: name.into(),
+        }
+    }
+
+    fn union_name(&self) -> String {
+        match self {
+            Self::StructField { parent, field } if should_shorten_server_capabilities_field(parent, field) => {
+                field.to_upper_camel_case()
+            }
+            Self::MapValue(parent) if parent.is_related_diagnostic_documents() => {
+                "RelatedDocumentDiagnosticReport".into()
+            }
+            _ => self.fallback_name(),
+        }
+    }
+
+    fn fallback_name(&self) -> String {
+        match self {
+            Self::TypeAlias(name) | Self::RequestResponse(name) => name.to_upper_camel_case(),
+            Self::StructField { parent, field } => format!("{}{}", parent, field.to_upper_camel_case()),
+            Self::MapKey(parent) => format!("{}Key", parent.union_name()),
+            Self::MapValue(parent) => format!("{}Value", parent.union_name()),
+            Self::ArrayItem(parent) => format!("{}Item", parent.union_name()),
+            Self::TupleItem { parent, index } => format!("{}Item{index}", parent.union_name()),
+            Self::Variant { parent, name } => format!("{}{}", parent.union_name(), name),
+        }
+    }
+
+    fn is_related_diagnostic_documents(&self) -> bool {
+        matches!(
+            self,
+            Self::StructField { parent, field }
+                if field == "relatedDocuments"
+                    && matches!(
+                        parent.as_str(),
+                        "DocumentDiagnosticReportPartialResult"
+                            | "RelatedFullDocumentDiagnosticReport"
+                            | "RelatedUnchangedDocumentDiagnosticReport"
+                    )
+        )
+    }
+}
+
+fn should_shorten_server_capabilities_field(parent: &str, field: &str) -> bool {
+    parent == "ServerCapabilities" && (field.ends_with("Provider") || field.ends_with("Sync"))
 }
 
 fn gen_unions(unions: &UnionRegistry) -> String {
@@ -722,7 +832,7 @@ fn gen_unions(unions: &UnionRegistry) -> String {
 fn gen_type_def(
     type_def: &TypeDef,
     unions: &mut UnionRegistry,
-    name_hint: &str,
+    context: &UnionContext,
     proposed: bool,
     documentation: Option<&str>,
 ) -> String {
@@ -736,22 +846,23 @@ fn gen_type_def(
         .into(),
         TypeDef::Map { key, value } => format!(
             "HashMap<{}, {}>",
-            gen_type_def(key, unions, &format!("{name_hint}Key"), proposed, None),
-            gen_type_def(value, unions, &format!("{name_hint}Value"), proposed, None)
+            gen_type_def(key, unions, &context.map_key(), proposed, None),
+            gen_type_def(value, unions, &context.map_value(), proposed, None)
         ),
         TypeDef::Or { items } => {
             let items = normalize_union_items(items);
             if items.len() == 1 {
-                gen_type_def(items.first().unwrap(), unions, name_hint, proposed, documentation)
+                gen_type_def(items.first().unwrap(), unions, context, proposed, documentation)
             } else {
+                let union_name = context.union_name();
                 let original_variant_names = items.iter().map(gen_variant_name).collect::<Vec<_>>();
-                let variant_names = shorten_variant_names(original_variant_names.clone());
+                let variant_names = shorten_variant_names(original_variant_names.clone(), &union_name);
                 let variants = items
                     .iter()
                     .zip(original_variant_names)
                     .zip(variant_names)
                     .map(|((item, original_name), variant_name)| {
-                        let ty = gen_type_def(item, unions, &format!("{name_hint}{variant_name}"), proposed, None);
+                        let ty = gen_type_def(item, unions, &context.variant(&original_name), proposed, None);
                         let original_name = (original_name != variant_name).then_some(original_name);
                         UnionVariant {
                             name: variant_name,
@@ -760,19 +871,19 @@ fn gen_type_def(
                         }
                     })
                     .collect();
-                unions.push(name_hint.to_upper_camel_case(), variants, documentation, proposed)
+                unions.push(union_name, variants, documentation, proposed)
             }
         }
         TypeDef::Array { element } => format!(
             "Vec<{}>",
-            gen_type_def(element, unions, &format!("{name_hint}Item"), proposed, None)
+            gen_type_def(element, unions, &context.array_item(), proposed, None)
         ),
         TypeDef::Tuple { items } => format!(
             "({})",
             items
                 .iter()
                 .enumerate()
-                .map(|(index, item)| gen_type_def(item, unions, &format!("{name_hint}Item{index}"), proposed, None))
+                .map(|(index, item)| gen_type_def(item, unions, &context.tuple_item(index), proposed, None))
                 .join(", ")
         ),
         TypeDef::Literal => "serde_json::Value".into(),
@@ -830,7 +941,7 @@ fn gen_variant_name(type_def: &TypeDef) -> String {
     }
 }
 
-fn shorten_variant_names(names: Vec<String>) -> Vec<String> {
+fn shorten_variant_names(names: Vec<String>, enum_name: &str) -> Vec<String> {
     let segments = names
         .iter()
         .map(|name| split_upper_camel_case(name))
@@ -841,17 +952,20 @@ fn shorten_variant_names(names: Vec<String>) -> Vec<String> {
         .filter_map(|(index, name)| (!is_base_variant_name(name)).then_some(index))
         .collect::<Vec<_>>();
     let candidate_segments = shortened_variant_segments(&segments, &named_variant_indices);
+    let enum_segments = split_upper_camel_case(enum_name);
 
     names
         .into_iter()
         .enumerate()
         .fold(IndexSet::new(), |mut shortened_names, (index, name)| {
-            let candidate = candidate_segments
-                .as_ref()
-                .and_then(|segments| segments.get(&index))
-                .map(|segments| segments.concat())
-                .unwrap_or(name);
-            let name = unique_variant_name(&shortened_names, candidate, index);
+            let candidates = [
+                shortened_variant_against_enum(&segments[index], &enum_segments, named_variant_indices.len()),
+                candidate_segments
+                    .as_ref()
+                    .and_then(|segments| segments.get(&index))
+                    .map(|segments| segments.concat()),
+            ];
+            let name = choose_variant_name(&shortened_names, &name, candidates.into_iter().flatten(), index);
             shortened_names.insert(name);
             shortened_names
         })
@@ -872,13 +986,17 @@ fn shortened_variant_segments(
         .map(|index| segments[*index].as_slice())
         .collect::<Vec<_>>();
     let prefix_len = common_prefix_len_all(&selected);
-    if prefix_len == 0 || selected.iter().any(|segments| prefix_len >= segments.len()) {
-        return None;
-    }
-
     let mut shortened = indices
         .iter()
-        .map(|index| (*index, segments[*index][prefix_len..].to_vec()))
+        .map(|index| {
+            let segments = &segments[*index];
+            let start = if prefix_len > 0 && prefix_len < segments.len() {
+                prefix_len
+            } else {
+                0
+            };
+            (*index, segments[start..].to_vec())
+        })
         .collect::<std::collections::HashMap<_, _>>();
 
     let selected = shortened.values().map(Vec::as_slice).collect::<Vec<_>>();
@@ -889,7 +1007,28 @@ fn shortened_variant_segments(
         }
     }
 
-    Some(shortened)
+    shortened
+        .iter()
+        .any(|(index, shortened_segments)| shortened_segments.as_slice() != segments[*index].as_slice())
+        .then_some(shortened)
+}
+
+fn shortened_variant_against_enum(
+    segments: &[String],
+    enum_segments: &[String],
+    named_variant_count: usize,
+) -> Option<String> {
+    if named_variant_count != 1 || is_base_variant_name(&segments.concat()) {
+        return None;
+    }
+
+    let prefix_len = common_prefix_len(segments, enum_segments);
+    if prefix_len == 0 || prefix_len >= segments.len() {
+        return None;
+    }
+
+    let candidate = segments[prefix_len..].concat();
+    (!is_generic_variant_name(&candidate)).then_some(candidate)
 }
 
 fn split_upper_camel_case(name: &str) -> Vec<String> {
@@ -922,6 +1061,10 @@ fn common_prefix_len_all(items: &[&[String]]) -> usize {
         .count()
 }
 
+fn common_prefix_len(left: &[String], right: &[String]) -> usize {
+    left.iter().zip(right).take_while(|(left, right)| left == right).count()
+}
+
 fn common_suffix_len_all(items: &[&[String]]) -> usize {
     let Some(first) = items.first() else {
         return 0;
@@ -942,13 +1085,38 @@ fn is_base_variant_name(name: &str) -> bool {
     )
 }
 
-fn unique_variant_name(names: &IndexSet<String>, name: String, index: usize) -> String {
-    if !names.contains(&name) {
-        return name;
+fn is_generic_variant_name(name: &str) -> bool {
+    matches!(
+        name,
+        "Full"
+            | "Id"
+            | "Item"
+            | "Items"
+            | "Kind"
+            | "Label"
+            | "Object"
+            | "Params"
+            | "Range"
+            | "Result"
+            | "Tooltip"
+            | "Value"
+    )
+}
+
+fn choose_variant_name(
+    names: &IndexSet<String>,
+    original: &str,
+    candidates: impl IntoIterator<Item = String>,
+    index: usize,
+) -> String {
+    for candidate in candidates.into_iter().chain([original.to_string()]) {
+        if !candidate.is_empty() && !names.contains(&candidate) {
+            return candidate;
+        }
     }
 
     for suffix in 2.. {
-        let candidate = format!("{name}{suffix}");
+        let candidate = format!("{original}{suffix}");
         if !names.contains(&candidate) {
             return candidate;
         }
