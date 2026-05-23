@@ -543,11 +543,11 @@ pub struct SemanticTokensRegistrationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a specific range
     /// of a document.
-    pub range: Option<SemanticTokensRegistrationOptionsRange>,
+    pub range: Option<SemanticTokensRange>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a full document.
-    pub full: Option<SemanticTokensRegistrationOptionsFull>,
+    pub full: Option<SemanticTokensFull>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The id used to register the request. The id can be used to deregister
@@ -1215,7 +1215,7 @@ pub struct DidOpenNotebookDocumentParams {
 /// @since 3.17.0
 pub struct NotebookDocumentSyncRegistrationOptions {
     /// The notebooks to be synced
-    pub notebook_selector: Vec<NotebookDocumentSyncRegistrationOptionsNotebookSelectorItem>,
+    pub notebook_selector: Vec<NotebookSelectorItem>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether save notification should be forwarded to
@@ -1518,7 +1518,7 @@ pub struct DidChangeConfigurationParams {
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeConfigurationRegistrationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub section: Option<DidChangeConfigurationRegistrationOptionsSection>,
+    pub section: Option<DidChangeConfigurationSection>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -3222,11 +3222,11 @@ pub struct SemanticTokensOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a specific range
     /// of a document.
-    pub range: Option<SemanticTokensOptionsRange>,
+    pub range: Option<SemanticTokensRange>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a full document.
-    pub full: Option<SemanticTokensOptionsFull>,
+    pub full: Option<SemanticTokensFull>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub work_done_progress: Option<bool>,
@@ -3777,7 +3777,7 @@ pub struct TextDocumentItem {
 /// @since 3.17.0
 pub struct NotebookDocumentSyncOptions {
     /// The notebooks to be synced
-    pub notebook_selector: Vec<NotebookDocumentSyncOptionsNotebookSelectorItem>,
+    pub notebook_selector: Vec<NotebookSelectorItem>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether save notification should be forwarded to
@@ -5083,7 +5083,7 @@ pub struct NotebookDocumentFilterWithNotebook {
     /// The notebook to be synced If a string
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
-    pub notebook: NotebookDocumentFilterWithNotebookNotebook,
+    pub notebook: NotebookDocumentFilterNotebook,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The cells of the matching notebook to be synced.
@@ -5098,7 +5098,7 @@ pub struct NotebookDocumentFilterWithCells {
     /// The notebook to be synced If a string
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
-    pub notebook: Option<NotebookDocumentFilterWithCellsNotebook>,
+    pub notebook: Option<NotebookDocumentFilterNotebook>,
 
     /// The cells of the matching notebook to be synced.
     pub cells: Vec<NotebookCellLanguage>,
@@ -5214,7 +5214,7 @@ pub struct TextDocumentSyncOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// If present save notifications are sent to the server. If omitted the notification should not be
     /// sent.
-    pub save: Option<TextDocumentSyncOptionsSave>,
+    pub save: Option<TextDocumentSyncSave>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5241,7 +5241,7 @@ pub struct WorkspaceOptions {
     ///
     /// @since 3.18.0
     /// @proposed
-    pub text_document_content: Option<WorkspaceOptionsTextDocumentContent>,
+    pub text_document_content: Option<WorkspaceTextDocumentContent>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5378,7 +5378,7 @@ pub struct NotebookCellTextDocumentFilter {
     /// containing the notebook cell. If a string
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
-    pub notebook: NotebookCellTextDocumentFilterNotebook,
+    pub notebook: NotebookDocumentFilterNotebook,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A language id like `python`.
@@ -5821,7 +5821,7 @@ pub struct WorkspaceFoldersServerCapabilities {
     /// under which the notification is registered on the client
     /// side. The ID can be used to unregister for these events
     /// using the `client/unregisterCapability` request.
-    pub change_notifications: Option<WorkspaceFoldersServerCapabilitiesChangeNotifications>,
+    pub change_notifications: Option<WorkspaceFoldersChangeNotifications>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -7327,12 +7327,12 @@ pub struct ClientSemanticTokensRequestOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The client will send the `textDocument/semanticTokens/range` request if
     /// the server provides a corresponding handler.
-    pub range: Option<ClientSemanticTokensRequestOptionsRange>,
+    pub range: Option<ClientSemanticTokensRequestRange>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The client will send the `textDocument/semanticTokens/full` request if
     /// the server provides a corresponding handler.
-    pub full: Option<ClientSemanticTokensRequestOptionsFull>,
+    pub full: Option<ClientSemanticTokensRequestFull>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]

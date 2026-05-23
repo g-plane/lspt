@@ -317,17 +317,17 @@ pub enum WorkspaceSymbolResponse {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum SemanticTokensRegistrationOptionsRange {
+pub enum SemanticTokensRange {
     Boolean(bool),
     Object(serde_json::Value),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum SemanticTokensRegistrationOptionsFull {
+pub enum SemanticTokensFull {
     Boolean(bool),
     /// `SemanticTokensFullDelta`.
-    FullDelta(SemanticTokensFullDelta),
+    Delta(SemanticTokensFullDelta),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -365,7 +365,7 @@ pub enum RelatedDocumentDiagnosticReport {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum NotebookDocumentSyncRegistrationOptionsNotebookSelectorItem {
+pub enum NotebookSelectorItem {
     /// `NotebookDocumentFilterWithNotebook`.
     Notebook(NotebookDocumentFilterWithNotebook),
     /// `NotebookDocumentFilterWithCells`.
@@ -382,7 +382,7 @@ pub enum InlineCompletionItemInsertText {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum DidChangeConfigurationRegistrationOptionsSection {
+pub enum DidChangeConfigurationSection {
     String(String),
     StringList(Vec<String>),
 }
@@ -426,21 +426,6 @@ pub enum CancelParamsId {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum SemanticTokensOptionsRange {
-    Boolean(bool),
-    Object(serde_json::Value),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum SemanticTokensOptionsFull {
-    Boolean(bool),
-    /// `SemanticTokensFullDelta`.
-    FullDelta(SemanticTokensFullDelta),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum TextDocumentEditEditsItem {
     TextEdit(TextEdit),
     AnnotatedTextEdit(AnnotatedTextEdit),
@@ -451,15 +436,6 @@ pub enum TextDocumentEditEditsItem {
 pub enum InlayHintLabelPartTooltip {
     String(String),
     MarkupContent(MarkupContent),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum NotebookDocumentSyncOptionsNotebookSelectorItem {
-    /// `NotebookDocumentFilterWithNotebook`.
-    Notebook(NotebookDocumentFilterWithNotebook),
-    /// `NotebookDocumentFilterWithCells`.
-    Cells(NotebookDocumentFilterWithCells),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -729,21 +705,14 @@ pub enum SignatureInformationDocumentation {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum NotebookDocumentFilterWithNotebookNotebook {
+pub enum NotebookDocumentFilterNotebook {
     String(String),
     NotebookDocumentFilter(NotebookDocumentFilter),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum NotebookDocumentFilterWithCellsNotebook {
-    String(String),
-    NotebookDocumentFilter(NotebookDocumentFilter),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum TextDocumentSyncOptionsSave {
+pub enum TextDocumentSyncSave {
     Boolean(bool),
     SaveOptions(SaveOptions),
 }
@@ -751,7 +720,7 @@ pub enum TextDocumentSyncOptionsSave {
 #[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum WorkspaceOptionsTextDocumentContent {
+pub enum WorkspaceTextDocumentContent {
     /// `TextDocumentContentOptions`.
     Options(TextDocumentContentOptions),
     /// `TextDocumentContentRegistrationOptions`.
@@ -774,15 +743,7 @@ pub enum ParameterInformationDocumentation {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum NotebookCellTextDocumentFilterNotebook {
-    String(String),
-    /// `NotebookDocumentFilter`.
-    DocumentFilter(NotebookDocumentFilter),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum WorkspaceFoldersServerCapabilitiesChangeNotifications {
+pub enum WorkspaceFoldersChangeNotifications {
     String(String),
     Boolean(bool),
 }
@@ -796,15 +757,15 @@ pub enum RelativePatternBaseUri {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ClientSemanticTokensRequestOptionsRange {
+pub enum ClientSemanticTokensRequestRange {
     Boolean(bool),
     Object(serde_json::Value),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ClientSemanticTokensRequestOptionsFull {
+pub enum ClientSemanticTokensRequestFull {
     Boolean(bool),
     /// `ClientSemanticTokensRequestFullDelta`.
-    FullDelta(ClientSemanticTokensRequestFullDelta),
+    Delta(ClientSemanticTokensRequestFullDelta),
 }

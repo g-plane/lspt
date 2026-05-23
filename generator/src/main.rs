@@ -754,12 +754,17 @@ impl UnionContext {
 
     fn union_name(&self) -> String {
         match self {
+            Self::ArrayItem(parent) if parent.is_notebook_selector_field() => "NotebookSelectorItem".into(),
             Self::StructField { parent, field } if should_shorten_server_capabilities_field(parent, field) => {
                 field.to_upper_camel_case()
             }
             Self::MapValue(parent) if parent.is_related_diagnostic_documents() => {
                 "RelatedDocumentDiagnosticReport".into()
             }
+            Self::StructField { parent, field } if is_notebook_filter_notebook_field(parent, field) => {
+                "NotebookDocumentFilterNotebook".into()
+            }
+            Self::StructField { parent, field } => shorten_field_union_name(parent, field),
             _ => self.fallback_name(),
         }
     }
@@ -789,10 +794,39 @@ impl UnionContext {
                     )
         )
     }
+
+    fn is_notebook_selector_field(&self) -> bool {
+        matches!(self, Self::StructField { field, .. } if field == "notebookSelector")
+    }
 }
 
 fn should_shorten_server_capabilities_field(parent: &str, field: &str) -> bool {
     parent == "ServerCapabilities" && (field.ends_with("Provider") || field.ends_with("Sync"))
+}
+
+fn is_notebook_filter_notebook_field(parent: &str, field: &str) -> bool {
+    field == "notebook"
+        && matches!(
+            parent,
+            "NotebookDocumentFilterWithNotebook"
+                | "NotebookDocumentFilterWithCells"
+                | "NotebookCellTextDocumentFilter"
+        )
+}
+
+fn shorten_field_union_name(parent: &str, field: &str) -> String {
+    let field = field.to_upper_camel_case();
+    if let Some(stem) = parent
+        .strip_suffix("RegistrationOptions")
+        .or_else(|| parent.strip_suffix("ClientCapabilities"))
+        .or_else(|| parent.strip_suffix("ServerCapabilities"))
+        .or_else(|| parent.strip_suffix("Options"))
+        && !stem.is_empty()
+    {
+        return format!("{stem}{field}");
+    }
+
+    format!("{parent}{field}")
 }
 
 fn gen_unions(unions: &UnionRegistry) -> String {
