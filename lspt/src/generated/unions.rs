@@ -6,9 +6,9 @@
 #![allow(rustdoc::invalid_codeblock_attributes)]
 #![allow(unused_imports)]
 
-use super::*;
 use crate::{HashMap, Uri};
 use serde::{Deserialize, Serialize};
+use super::*;
 
 /// The definition of a symbol represented as one or many {@link Location locations}.
 /// For most programming languages there is only one location at which a symbol is
@@ -23,6 +23,7 @@ pub enum Definition {
     LocationList(Vec<Location>),
 }
 
+
 /// The declaration of a symbol representation as one or many {@link Location locations}.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -30,6 +31,7 @@ pub enum Declaration {
     Location(Location),
     LocationList(Vec<Location>),
 }
+
 
 /// Inline value information can be provided by different means:
 /// - directly as a text value (class InlineValueText).
@@ -48,6 +50,7 @@ pub enum InlineValue {
     /// `InlineValueEvaluatableExpression`.
     EvaluatableExpression(InlineValueEvaluatableExpression),
 }
+
 
 /// The result of a document diagnostic pull request. A report can
 /// either be a full report containing all diagnostics for the
@@ -80,6 +83,7 @@ pub enum ProgressToken {
     String(String),
 }
 
+
 /// A workspace diagnostic document report.
 ///
 /// @since 3.17.0
@@ -92,6 +96,7 @@ pub enum WorkspaceDocumentDiagnosticReport {
     Unchanged(WorkspaceUnchangedDocumentDiagnosticReport),
 }
 
+
 /// An event describing a change to a text document. If only a text is provided
 /// it is considered to be the full content of the document.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -102,6 +107,7 @@ pub enum TextDocumentContentChangeEvent {
     /// `TextDocumentContentChangeWholeDocument`.
     WholeDocument(TextDocumentContentChangeWholeDocument),
 }
+
 
 /// MarkedString can be used to render human readable text. It is either a markdown string
 /// or a code-block that provides a language and a code snippet. The language identifier
@@ -122,6 +128,7 @@ pub enum MarkedString {
     MarkedStringWithLanguage(MarkedStringWithLanguage),
 }
 
+
 /// A document filter describes a top level text document or
 /// a notebook cell document.
 ///
@@ -133,6 +140,7 @@ pub enum DocumentFilter {
     NotebookCellTextDocumentFilter(NotebookCellTextDocumentFilter),
 }
 
+
 /// The glob pattern. Either a string pattern or a relative pattern.
 ///
 /// @since 3.17.0
@@ -142,6 +150,7 @@ pub enum GlobPattern {
     Pattern(Pattern),
     RelativePattern(RelativePattern),
 }
+
 
 /// A document filter denotes a document by different properties like
 /// the {@link TextDocument.languageId language}, the {@link Uri.scheme scheme} of
@@ -169,6 +178,7 @@ pub enum TextDocumentFilter {
     /// `TextDocumentFilterPattern`.
     Pattern(TextDocumentFilterPattern),
 }
+
 
 /// A notebook document filter denotes a notebook document by
 /// different properties. The properties will be match

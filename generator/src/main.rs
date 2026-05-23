@@ -2,16 +2,7 @@ use heck::{ToSnakeCase, ToUpperCamelCase};
 use indexmap::IndexSet;
 use itertools::Itertools;
 use serde::Deserialize;
-use std::{env, fmt::Write, fs, process::Command};
-
-const GENERATED_FILES: &[&str] = &[
-    "./lspt/src/generated/request.rs",
-    "./lspt/src/generated/notification.rs",
-    "./lspt/src/generated/structs.rs",
-    "./lspt/src/generated/enums.rs",
-    "./lspt/src/generated/unions.rs",
-    "./lspt/src/generated/type_aliases.rs",
-];
+use std::{env, fmt::Write, fs};
 
 fn main() -> anyhow::Result<()> {
     let agent = if let Ok(proxy) = env::var("https_proxy") {
@@ -128,14 +119,6 @@ use super::*;
         ),
     )?;
 
-    format_generated_files()?;
-
-    Ok(())
-}
-
-fn format_generated_files() -> anyhow::Result<()> {
-    let status = Command::new("rustfmt").args(GENERATED_FILES).status()?;
-    anyhow::ensure!(status.success(), "rustfmt failed to format generated files");
     Ok(())
 }
 
