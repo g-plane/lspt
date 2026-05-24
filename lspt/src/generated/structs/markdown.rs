@@ -27,3 +27,5 @@ pub struct MarkdownClientCapabilities {
     /// @since 3.17.0
     pub allowed_tags: Option<Vec<String>>,
 }
+
+pub type ClientCapabilities = MarkdownClientCapabilities;

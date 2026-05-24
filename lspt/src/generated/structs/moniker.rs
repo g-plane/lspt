@@ -79,3 +79,11 @@ pub struct MonikerClientCapabilities {
     /// for the corresponding server capability as well.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = MonikerParams;
+
+pub type RegistrationOptions = MonikerRegistrationOptions;
+
+pub type Options = MonikerOptions;
+
+pub type ClientCapabilities = MonikerClientCapabilities;

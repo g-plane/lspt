@@ -14,3 +14,5 @@ pub struct ClientInlayHintResolveOptions {
     /// The properties that a client can resolve lazily.
     pub properties: Vec<String>,
 }
+
+pub type Options = ClientInlayHintResolveOptions;

@@ -19,3 +19,5 @@ pub struct ServerCompletionItemOptions {
     /// @since 3.17.0
     pub label_details_support: Option<bool>,
 }
+
+pub type Options = ServerCompletionItemOptions;

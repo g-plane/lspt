@@ -57,3 +57,11 @@ pub struct DocumentColorClientCapabilities {
     /// for the corresponding server capability as well.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = DocumentColorParams;
+
+pub type RegistrationOptions = DocumentColorRegistrationOptions;
+
+pub type Options = DocumentColorOptions;
+
+pub type ClientCapabilities = DocumentColorClientCapabilities;

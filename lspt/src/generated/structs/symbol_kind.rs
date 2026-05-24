@@ -22,3 +22,5 @@ pub struct ClientSymbolKindOptions {
     /// the initial version of the protocol.
     pub value_set: Option<Vec<SymbolKind>>,
 }
+
+pub type Options = ClientSymbolKindOptions;

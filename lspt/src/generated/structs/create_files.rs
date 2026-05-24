@@ -17,3 +17,5 @@ pub struct CreateFilesParams {
     /// An array of all files/folders created in this operation.
     pub files: Vec<FileCreate>,
 }
+
+pub type Params = CreateFilesParams;

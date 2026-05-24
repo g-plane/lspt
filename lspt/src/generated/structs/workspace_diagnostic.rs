@@ -40,3 +40,7 @@ pub struct WorkspaceDiagnosticParams {
 pub struct WorkspaceDiagnosticReport {
     pub items: Vec<WorkspaceDocumentDiagnosticReport>,
 }
+
+pub type Params = WorkspaceDiagnosticParams;
+
+pub type Report = WorkspaceDiagnosticReport;

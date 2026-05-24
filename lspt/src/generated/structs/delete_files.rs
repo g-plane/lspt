@@ -17,3 +17,5 @@ pub struct DeleteFilesParams {
     /// An array of all files/folders deleted in this operation.
     pub files: Vec<FileDelete>,
 }
+
+pub type Params = DeleteFilesParams;

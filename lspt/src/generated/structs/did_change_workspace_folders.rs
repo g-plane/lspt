@@ -14,3 +14,5 @@ pub struct DidChangeWorkspaceFoldersParams {
     /// The actual workspace folder change event.
     pub event: WorkspaceFoldersChangeEvent,
 }
+
+pub type Params = DidChangeWorkspaceFoldersParams;

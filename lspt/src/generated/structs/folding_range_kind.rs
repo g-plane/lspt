@@ -18,3 +18,5 @@ pub struct ClientFoldingRangeKindOptions {
     /// to a default value when unknown.
     pub value_set: Option<Vec<FoldingRangeKind>>,
 }
+
+pub type Options = ClientFoldingRangeKindOptions;

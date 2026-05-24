@@ -18,3 +18,5 @@ pub struct LogMessageParams {
     /// The actual message.
     pub message: String,
 }
+
+pub type Params = LogMessageParams;

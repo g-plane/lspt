@@ -62,3 +62,11 @@ pub struct DefinitionClientCapabilities {
     /// @since 3.14.0
     pub link_support: Option<bool>,
 }
+
+pub type Params = DefinitionParams;
+
+pub type RegistrationOptions = DefinitionRegistrationOptions;
+
+pub type Options = DefinitionOptions;
+
+pub type ClientCapabilities = DefinitionClientCapabilities;

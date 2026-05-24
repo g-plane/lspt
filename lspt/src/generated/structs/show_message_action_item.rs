@@ -17,3 +17,5 @@ pub struct ClientShowMessageActionItemOptions {
     /// request's response.
     pub additional_properties_support: Option<bool>,
 }
+
+pub type Options = ClientShowMessageActionItemOptions;

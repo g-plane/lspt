@@ -19,3 +19,5 @@ pub struct DidSaveTextDocumentParams {
     /// when the save notification was requested.
     pub text: Option<String>,
 }
+
+pub type Params = DidSaveTextDocumentParams;

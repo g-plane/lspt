@@ -75,3 +75,11 @@ pub struct LinkedEditingRangeClientCapabilities {
     /// return value for the corresponding server capability as well.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = LinkedEditingRangeParams;
+
+pub type RegistrationOptions = LinkedEditingRangeRegistrationOptions;
+
+pub type Options = LinkedEditingRangeOptions;
+
+pub type ClientCapabilities = LinkedEditingRangeClientCapabilities;

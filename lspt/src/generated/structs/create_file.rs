@@ -41,3 +41,5 @@ pub struct CreateFileOptions {
     /// Ignore if exists.
     pub ignore_if_exists: Option<bool>,
 }
+
+pub type Options = CreateFileOptions;

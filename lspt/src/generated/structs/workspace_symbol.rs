@@ -129,3 +129,11 @@ pub struct WorkspaceSymbolClientCapabilities {
     /// @since 3.17.0
     pub resolve_support: Option<ClientSymbolResolveOptions>,
 }
+
+pub type Params = WorkspaceSymbolParams;
+
+pub type RegistrationOptions = WorkspaceSymbolRegistrationOptions;
+
+pub type Options = WorkspaceSymbolOptions;
+
+pub type ClientCapabilities = WorkspaceSymbolClientCapabilities;

@@ -25,3 +25,5 @@ pub struct FullDocumentDiagnosticReport {
     /// The actual items.
     pub items: Vec<Diagnostic>,
 }
+
+pub type Report = FullDocumentDiagnosticReport;

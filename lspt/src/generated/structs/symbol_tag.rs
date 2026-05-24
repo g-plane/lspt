@@ -14,3 +14,5 @@ pub struct ClientSymbolTagOptions {
     /// The tags supported by the client.
     pub value_set: Vec<SymbolTag>,
 }
+
+pub type Options = ClientSymbolTagOptions;

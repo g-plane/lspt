@@ -72,3 +72,5 @@ pub struct ClientSignatureInformationOptions {
     /// @proposed
     pub no_active_parameter_support: Option<bool>,
 }
+
+pub type Options = ClientSignatureInformationOptions;

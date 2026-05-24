@@ -26,3 +26,5 @@ pub struct ConfigurationItem {
     /// The configuration section asked for.
     pub section: Option<String>,
 }
+
+pub type Params = ConfigurationParams;

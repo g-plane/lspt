@@ -39,3 +39,5 @@ pub struct ClientCodeActionKindOptions {
     /// to a default value when unknown.
     pub value_set: Vec<CodeActionKind>,
 }
+
+pub type Options = ClientCodeActionKindOptions;

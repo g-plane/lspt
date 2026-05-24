@@ -118,3 +118,5 @@ pub struct WorkspaceEditClientCapabilities {
     /// @proposed
     pub snippet_edit_support: Option<bool>,
 }
+
+pub type ClientCapabilities = WorkspaceEditClientCapabilities;

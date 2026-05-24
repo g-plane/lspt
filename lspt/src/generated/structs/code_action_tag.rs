@@ -14,3 +14,5 @@ pub struct CodeActionTagOptions {
     /// The tags supported by the client.
     pub value_set: Vec<CodeActionTag>,
 }
+
+pub type Options = CodeActionTagOptions;

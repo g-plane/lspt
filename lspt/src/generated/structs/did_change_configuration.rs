@@ -31,3 +31,9 @@ pub struct DidChangeConfigurationClientCapabilities {
     /// Did change configuration notification supports dynamic registration.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = DidChangeConfigurationParams;
+
+pub type RegistrationOptions = DidChangeConfigurationRegistrationOptions;
+
+pub type ClientCapabilities = DidChangeConfigurationClientCapabilities;

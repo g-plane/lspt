@@ -31,3 +31,7 @@ pub struct ShowMessageRequestClientCapabilities {
     /// Capabilities specific to the `MessageActionItem` type.
     pub message_action_item: Option<ClientShowMessageActionItemOptions>,
 }
+
+pub type Params = ShowMessageRequestParams;
+
+pub type ClientCapabilities = ShowMessageRequestClientCapabilities;

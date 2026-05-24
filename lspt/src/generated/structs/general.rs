@@ -55,3 +55,5 @@ pub struct GeneralClientCapabilities {
     /// @since 3.17.0
     pub position_encodings: Option<Vec<PositionEncodingKind>>,
 }
+
+pub type ClientCapabilities = GeneralClientCapabilities;

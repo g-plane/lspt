@@ -29,3 +29,5 @@ pub struct Registration {
     /// Options necessary for the registration.
     pub register_options: Option<serde_json::Value>,
 }
+
+pub type Params = RegistrationParams;

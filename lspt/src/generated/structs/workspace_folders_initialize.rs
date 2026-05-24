@@ -20,3 +20,5 @@ pub struct WorkspaceFoldersInitializeParams {
     /// @since 3.6.0
     pub workspace_folders: Option<Vec<WorkspaceFolder>>,
 }
+
+pub type Params = WorkspaceFoldersInitializeParams;

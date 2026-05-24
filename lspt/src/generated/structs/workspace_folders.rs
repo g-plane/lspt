@@ -36,3 +36,5 @@ pub struct WorkspaceFoldersServerCapabilities {
     /// using the `client/unregisterCapability` request.
     pub change_notifications: Option<WorkspaceFoldersChangeNotifications>,
 }
+
+pub type ServerCapabilities = WorkspaceFoldersServerCapabilities;

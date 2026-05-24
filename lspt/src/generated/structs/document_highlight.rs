@@ -71,3 +71,11 @@ pub struct DocumentHighlightClientCapabilities {
     /// Whether document highlight supports dynamic registration.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = DocumentHighlightParams;
+
+pub type RegistrationOptions = DocumentHighlightRegistrationOptions;
+
+pub type Options = DocumentHighlightOptions;
+
+pub type ClientCapabilities = DocumentHighlightClientCapabilities;

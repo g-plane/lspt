@@ -38,3 +38,5 @@ pub struct PrepareRenamePlaceholder {
 pub struct PrepareRenameDefaultBehavior {
     pub default_behavior: bool,
 }
+
+pub type Params = PrepareRenameParams;

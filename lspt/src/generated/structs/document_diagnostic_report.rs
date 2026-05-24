@@ -15,3 +15,5 @@ use super::super::*;
 pub struct DocumentDiagnosticReportPartialResult {
     pub related_documents: HashMap<Uri, RelatedDocumentDiagnosticReport>,
 }
+
+pub type PartialResult = DocumentDiagnosticReportPartialResult;

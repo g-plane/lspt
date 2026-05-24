@@ -115,3 +115,9 @@ pub struct CallHierarchyClientCapabilities {
     /// return value for the corresponding server capability as well.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type RegistrationOptions = CallHierarchyRegistrationOptions;
+
+pub type Options = CallHierarchyOptions;
+
+pub type ClientCapabilities = CallHierarchyClientCapabilities;

@@ -47,3 +47,7 @@ pub struct SemanticTokensDelta {
 pub struct SemanticTokensDeltaPartialResult {
     pub edits: Vec<SemanticTokensEdit>,
 }
+
+pub type Params = SemanticTokensDeltaParams;
+
+pub type PartialResult = SemanticTokensDeltaPartialResult;

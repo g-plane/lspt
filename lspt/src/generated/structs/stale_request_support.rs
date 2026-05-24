@@ -19,3 +19,5 @@ pub struct StaleRequestSupportOptions {
     /// response with error code `ContentModified`
     pub retry_on_content_modified: Vec<String>,
 }
+
+pub type Options = StaleRequestSupportOptions;

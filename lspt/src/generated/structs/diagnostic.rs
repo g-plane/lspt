@@ -232,3 +232,11 @@ pub struct DiagnosticsCapabilities {
     /// @since 3.16.0
     pub data_support: Option<bool>,
 }
+
+pub type RegistrationOptions = DiagnosticRegistrationOptions;
+
+pub type Options = DiagnosticOptions;
+
+pub type WorkspaceClientCapabilities = DiagnosticWorkspaceClientCapabilities;
+
+pub type ClientCapabilities = DiagnosticClientCapabilities;

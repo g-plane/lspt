@@ -66,3 +66,11 @@ pub struct ImplementationClientCapabilities {
     /// @since 3.14.0
     pub link_support: Option<bool>,
 }
+
+pub type Params = ImplementationParams;
+
+pub type RegistrationOptions = ImplementationRegistrationOptions;
+
+pub type Options = ImplementationOptions;
+
+pub type ClientCapabilities = ImplementationClientCapabilities;

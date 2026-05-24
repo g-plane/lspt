@@ -131,3 +131,15 @@ pub struct InlineCompletionClientCapabilities {
     /// Whether implementation supports dynamic registration for inline completion providers.
     pub dynamic_registration: Option<bool>,
 }
+
+#[cfg(feature = "proposed")]
+pub type Params = InlineCompletionParams;
+
+#[cfg(feature = "proposed")]
+pub type RegistrationOptions = InlineCompletionRegistrationOptions;
+
+#[cfg(feature = "proposed")]
+pub type Options = InlineCompletionOptions;
+
+#[cfg(feature = "proposed")]
+pub type ClientCapabilities = InlineCompletionClientCapabilities;

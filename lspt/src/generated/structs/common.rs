@@ -954,3 +954,4 @@ pub struct ClientSemanticTokensRequestFullDelta {
     /// the server provides a corresponding handler.
     pub delta: Option<bool>,
 }
+

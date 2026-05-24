@@ -66,3 +66,11 @@ pub struct TypeDefinitionClientCapabilities {
     /// Since 3.14.0
     pub link_support: Option<bool>,
 }
+
+pub type Params = TypeDefinitionParams;
+
+pub type RegistrationOptions = TypeDefinitionRegistrationOptions;
+
+pub type Options = TypeDefinitionOptions;
+
+pub type ClientCapabilities = TypeDefinitionClientCapabilities;

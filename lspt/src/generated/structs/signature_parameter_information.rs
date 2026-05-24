@@ -18,3 +18,5 @@ pub struct ClientSignatureParameterInformationOptions {
     /// @since 3.14.0
     pub label_offset_support: Option<bool>,
 }
+
+pub type Options = ClientSignatureParameterInformationOptions;

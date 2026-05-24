@@ -22,3 +22,5 @@ pub struct OptionalVersionedTextDocumentIdentifier {
     /// truth (as specified with document content ownership).
     pub version: Option<i32>,
 }
+
+pub type Identifier = OptionalVersionedTextDocumentIdentifier;

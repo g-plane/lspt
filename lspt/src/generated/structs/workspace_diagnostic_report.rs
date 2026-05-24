@@ -15,3 +15,5 @@ use super::super::*;
 pub struct WorkspaceDiagnosticReportPartialResult {
     pub items: Vec<WorkspaceDocumentDiagnosticReport>,
 }
+
+pub type PartialResult = WorkspaceDiagnosticReportPartialResult;

@@ -69,3 +69,11 @@ pub struct DocumentOnTypeFormattingClientCapabilities {
     /// Whether on type formatting supports dynamic registration.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = DocumentOnTypeFormattingParams;
+
+pub type RegistrationOptions = DocumentOnTypeFormattingRegistrationOptions;
+
+pub type Options = DocumentOnTypeFormattingOptions;
+
+pub type ClientCapabilities = DocumentOnTypeFormattingClientCapabilities;

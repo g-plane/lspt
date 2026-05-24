@@ -44,3 +44,5 @@ pub struct RenameFileOptions {
     /// Ignores if target exists.
     pub ignore_if_exists: Option<bool>,
 }
+
+pub type Options = RenameFileOptions;

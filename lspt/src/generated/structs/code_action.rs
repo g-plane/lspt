@@ -299,3 +299,11 @@ pub struct CodeActionClientCapabilities {
     /// @since 3.18.0 - proposed
     pub tag_support: Option<CodeActionTagOptions>,
 }
+
+pub type Params = CodeActionParams;
+
+pub type RegistrationOptions = CodeActionRegistrationOptions;
+
+pub type Options = CodeActionOptions;
+
+pub type ClientCapabilities = CodeActionClientCapabilities;

@@ -17,3 +17,5 @@ pub struct ChangeAnnotationsSupportOptions {
     /// be a tree node.
     pub groups_on_label: Option<bool>,
 }
+
+pub type Options = ChangeAnnotationsSupportOptions;

@@ -24,3 +24,5 @@ pub struct CallHierarchyIncomingCallsParams {
     /// the client.
     pub partial_result_token: Option<ProgressToken>,
 }
+
+pub type Params = CallHierarchyIncomingCallsParams;

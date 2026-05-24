@@ -51,3 +51,7 @@ pub struct ApplyWorkspaceEditResult {
     /// if the client signals a `failureHandlingStrategy` in its client capabilities.
     pub failed_change: Option<u32>,
 }
+
+pub type Params = ApplyWorkspaceEditParams;
+
+pub type Result = ApplyWorkspaceEditResult;

@@ -156,3 +156,12 @@ pub struct ClientFoldingRangeOptions {
     /// @since 3.17.0
     pub collapsed_text: Option<bool>,
 }
+
+pub type Params = FoldingRangeParams;
+
+pub type RegistrationOptions = FoldingRangeRegistrationOptions;
+
+#[cfg(feature = "proposed")]
+pub type WorkspaceClientCapabilities = FoldingRangeWorkspaceClientCapabilities;
+
+pub type ClientCapabilities = FoldingRangeClientCapabilities;

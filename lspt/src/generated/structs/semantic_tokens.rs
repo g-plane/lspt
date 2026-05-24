@@ -213,3 +213,15 @@ pub struct SemanticTokensClientCapabilities {
     /// @since 3.17.0
     pub augments_syntax_tokens: Option<bool>,
 }
+
+pub type Params = SemanticTokensParams;
+
+pub type PartialResult = SemanticTokensPartialResult;
+
+pub type RegistrationOptions = SemanticTokensRegistrationOptions;
+
+pub type Options = SemanticTokensOptions;
+
+pub type WorkspaceClientCapabilities = SemanticTokensWorkspaceClientCapabilities;
+
+pub type ClientCapabilities = SemanticTokensClientCapabilities;

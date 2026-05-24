@@ -35,3 +35,5 @@ pub struct RelatedFullDocumentDiagnosticReport {
     /// @since 3.17.0
     pub related_documents: Option<HashMap<Uri, RelatedDocumentDiagnosticReport>>,
 }
+
+pub type Report = RelatedFullDocumentDiagnosticReport;

@@ -74,3 +74,11 @@ pub struct SelectionRangeClientCapabilities {
     /// capability as well.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = SelectionRangeParams;
+
+pub type RegistrationOptions = SelectionRangeRegistrationOptions;
+
+pub type Options = SelectionRangeOptions;
+
+pub type ClientCapabilities = SelectionRangeClientCapabilities;

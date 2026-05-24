@@ -96,3 +96,11 @@ pub struct DocumentLinkClientCapabilities {
     /// @since 3.15.0
     pub tooltip_support: Option<bool>,
 }
+
+pub type Params = DocumentLinkParams;
+
+pub type RegistrationOptions = DocumentLinkRegistrationOptions;
+
+pub type Options = DocumentLinkOptions;
+
+pub type ClientCapabilities = DocumentLinkClientCapabilities;

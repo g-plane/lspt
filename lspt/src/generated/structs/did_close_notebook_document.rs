@@ -20,3 +20,5 @@ pub struct DidCloseNotebookDocumentParams {
     /// of a notebook cell that got closed.
     pub cell_text_documents: Vec<TextDocumentIdentifier>,
 }
+
+pub type Params = DidCloseNotebookDocumentParams;

@@ -64,3 +64,11 @@ pub struct DeclarationClientCapabilities {
     /// The client supports additional metadata in the form of declaration links.
     pub link_support: Option<bool>,
 }
+
+pub type Params = DeclarationParams;
+
+pub type RegistrationOptions = DeclarationRegistrationOptions;
+
+pub type Options = DeclarationOptions;
+
+pub type ClientCapabilities = DeclarationClientCapabilities;

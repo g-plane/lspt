@@ -14,3 +14,5 @@ pub struct ClientCodeLensResolveOptions {
     /// The properties that a client can resolve lazily.
     pub properties: Vec<String>,
 }
+
+pub type Options = ClientCodeLensResolveOptions;

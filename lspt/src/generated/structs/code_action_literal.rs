@@ -15,3 +15,5 @@ pub struct ClientCodeActionLiteralOptions {
     /// set.
     pub code_action_kind: ClientCodeActionKindOptions,
 }
+
+pub type Options = ClientCodeActionLiteralOptions;

@@ -152,3 +152,13 @@ pub struct InlineValueClientCapabilities {
     /// Whether implementation supports dynamic registration for inline value providers.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = InlineValueParams;
+
+pub type RegistrationOptions = InlineValueRegistrationOptions;
+
+pub type Options = InlineValueOptions;
+
+pub type WorkspaceClientCapabilities = InlineValueWorkspaceClientCapabilities;
+
+pub type ClientCapabilities = InlineValueClientCapabilities;

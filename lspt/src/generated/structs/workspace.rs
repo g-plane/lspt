@@ -147,3 +147,7 @@ pub struct WorkspaceClientCapabilities {
     /// @proposed
     pub text_document_content: Option<TextDocumentContentClientCapabilities>,
 }
+
+pub type Options = WorkspaceOptions;
+
+pub type ClientCapabilities = WorkspaceClientCapabilities;

@@ -14,3 +14,5 @@ pub struct CompletionItemTagOptions {
     /// The tags supported by the client.
     pub value_set: Vec<CompletionItemTag>,
 }
+
+pub type Options = CompletionItemTagOptions;

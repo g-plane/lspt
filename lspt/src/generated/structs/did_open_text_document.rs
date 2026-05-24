@@ -14,3 +14,5 @@ pub struct DidOpenTextDocumentParams {
     /// The document that was opened.
     pub text_document: TextDocumentItem,
 }
+
+pub type Params = DidOpenTextDocumentParams;

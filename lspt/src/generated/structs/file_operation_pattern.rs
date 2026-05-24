@@ -45,3 +45,5 @@ pub struct FileOperationPatternOptions {
     /// The pattern should be matched ignoring casing.
     pub ignore_case: Option<bool>,
 }
+
+pub type Options = FileOperationPatternOptions;

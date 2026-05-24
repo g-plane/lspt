@@ -34,3 +34,5 @@ pub struct WindowClientCapabilities {
     /// @since 3.16.0
     pub show_document: Option<ShowDocumentClientCapabilities>,
 }
+
+pub type ClientCapabilities = WindowClientCapabilities;

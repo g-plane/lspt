@@ -16,3 +16,5 @@ pub struct DidSaveNotebookDocumentParams {
     /// The notebook document that got saved.
     pub notebook_document: NotebookDocumentIdentifier,
 }
+
+pub type Params = DidSaveNotebookDocumentParams;

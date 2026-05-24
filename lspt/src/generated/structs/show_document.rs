@@ -59,3 +59,9 @@ pub struct ShowDocumentClientCapabilities {
     /// request.
     pub support: bool,
 }
+
+pub type Params = ShowDocumentParams;
+
+pub type Result = ShowDocumentResult;
+
+pub type ClientCapabilities = ShowDocumentClientCapabilities;

@@ -106,3 +106,13 @@ pub struct CodeLensClientCapabilities {
     /// @since 3.18.0
     pub resolve_support: Option<ClientCodeLensResolveOptions>,
 }
+
+pub type Params = CodeLensParams;
+
+pub type RegistrationOptions = CodeLensRegistrationOptions;
+
+pub type Options = CodeLensOptions;
+
+pub type WorkspaceClientCapabilities = CodeLensWorkspaceClientCapabilities;
+
+pub type ClientCapabilities = CodeLensClientCapabilities;

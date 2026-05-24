@@ -24,3 +24,5 @@ pub struct TypeHierarchySupertypesParams {
     /// the client.
     pub partial_result_token: Option<ProgressToken>,
 }
+
+pub type Params = TypeHierarchySupertypesParams;

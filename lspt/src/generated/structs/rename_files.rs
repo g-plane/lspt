@@ -18,3 +18,5 @@ pub struct RenameFilesParams {
     /// the folder will be included, and not its children.
     pub files: Vec<FileRename>,
 }
+
+pub type Params = RenameFilesParams;

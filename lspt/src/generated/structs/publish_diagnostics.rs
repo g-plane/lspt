@@ -61,3 +61,7 @@ pub struct PublishDiagnosticsClientCapabilities {
     /// @since 3.15.0
     pub version_support: Option<bool>,
 }
+
+pub type Params = PublishDiagnosticsParams;
+
+pub type ClientCapabilities = PublishDiagnosticsClientCapabilities;

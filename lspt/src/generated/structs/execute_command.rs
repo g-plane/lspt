@@ -53,3 +53,11 @@ pub struct ExecuteCommandClientCapabilities {
     /// Execute command supports dynamic registration.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = ExecuteCommandParams;
+
+pub type RegistrationOptions = ExecuteCommandRegistrationOptions;
+
+pub type Options = ExecuteCommandOptions;
+
+pub type ClientCapabilities = ExecuteCommandClientCapabilities;

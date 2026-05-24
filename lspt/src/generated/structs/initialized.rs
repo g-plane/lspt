@@ -10,3 +10,5 @@ use super::super::*;
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InitializedParams {}
+
+pub type Params = InitializedParams;

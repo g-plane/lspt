@@ -25,3 +25,5 @@ pub struct Unregistration {
     /// The method to unregister for.
     pub method: String,
 }
+
+pub type Params = UnregistrationParams;

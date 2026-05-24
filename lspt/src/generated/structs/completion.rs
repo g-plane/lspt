@@ -259,3 +259,11 @@ pub struct CompletionListCapabilities {
     /// @since 3.18.0
     pub apply_kind_support: Option<bool>,
 }
+
+pub type Params = CompletionParams;
+
+pub type RegistrationOptions = CompletionRegistrationOptions;
+
+pub type Options = CompletionOptions;
+
+pub type ClientCapabilities = CompletionClientCapabilities;

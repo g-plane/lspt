@@ -58,3 +58,7 @@ pub struct TextDocumentSyncClientCapabilities {
     /// The client supports did save notifications.
     pub did_save: Option<bool>,
 }
+
+pub type Options = TextDocumentSyncOptions;
+
+pub type ClientCapabilities = TextDocumentSyncClientCapabilities;

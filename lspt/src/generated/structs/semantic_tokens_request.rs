@@ -21,3 +21,5 @@ pub struct ClientSemanticTokensRequestOptions {
     /// the server provides a corresponding handler.
     pub full: Option<ClientSemanticTokensRequestFull>,
 }
+
+pub type Options = ClientSemanticTokensRequestOptions;

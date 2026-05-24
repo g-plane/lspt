@@ -50,3 +50,5 @@ pub struct ColorPresentation {
     /// selecting this color presentation. Edits must not overlap with the main {@link ColorPresentation.textEdit edit} nor with themselves.
     pub additional_text_edits: Option<Vec<TextEdit>>,
 }
+
+pub type Params = ColorPresentationParams;

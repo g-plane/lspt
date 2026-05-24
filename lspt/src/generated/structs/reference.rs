@@ -68,3 +68,11 @@ pub struct ReferenceClientCapabilities {
     /// Whether references supports dynamic registration.
     pub dynamic_registration: Option<bool>,
 }
+
+pub type Params = ReferenceParams;
+
+pub type RegistrationOptions = ReferenceRegistrationOptions;
+
+pub type Options = ReferenceOptions;
+
+pub type ClientCapabilities = ReferenceClientCapabilities;

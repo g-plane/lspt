@@ -31,3 +31,5 @@ pub struct WorkspaceUnchangedDocumentDiagnosticReport {
     /// If the document is not marked as open `null` can be provided.
     pub version: Option<i32>,
 }
+
+pub type Report = WorkspaceUnchangedDocumentDiagnosticReport;

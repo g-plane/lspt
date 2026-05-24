@@ -13,3 +13,5 @@ pub struct CancelParams {
     /// The request id to cancel.
     pub id: CancelParamsId,
 }
+
+pub type Params = CancelParams;

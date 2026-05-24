@@ -24,3 +24,5 @@ pub struct UnchangedDocumentDiagnosticReport {
     /// diagnostic request for the same document.
     pub result_id: String,
 }
+
+pub type Report = UnchangedDocumentDiagnosticReport;

@@ -13,3 +13,5 @@ use super::super::*;
 pub struct ClientCompletionItemInsertTextModeOptions {
     pub value_set: Vec<InsertTextMode>,
 }
+
+pub type Options = ClientCompletionItemInsertTextModeOptions;

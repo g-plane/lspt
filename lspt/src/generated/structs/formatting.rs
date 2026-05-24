@@ -35,3 +35,5 @@ pub struct FormattingOptions {
     /// @since 3.15.0
     pub trim_final_newlines: Option<bool>,
 }
+
+pub type Options = FormattingOptions;

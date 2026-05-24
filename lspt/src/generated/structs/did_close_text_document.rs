@@ -14,3 +14,5 @@ pub struct DidCloseTextDocumentParams {
     /// The document that was closed.
     pub text_document: TextDocumentIdentifier,
 }
+
+pub type Params = DidCloseTextDocumentParams;

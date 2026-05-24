@@ -17,3 +17,5 @@ pub struct VersionedTextDocumentIdentifier {
     /// The version number of this document.
     pub version: i32,
 }
+
+pub type Identifier = VersionedTextDocumentIdentifier;

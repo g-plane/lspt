@@ -20,3 +20,5 @@ pub struct DidOpenNotebookDocumentParams {
     /// of a notebook cell.
     pub cell_text_documents: Vec<TextDocumentItem>,
 }
+
+pub type Params = DidOpenNotebookDocumentParams;

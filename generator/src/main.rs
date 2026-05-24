@@ -302,6 +302,7 @@ struct GeneratedStruct {
 
 struct StructAlias {
     module: String,
+    name: String,
     stem: String,
 }
 
@@ -425,9 +426,10 @@ fn write_generated_structs(structs: &[GeneratedStruct]) -> anyhow::Result<()> {
     let modules = group_structs(structs);
     for (module, structs) in &modules {
         let source = structs.iter().map(|structure| structure.source.as_str()).join("\n\n");
+        let aliases = gen_struct_aliases(structs);
         fs::write(
             output_dir.join(format!("{module}.rs")),
-            format!("{}\n{}", gen_struct_module_header(), source),
+            format!("{}\n{}\n{}", gen_struct_module_header(), source, aliases),
         )?;
     }
 
@@ -488,6 +490,32 @@ fn struct_module(name: &str, feature_stems: &[(String, String)]) -> String {
         .unwrap_or_else(|| "common".into())
 }
 
+fn gen_struct_aliases(structs: &[&GeneratedStruct]) -> String {
+    let mut aliases = Vec::new();
+    for structure in structs {
+        if let Some(alias) = struct_alias(&structure.name) {
+            aliases.push((alias.name, *structure));
+        }
+    }
+
+    let alias_counts = aliases.iter().fold(IndexMap::<String, usize>::new(), |mut counts, (alias, _)| {
+        *counts.entry(alias.clone()).or_insert(0) += 1;
+        counts
+    });
+    aliases
+        .into_iter()
+        .filter(|(alias, _)| alias_counts.get(alias) == Some(&1))
+        .map(|(alias, structure)| {
+            let cfg = if structure.proposed {
+                "#[cfg(feature = \"proposed\")]\n"
+            } else {
+                ""
+            };
+            format!("{cfg}pub type {alias} = {};", structure.name)
+        })
+        .join("\n\n")
+}
+
 fn struct_alias(name: &str) -> Option<StructAlias> {
     const SUFFIXES: &[&str] = &[
         "WorkspaceClientCapabilities",
@@ -510,6 +538,7 @@ fn struct_alias(name: &str) -> Option<StructAlias> {
         let stem = stem.strip_prefix("Client").filter(|stem| !stem.is_empty()).unwrap_or(stem);
         Some(StructAlias {
             module: stem.to_snake_case(),
+            name: (*suffix).into(),
             stem: stem.into(),
         })
     })

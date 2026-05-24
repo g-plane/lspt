@@ -170,3 +170,11 @@ pub struct SignatureHelpClientCapabilities {
     /// @since 3.15.0
     pub context_support: Option<bool>,
 }
+
+pub type Params = SignatureHelpParams;
+
+pub type RegistrationOptions = SignatureHelpRegistrationOptions;
+
+pub type Options = SignatureHelpOptions;
+
+pub type ClientCapabilities = SignatureHelpClientCapabilities;

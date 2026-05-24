@@ -93,3 +93,7 @@ pub struct WorkDoneProgressParams {
     /// An optional token that a server can use to report work done progress.
     pub work_done_token: Option<ProgressToken>,
 }
+
+pub type Report = WorkDoneProgressReport;
+
+pub type Params = WorkDoneProgressParams;

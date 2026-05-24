@@ -17,3 +17,5 @@ pub struct WillSaveTextDocumentParams {
     /// The 'TextDocumentSaveReason'.
     pub reason: TextDocumentSaveReason,
 }
+
+pub type Params = WillSaveTextDocumentParams;

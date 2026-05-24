@@ -85,3 +85,5 @@ pub struct TextDocumentFilterClientCapabilities {
     /// @since 3.18.0
     pub relative_pattern_support: Option<bool>,
 }
+
+pub type ClientCapabilities = TextDocumentFilterClientCapabilities;

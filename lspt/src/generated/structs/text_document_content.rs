@@ -100,3 +100,18 @@ pub struct TextDocumentContentClientCapabilities {
     /// Text document content provider supports dynamic registration.
     pub dynamic_registration: Option<bool>,
 }
+
+#[cfg(feature = "proposed")]
+pub type Params = TextDocumentContentParams;
+
+#[cfg(feature = "proposed")]
+pub type Result = TextDocumentContentResult;
+
+#[cfg(feature = "proposed")]
+pub type RegistrationOptions = TextDocumentContentRegistrationOptions;
+
+#[cfg(feature = "proposed")]
+pub type Options = TextDocumentContentOptions;
+
+#[cfg(feature = "proposed")]
+pub type ClientCapabilities = TextDocumentContentClientCapabilities;

@@ -215,3 +215,7 @@ pub struct NotebookDocumentFilterPattern {
     /// A glob pattern.
     pub pattern: GlobPattern,
 }
+
+pub type Identifier = NotebookDocumentIdentifier;
+
+pub type ClientCapabilities = NotebookDocumentClientCapabilities;

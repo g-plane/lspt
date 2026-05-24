@@ -16,3 +16,5 @@ pub struct ProgressParams {
     /// The progress data.
     pub value: serde_json::Value,
 }
+
+pub type Params = ProgressParams;

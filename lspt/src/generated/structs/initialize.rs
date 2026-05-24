@@ -84,3 +84,7 @@ pub struct InitializeError {
     /// (3) if user selected retry the initialize method is sent again.
     pub retry: bool,
 }
+
+pub type Params = InitializeParams;
+
+pub type Result = InitializeResult;

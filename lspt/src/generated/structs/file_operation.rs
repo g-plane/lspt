@@ -103,3 +103,9 @@ pub struct FileOperationClientCapabilities {
     /// The client has support for sending willDeleteFiles requests.
     pub will_delete: Option<bool>,
 }
+
+pub type RegistrationOptions = FileOperationRegistrationOptions;
+
+pub type Options = FileOperationOptions;
+
+pub type ClientCapabilities = FileOperationClientCapabilities;

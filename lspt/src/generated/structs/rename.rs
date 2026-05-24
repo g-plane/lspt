@@ -93,3 +93,11 @@ pub struct RenameClientCapabilities {
     /// @since 3.16.0
     pub honors_change_annotations: Option<bool>,
 }
+
+pub type Params = RenameParams;
+
+pub type RegistrationOptions = RenameRegistrationOptions;
+
+pub type Options = RenameOptions;
+
+pub type ClientCapabilities = RenameClientCapabilities;

@@ -71,3 +71,9 @@ pub struct NotebookDocumentSyncClientCapabilities {
     /// The client supports sending execution summary data per cell.
     pub execution_summary_support: Option<bool>,
 }
+
+pub type RegistrationOptions = NotebookDocumentSyncRegistrationOptions;
+
+pub type Options = NotebookDocumentSyncOptions;
+
+pub type ClientCapabilities = NotebookDocumentSyncClientCapabilities;

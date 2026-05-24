@@ -41,3 +41,5 @@ pub struct DeleteFileOptions {
     /// Ignore the operation if the file doesn't exist.
     pub ignore_if_not_exists: Option<bool>,
 }
+
+pub type Options = DeleteFileOptions;

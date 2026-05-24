@@ -41,3 +41,9 @@ pub struct DidChangeWatchedFilesClientCapabilities {
     /// @since 3.17.0
     pub relative_pattern_support: Option<bool>,
 }
+
+pub type Params = DidChangeWatchedFilesParams;
+
+pub type RegistrationOptions = DidChangeWatchedFilesRegistrationOptions;
+
+pub type ClientCapabilities = DidChangeWatchedFilesClientCapabilities;

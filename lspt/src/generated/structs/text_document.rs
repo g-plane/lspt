@@ -224,3 +224,7 @@ pub struct TextDocumentClientCapabilities {
     /// @proposed
     pub inline_completion: Option<InlineCompletionClientCapabilities>,
 }
+
+pub type Identifier = TextDocumentIdentifier;
+
+pub type ClientCapabilities = TextDocumentClientCapabilities;

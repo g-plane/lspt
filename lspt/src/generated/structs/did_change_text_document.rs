@@ -29,3 +29,5 @@ pub struct DidChangeTextDocumentParams {
     ///   you receive them.
     pub content_changes: Vec<TextDocumentContentChangeEvent>,
 }
+
+pub type Params = DidChangeTextDocumentParams;

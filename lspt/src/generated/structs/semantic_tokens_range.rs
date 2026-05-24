@@ -26,3 +26,5 @@ pub struct SemanticTokensRangeParams {
     /// the client.
     pub partial_result_token: Option<ProgressToken>,
 }
+
+pub type Params = SemanticTokensRangeParams;

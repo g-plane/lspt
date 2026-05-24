@@ -18,3 +18,6 @@ pub struct TextDocumentContentRefreshParams {
     /// The uri of the text document to refresh.
     pub uri: Uri,
 }
+
+#[cfg(feature = "proposed")]
+pub type Params = TextDocumentContentRefreshParams;

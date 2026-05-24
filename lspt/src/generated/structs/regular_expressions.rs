@@ -20,3 +20,5 @@ pub struct RegularExpressionsClientCapabilities {
     /// The engine's version.
     pub version: Option<String>,
 }
+
+pub type ClientCapabilities = RegularExpressionsClientCapabilities;

@@ -12,3 +12,5 @@ use super::super::*;
 pub struct SetTraceParams {
     pub value: TraceValue,
 }
+
+pub type Params = SetTraceParams;

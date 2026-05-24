@@ -13,3 +13,5 @@ pub struct WorkDoneProgressCancelParams {
     /// The token to be used to report progress.
     pub token: ProgressToken,
 }
+
+pub type Params = WorkDoneProgressCancelParams;

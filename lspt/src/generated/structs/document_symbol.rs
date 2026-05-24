@@ -130,3 +130,11 @@ pub struct DocumentSymbolClientCapabilities {
     /// @since 3.16.0
     pub label_support: Option<bool>,
 }
+
+pub type Params = DocumentSymbolParams;
+
+pub type RegistrationOptions = DocumentSymbolRegistrationOptions;
+
+pub type Options = DocumentSymbolOptions;
+
+pub type ClientCapabilities = DocumentSymbolClientCapabilities;

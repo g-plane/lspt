@@ -19,3 +19,5 @@ pub struct TextDocumentChangeRegistrationOptions {
     /// How documents are synced to the server.
     pub sync_kind: TextDocumentSyncKind,
 }
+
+pub type RegistrationOptions = TextDocumentChangeRegistrationOptions;

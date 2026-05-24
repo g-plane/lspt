@@ -365,3 +365,5 @@ pub struct ClientCompletionItemOptions {
     /// @since 3.17.0
     pub label_details_support: Option<bool>,
 }
+
+pub type Options = ClientCompletionItemOptions;

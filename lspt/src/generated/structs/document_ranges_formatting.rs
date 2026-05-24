@@ -28,3 +28,6 @@ pub struct DocumentRangesFormattingParams {
     /// An optional token that a server can use to report work done progress.
     pub work_done_token: Option<ProgressToken>,
 }
+
+#[cfg(feature = "proposed")]
+pub type Params = DocumentRangesFormattingParams;

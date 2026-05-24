@@ -15,3 +15,5 @@ pub struct ClientSymbolResolveOptions {
     /// `location.range`
     pub properties: Vec<String>,
 }
+
+pub type Options = ClientSymbolResolveOptions;

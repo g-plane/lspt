@@ -194,3 +194,13 @@ pub struct InlayHintClientCapabilities {
     /// hint.
     pub resolve_support: Option<ClientInlayHintResolveOptions>,
 }
+
+pub type Params = InlayHintParams;
+
+pub type RegistrationOptions = InlayHintRegistrationOptions;
+
+pub type Options = InlayHintOptions;
+
+pub type WorkspaceClientCapabilities = InlayHintWorkspaceClientCapabilities;
+
+pub type ClientCapabilities = InlayHintClientCapabilities;

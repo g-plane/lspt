@@ -19,3 +19,5 @@ pub struct VersionedNotebookDocumentIdentifier {
     /// The notebook document's uri.
     pub uri: Uri,
 }
+
+pub type Identifier = VersionedNotebookDocumentIdentifier;

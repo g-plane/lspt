@@ -34,3 +34,5 @@ pub struct DidChangeNotebookDocumentParams {
     ///   you receive them.
     pub change: NotebookDocumentChangeEvent,
 }
+
+pub type Params = DidChangeNotebookDocumentParams;

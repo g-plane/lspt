@@ -18,3 +18,5 @@ pub struct ShowMessageParams {
     /// The actual message.
     pub message: String,
 }
+
+pub type Params = ShowMessageParams;

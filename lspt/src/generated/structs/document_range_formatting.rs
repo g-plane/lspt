@@ -78,3 +78,11 @@ pub struct DocumentRangeFormattingClientCapabilities {
     /// @proposed
     pub ranges_support: Option<bool>,
 }
+
+pub type Params = DocumentRangeFormattingParams;
+
+pub type RegistrationOptions = DocumentRangeFormattingRegistrationOptions;
+
+pub type Options = DocumentRangeFormattingOptions;
+
+pub type ClientCapabilities = DocumentRangeFormattingClientCapabilities;

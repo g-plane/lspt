@@ -69,3 +69,11 @@ pub struct HoverClientCapabilities {
     /// property. The order describes the preferred format of the client.
     pub content_format: Option<Vec<MarkupKind>>,
 }
+
+pub type Params = HoverParams;
+
+pub type RegistrationOptions = HoverRegistrationOptions;
+
+pub type Options = HoverOptions;
+
+pub type ClientCapabilities = HoverClientCapabilities;
