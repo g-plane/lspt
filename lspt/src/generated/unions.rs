@@ -152,22 +152,24 @@ impl From<PrepareRenameDefaultBehavior> for PrepareRenameResult {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ProgressToken {
+pub enum NumberOrString {
     Integer(i32),
     String(String),
 }
 
-impl From<i32> for ProgressToken {
+impl From<i32> for NumberOrString {
     fn from(value: i32) -> Self {
         Self::Integer(value)
     }
 }
 
-impl From<String> for ProgressToken {
+impl From<String> for NumberOrString {
     fn from(value: String) -> Self {
         Self::String(value)
     }
 }
+
+pub type ProgressToken = NumberOrString;
 
 
 /// A workspace diagnostic document report.
@@ -964,24 +966,7 @@ impl From<LocationUriOnly> for WorkspaceSymbolLocation {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CancelParamsId {
-    Integer(i32),
-    String(String),
-}
-
-impl From<i32> for CancelParamsId {
-    fn from(value: i32) -> Self {
-        Self::Integer(value)
-    }
-}
-
-impl From<String> for CancelParamsId {
-    fn from(value: String) -> Self {
-        Self::String(value)
-    }
-}
+pub type CancelParamsId = NumberOrString;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -1646,24 +1631,7 @@ impl From<InlineCompletionOptions> for InlineCompletionProvider {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum DiagnosticCode {
-    Integer(i32),
-    String(String),
-}
-
-impl From<i32> for DiagnosticCode {
-    fn from(value: i32) -> Self {
-        Self::Integer(value)
-    }
-}
-
-impl From<String> for DiagnosticCode {
-    fn from(value: String) -> Self {
-        Self::String(value)
-    }
-}
+pub type DiagnosticCode = NumberOrString;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]

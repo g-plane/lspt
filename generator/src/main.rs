@@ -785,19 +785,34 @@ struct ReusableUnionVariant {
     ty: &'static str,
 }
 
-const REUSABLE_UNIONS: &[ReusableUnion] = &[ReusableUnion {
-    name: "StringOrMarkupContent",
-    variants: &[
-        ReusableUnionVariant {
-            name: "String",
-            ty: "String",
-        },
-        ReusableUnionVariant {
-            name: "MarkupContent",
-            ty: "MarkupContent",
-        },
-    ],
-}];
+const REUSABLE_UNIONS: &[ReusableUnion] = &[
+    ReusableUnion {
+        name: "NumberOrString",
+        variants: &[
+            ReusableUnionVariant {
+                name: "Integer",
+                ty: "i32",
+            },
+            ReusableUnionVariant {
+                name: "String",
+                ty: "String",
+            },
+        ],
+    },
+    ReusableUnion {
+        name: "StringOrMarkupContent",
+        variants: &[
+            ReusableUnionVariant {
+                name: "String",
+                ty: "String",
+            },
+            ReusableUnionVariant {
+                name: "MarkupContent",
+                ty: "MarkupContent",
+            },
+        ],
+    },
+];
 
 fn reusable_union_name(variants: &[UnionVariant]) -> Option<&'static str> {
     REUSABLE_UNIONS
