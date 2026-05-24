@@ -677,10 +677,10 @@ impl UnionRegistry {
         proposed: bool,
     ) -> String {
         if let Some(target_name) = reusable_union_name(&variants) {
-            return self.push_reusable(name, target_name, variants, documentation, proposed);
+            self.push_reusable(name, target_name, variants, documentation, proposed)
+        } else {
+            self.push_definition(name, variants, documentation, proposed)
         }
-
-        self.push_definition(name, variants, documentation, proposed)
     }
 
     fn push_reusable(
@@ -691,7 +691,11 @@ impl UnionRegistry {
         documentation: Option<&str>,
         proposed: bool,
     ) -> String {
-        let target_documentation = (requested_name == target_name).then_some(documentation).flatten();
+        let target_documentation = if requested_name == target_name {
+            documentation
+        } else {
+            None
+        };
         let target = self.push_definition(target_name.into(), variants, target_documentation, proposed);
         if requested_name == target {
             target
@@ -945,10 +949,10 @@ fn shorten_field_union_name(parent: &str, field: &str) -> String {
         .or_else(|| parent.strip_suffix("Options"))
         && !stem.is_empty()
     {
-        return format!("{stem}{field}");
+        format!("{stem}{field}")
+    } else {
+        format!("{parent}{field}")
     }
-
-    format!("{parent}{field}")
 }
 
 fn gen_unions(unions: &UnionRegistry) -> String {
@@ -1103,10 +1107,10 @@ fn normalize_union_items(items: &[TypeDef]) -> Vec<TypeDef> {
         && matches!(items.get(1), Some(item) if is_ref(item, "AnnotatedTextEdit"))
         && matches!(items.get(2), Some(item) if is_ref(item, "SnippetTextEdit"))
     {
-        return items[..2].to_vec();
+        items[..2].to_vec()
+    } else {
+        items.to_vec()
     }
-
-    items.to_vec()
 }
 
 fn is_ref(type_def: &TypeDef, expected: &str) -> bool {
