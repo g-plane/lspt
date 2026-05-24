@@ -10,14 +10,14 @@ use crate::{HashMap, Uri};
 use serde::{Deserialize, Serialize};
 use super::*;
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// The definition of a symbol represented as one or many {@link Location locations}.
 /// For most programming languages there is only one location at which a symbol is
 /// defined.
 ///
 /// Servers should prefer returning `DefinitionLink` over `Definition` if supported
 /// by the client.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum Definition {
     Location(Location),
     /// `LocationList`.
@@ -36,10 +36,9 @@ impl From<Vec<Location>> for Definition {
     }
 }
 
-
-/// The declaration of a symbol representation as one or many {@link Location locations}.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
+/// The declaration of a symbol representation as one or many {@link Location locations}.
 pub enum Declaration {
     Location(Location),
     /// `LocationList`.
@@ -58,7 +57,8 @@ impl From<Vec<Location>> for Declaration {
     }
 }
 
-
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// Inline value information can be provided by different means:
 /// - directly as a text value (class InlineValueText).
 /// - as a name to use for a variable lookup (class InlineValueVariableLookup)
@@ -66,8 +66,6 @@ impl From<Vec<Location>> for Declaration {
 /// The InlineValue types combines all inline value types into one type.
 ///
 /// @since 3.17.0
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum InlineValue {
     /// `InlineValueText`.
     Text(InlineValueText),
@@ -95,7 +93,8 @@ impl From<InlineValueEvaluatableExpression> for InlineValue {
     }
 }
 
-
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// The result of a document diagnostic pull request. A report can
 /// either be a full report containing all diagnostics for the
 /// requested document or an unchanged report indicating that nothing
@@ -103,8 +102,6 @@ impl From<InlineValueEvaluatableExpression> for InlineValue {
 /// pull request.
 ///
 /// @since 3.17.0
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum DocumentDiagnosticReport {
     /// `RelatedFullDocumentDiagnosticReport`.
     Full(RelatedFullDocumentDiagnosticReport),
@@ -171,12 +168,11 @@ impl From<String> for NumberOrString {
 
 pub type ProgressToken = NumberOrString;
 
-
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// A workspace diagnostic document report.
 ///
 /// @since 3.17.0
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum WorkspaceDocumentDiagnosticReport {
     /// `WorkspaceFullDocumentDiagnosticReport`.
     Full(WorkspaceFullDocumentDiagnosticReport),
@@ -196,11 +192,10 @@ impl From<WorkspaceUnchangedDocumentDiagnosticReport> for WorkspaceDocumentDiagn
     }
 }
 
-
-/// An event describing a change to a text document. If only a text is provided
-/// it is considered to be the full content of the document.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
+/// An event describing a change to a text document. If only a text is provided
+/// it is considered to be the full content of the document.
 pub enum TextDocumentContentChangeEvent {
     /// `TextDocumentContentChangePartial`.
     Partial(TextDocumentContentChangePartial),
@@ -220,7 +215,8 @@ impl From<TextDocumentContentChangeWholeDocument> for TextDocumentContentChangeE
     }
 }
 
-
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// MarkedString can be used to render human readable text. It is either a markdown string
 /// or a code-block that provides a language and a code snippet. The language identifier
 /// is semantically equal to the optional language identifier in fenced code blocks in GitHub
@@ -233,8 +229,6 @@ impl From<TextDocumentContentChangeWholeDocument> for TextDocumentContentChangeE
 ///
 /// Note that markdown strings will be sanitized - that means html will be escaped.
 /// @deprecated use MarkupContent instead.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum MarkedString {
     String(String),
     /// `MarkedStringWithLanguage`.
@@ -253,13 +247,12 @@ impl From<MarkedStringWithLanguage> for MarkedString {
     }
 }
 
-
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// A document filter describes a top level text document or
 /// a notebook cell document.
 ///
 /// @since 3.17.0 - support for NotebookCellTextDocumentFilter.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum DocumentFilter {
     TextDocumentFilter(TextDocumentFilter),
     NotebookCellTextDocumentFilter(NotebookCellTextDocumentFilter),
@@ -277,12 +270,11 @@ impl From<NotebookCellTextDocumentFilter> for DocumentFilter {
     }
 }
 
-
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// The glob pattern. Either a string pattern or a relative pattern.
 ///
 /// @since 3.17.0
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum GlobPattern {
     Pattern(Pattern),
     RelativePattern(RelativePattern),
@@ -300,7 +292,8 @@ impl From<RelativePattern> for GlobPattern {
     }
 }
 
-
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// A document filter denotes a document by different properties like
 /// the {@link TextDocument.languageId language}, the {@link Uri.scheme scheme} of
 /// its resource, or a glob-pattern that is applied to the {@link TextDocument.fileName path}.
@@ -317,8 +310,6 @@ impl From<RelativePattern> for GlobPattern {
 /// @sample A language filter that applies to all package.json paths: `{ language: 'json', pattern: '**package.json' }`
 ///
 /// @since 3.17.0
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum TextDocumentFilter {
     /// `TextDocumentFilterLanguage`.
     Language(TextDocumentFilterLanguage),
@@ -346,14 +337,13 @@ impl From<TextDocumentFilterPattern> for TextDocumentFilter {
     }
 }
 
-
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// A notebook document filter denotes a notebook document by
 /// different properties. The properties will be match
 /// against the notebook's URI (same as with documents)
 ///
 /// @since 3.17.0
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum NotebookDocumentFilter {
     /// `NotebookDocumentFilterNotebookType`.
     NotebookType(NotebookDocumentFilterNotebookType),

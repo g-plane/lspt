@@ -103,6 +103,7 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 use crate::{{HashMap, Uri}};
 use serde::{{Deserialize, Serialize}};
 use super::*;
+
 {}",
             unions,
         ),
@@ -983,11 +984,8 @@ fn gen_union_def(union: &UnionDef) -> String {
         .join("\n");
     let from_impls = gen_union_from_impls(union);
     format!(
-        "{cfg}{}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]\npub enum {} {{\n{}\n}}{from_impls}",
-        doc,
-        if doc.is_empty() { "" } else { "\n" },
-        union.name,
-        variants,
+        "{cfg}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]{}\npub enum {} {{\n{}\n}}{from_impls}",
+        doc, union.name, variants,
     )
 }
 
