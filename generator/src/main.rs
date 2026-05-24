@@ -835,6 +835,7 @@ fn gen_unions(unions: &UnionRegistry) -> String {
         .iter()
         .map(|union| {
             let doc = gen_doc(union.documentation.as_deref(), 0);
+            let cfg = gen_union_cfg(union);
             let variants = union
                 .variants
                 .iter()
@@ -847,13 +848,9 @@ fn gen_unions(unions: &UnionRegistry) -> String {
                     format!("{original_name}    {}({}),", variant.name, variant.ty)
                 })
                 .join("\n");
+            let from_impls = gen_union_from_impls(union);
             format!(
-                "{}{}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]\npub enum {} {{\n{}\n}}",
-                if union.proposed {
-                    "#[cfg(feature = \"proposed\")]\n"
-                } else {
-                    ""
-                },
+                "{cfg}{}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]\npub enum {} {{\n{}\n}}{from_impls}",
                 doc,
                 if doc.is_empty() { "" } else { "\n" },
                 union.name,
@@ -861,6 +858,33 @@ fn gen_unions(unions: &UnionRegistry) -> String {
             )
         })
         .join("\n\n")
+}
+
+fn gen_union_cfg(union: &UnionDef) -> &'static str {
+    if union.proposed {
+        "#[cfg(feature = \"proposed\")]\n"
+    } else {
+        ""
+    }
+}
+
+fn gen_union_from_impls(union: &UnionDef) -> String {
+    union
+        .variants
+        .iter()
+        .filter(|variant| variant.ty != union.name && has_unique_variant_type(union, &variant.ty))
+        .map(|variant| {
+            let cfg = gen_union_cfg(union);
+            format!(
+                "\n\n{cfg}impl From<{}> for {} {{\n    fn from(value: {}) -> Self {{\n        Self::{}(value)\n    }}\n}}",
+                variant.ty, union.name, variant.ty, variant.name
+            )
+        })
+        .join("")
+}
+
+fn has_unique_variant_type(union: &UnionDef, ty: &str) -> bool {
+    union.variants.iter().filter(|variant| variant.ty == ty).count() == 1
 }
 
 fn gen_type_def(
