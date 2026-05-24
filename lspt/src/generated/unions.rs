@@ -318,14 +318,14 @@ pub enum WorkspaceSymbolResponse {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SemanticTokensRange {
-    Boolean(bool),
+    Bool(bool),
     Object(serde_json::Value),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SemanticTokensFull {
-    Boolean(bool),
+    Bool(bool),
     /// `SemanticTokensFullDelta`.
     Delta(SemanticTokensFullDelta),
 }
@@ -459,7 +459,7 @@ pub enum NotebookDocumentSync {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HoverProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `HoverOptions`.
     Options(HoverOptions),
 }
@@ -467,7 +467,7 @@ pub enum HoverProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeclarationProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `DeclarationOptions`.
     Options(DeclarationOptions),
     /// `DeclarationRegistrationOptions`.
@@ -477,7 +477,7 @@ pub enum DeclarationProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DefinitionProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `DefinitionOptions`.
     Options(DefinitionOptions),
 }
@@ -485,7 +485,7 @@ pub enum DefinitionProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TypeDefinitionProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `TypeDefinitionOptions`.
     Options(TypeDefinitionOptions),
     /// `TypeDefinitionRegistrationOptions`.
@@ -495,7 +495,7 @@ pub enum TypeDefinitionProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImplementationProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `ImplementationOptions`.
     Options(ImplementationOptions),
     /// `ImplementationRegistrationOptions`.
@@ -505,14 +505,14 @@ pub enum ImplementationProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReferencesProvider {
-    Boolean(bool),
+    Bool(bool),
     ReferenceOptions(ReferenceOptions),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DocumentHighlightProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `DocumentHighlightOptions`.
     Options(DocumentHighlightOptions),
 }
@@ -520,7 +520,7 @@ pub enum DocumentHighlightProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DocumentSymbolProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `DocumentSymbolOptions`.
     Options(DocumentSymbolOptions),
 }
@@ -528,7 +528,7 @@ pub enum DocumentSymbolProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeActionProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `CodeActionOptions`.
     Options(CodeActionOptions),
 }
@@ -536,7 +536,7 @@ pub enum CodeActionProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ColorProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `DocumentColorOptions`.
     Options(DocumentColorOptions),
     /// `DocumentColorRegistrationOptions`.
@@ -546,7 +546,7 @@ pub enum ColorProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum WorkspaceSymbolProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `WorkspaceSymbolOptions`.
     Options(WorkspaceSymbolOptions),
 }
@@ -554,7 +554,7 @@ pub enum WorkspaceSymbolProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DocumentFormattingProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `DocumentFormattingOptions`.
     Options(DocumentFormattingOptions),
 }
@@ -562,7 +562,7 @@ pub enum DocumentFormattingProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DocumentRangeFormattingProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `DocumentRangeFormattingOptions`.
     Options(DocumentRangeFormattingOptions),
 }
@@ -570,7 +570,7 @@ pub enum DocumentRangeFormattingProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RenameProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `RenameOptions`.
     Options(RenameOptions),
 }
@@ -578,7 +578,7 @@ pub enum RenameProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FoldingRangeProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `FoldingRangeOptions`.
     Options(FoldingRangeOptions),
     /// `FoldingRangeRegistrationOptions`.
@@ -588,7 +588,7 @@ pub enum FoldingRangeProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SelectionRangeProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `SelectionRangeOptions`.
     Options(SelectionRangeOptions),
     /// `SelectionRangeRegistrationOptions`.
@@ -598,7 +598,7 @@ pub enum SelectionRangeProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CallHierarchyProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `CallHierarchyOptions`.
     Options(CallHierarchyOptions),
     /// `CallHierarchyRegistrationOptions`.
@@ -608,7 +608,7 @@ pub enum CallHierarchyProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum LinkedEditingRangeProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `LinkedEditingRangeOptions`.
     Options(LinkedEditingRangeOptions),
     /// `LinkedEditingRangeRegistrationOptions`.
@@ -627,7 +627,7 @@ pub enum SemanticTokensProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonikerProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `MonikerOptions`.
     Options(MonikerOptions),
     /// `MonikerRegistrationOptions`.
@@ -637,7 +637,7 @@ pub enum MonikerProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TypeHierarchyProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `TypeHierarchyOptions`.
     Options(TypeHierarchyOptions),
     /// `TypeHierarchyRegistrationOptions`.
@@ -647,7 +647,7 @@ pub enum TypeHierarchyProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineValueProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `InlineValueOptions`.
     Options(InlineValueOptions),
     /// `InlineValueRegistrationOptions`.
@@ -657,7 +657,7 @@ pub enum InlineValueProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlayHintProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `InlayHintOptions`.
     Options(InlayHintOptions),
     /// `InlayHintRegistrationOptions`.
@@ -677,7 +677,7 @@ pub enum DiagnosticProvider {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineCompletionProvider {
-    Boolean(bool),
+    Bool(bool),
     /// `InlineCompletionOptions`.
     Options(InlineCompletionOptions),
 }
@@ -713,7 +713,7 @@ pub enum NotebookDocumentFilterNotebook {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TextDocumentSyncSave {
-    Boolean(bool),
+    Bool(bool),
     SaveOptions(SaveOptions),
 }
 
@@ -745,7 +745,7 @@ pub enum ParameterInformationDocumentation {
 #[serde(untagged)]
 pub enum WorkspaceFoldersChangeNotifications {
     String(String),
-    Boolean(bool),
+    Bool(bool),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -758,14 +758,14 @@ pub enum RelativePatternBaseUri {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClientSemanticTokensRequestRange {
-    Boolean(bool),
+    Bool(bool),
     Object(serde_json::Value),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClientSemanticTokensRequestFull {
-    Boolean(bool),
+    Bool(bool),
     /// `ClientSemanticTokensRequestFullDelta`.
     Delta(ClientSemanticTokensRequestFullDelta),
 }

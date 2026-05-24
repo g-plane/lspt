@@ -890,7 +890,7 @@ fn gen_type_def(
             } else {
                 let union_name = context.union_name();
                 let original_variant_names = items.iter().map(gen_variant_name).collect::<Vec<_>>();
-                let variant_names = shorten_variant_names(original_variant_names.clone(), &union_name);
+                let variant_names = shorten_variant_names(&items, original_variant_names.clone(), &union_name);
                 let variants = items
                     .iter()
                     .zip(original_variant_names)
@@ -953,7 +953,7 @@ fn gen_variant_name(type_def: &TypeDef) -> String {
             BaseType::Uinteger => "UInteger",
             BaseType::Integer => "Integer",
             BaseType::String => "String",
-            BaseType::Boolean => "Boolean",
+            BaseType::Boolean => "Bool",
             BaseType::DocumentUri => "DocumentUri",
             BaseType::Uri => "Uri",
             BaseType::Decimal => "Decimal",
@@ -975,15 +975,17 @@ fn gen_variant_name(type_def: &TypeDef) -> String {
     }
 }
 
-fn shorten_variant_names(names: Vec<String>, enum_name: &str) -> Vec<String> {
+fn shorten_variant_names(type_defs: &[TypeDef], names: Vec<String>, enum_name: &str) -> Vec<String> {
+    debug_assert_eq!(type_defs.len(), names.len());
+
     let segments = names
         .iter()
         .map(|name| split_upper_camel_case(name))
         .collect::<Vec<_>>();
-    let named_variant_indices = names
+    let named_variant_indices = type_defs
         .iter()
         .enumerate()
-        .filter_map(|(index, name)| (!is_base_variant_name(name)).then_some(index))
+        .filter_map(|(index, type_def)| (!is_base_variant_type(type_def)).then_some(index))
         .collect::<Vec<_>>();
     let candidate_segments = shortened_variant_segments(&segments, &named_variant_indices);
     let enum_segments = split_upper_camel_case(enum_name);
@@ -992,8 +994,11 @@ fn shorten_variant_names(names: Vec<String>, enum_name: &str) -> Vec<String> {
         .into_iter()
         .enumerate()
         .fold(IndexSet::new(), |mut shortened_names, (index, name)| {
+            let is_base_variant = is_base_variant_type(&type_defs[index]);
             let candidates = [
-                shortened_variant_against_enum(&segments[index], &enum_segments, named_variant_indices.len()),
+                (!is_base_variant)
+                    .then(|| shortened_variant_against_enum(&segments[index], &enum_segments, named_variant_indices.len()))
+                    .flatten(),
                 candidate_segments
                     .as_ref()
                     .and_then(|segments| segments.get(&index))
@@ -1052,7 +1057,7 @@ fn shortened_variant_against_enum(
     enum_segments: &[String],
     named_variant_count: usize,
 ) -> Option<String> {
-    if named_variant_count != 1 || is_base_variant_name(&segments.concat()) {
+    if named_variant_count != 1 {
         return None;
     }
 
@@ -1112,11 +1117,8 @@ fn common_suffix_len_all(items: &[&[String]]) -> usize {
         .count()
 }
 
-fn is_base_variant_name(name: &str) -> bool {
-    matches!(
-        name,
-        "Boolean" | "Decimal" | "DocumentUri" | "Integer" | "Null" | "String" | "UInteger" | "Uri"
-    )
+fn is_base_variant_type(type_def: &TypeDef) -> bool {
+    matches!(type_def, TypeDef::Base { .. })
 }
 
 fn is_generic_variant_name(name: &str) -> bool {
