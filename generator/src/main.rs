@@ -1,8 +1,8 @@
 use heck::{ToSnakeCase, ToUpperCamelCase};
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use serde::Deserialize;
-use std::{env, fmt::Write, fs};
+use std::{env, fmt::Write, fs, path::Path};
 
 fn main() -> anyhow::Result<()> {
     let agent = if let Ok(proxy) = env::var("https_proxy") {
@@ -63,18 +63,7 @@ pub trait Notification {{
         ),
     )?;
 
-    fs::write(
-        "./lspt/src/generated/structs.rs",
-        format!(
-            "// DO NOT EDIT THIS GENERATED FILE.
-
-use crate::{{HashMap, Uri}};
-use serde::{{Deserialize, Serialize}};
-use super::*;
-{}",
-            structs,
-        ),
-    )?;
+    write_generated_structs(&structs)?;
 
     fs::write(
         "./lspt/src/generated/enums.rs",
@@ -305,7 +294,18 @@ impl Notification for {} {{
         })
 }
 
-fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
+struct GeneratedStruct {
+    name: String,
+    proposed: bool,
+    source: String,
+}
+
+struct StructAlias {
+    module: String,
+    stem: String,
+}
+
+fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> Vec<GeneratedStruct> {
     lsp_def
         .structures
         .iter()
@@ -320,12 +320,13 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                     | "StaticRegistrationOptions"
             )
         })
-        .fold(String::new(), |mut output, structure| {
+        .map(|structure| {
+            let mut source = String::new();
             if structure.proposed {
-                output.push_str("\n#[cfg(feature = \"proposed\")]");
+                source.push_str("\n#[cfg(feature = \"proposed\")]");
             }
             if let Some(deprecated) = &structure.deprecated {
-                let _ = write!(output, "\n#[deprecated = \"{deprecated}\"]");
+                let _ = write!(source, "\n#[deprecated = \"{deprecated}\"]");
             }
             let default = if can_derive_default(structure, lsp_def) {
                 "Default, "
@@ -338,24 +339,24 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                 _ => "",
             };
             let _ = write!(
-                output,
+                source,
                 "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize{additional_derives})]"
             );
-            output.push_str("\n#[serde(rename_all = \"camelCase\")]");
-            output.push_str(&gen_doc(structure.documentation.as_deref(), 0));
-            let _ = write!(output, "\npub struct {} {{", structure.name);
+            source.push_str("\n#[serde(rename_all = \"camelCase\")]");
+            source.push_str(&gen_doc(structure.documentation.as_deref(), 0));
+            let _ = write!(source, "\npub struct {} {{", structure.name);
             get_extends(structure, lsp_def)
                 .iter()
                 .chain(structure.properties.iter())
                 .chain(get_mixins(structure, lsp_def).iter())
                 .filter(|property| property.deprecated.is_none())
-                .fold(&mut output, |output, property| {
+                .fold(&mut source, |source, property| {
                     if property.proposed {
-                        output.push_str("\n    #[cfg(feature = \"proposed\")]");
+                        source.push_str("\n    #[cfg(feature = \"proposed\")]");
                     }
                     let mut name = property.name.to_snake_case();
                     if name == "type" {
-                        output.push_str("\n    #[serde(rename = \"type\")]");
+                        source.push_str("\n    #[serde(rename = \"type\")]");
                         name = "ty".into();
                     }
                     let mut optional = property.optional;
@@ -389,19 +390,129 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                         _ => {}
                     }
                     if optional {
-                        output.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
-                        output.push_str(&gen_doc(property.documentation.as_deref(), 4));
-                        let _ = write!(output, "\n    pub {name}: Option<{ty}>,");
+                        source.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
+                        source.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                        let _ = write!(source, "\n    pub {name}: Option<{ty}>,");
                     } else {
-                        output.push_str(&gen_doc(property.documentation.as_deref(), 4));
-                        let _ = write!(output, "\n    pub {name}: {ty},");
+                        source.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                        let _ = write!(source, "\n    pub {name}: {ty},");
                     }
-                    output.push('\n');
-                    output
+                    source.push('\n');
+                    source
                 });
-            output.push_str("}\n");
-            output
+            source.push_str("}\n");
+            GeneratedStruct {
+                name: structure.name.clone(),
+                proposed: structure.proposed,
+                source: source.trim_start().into(),
+            }
         })
+        .collect()
+}
+
+fn write_generated_structs(structs: &[GeneratedStruct]) -> anyhow::Result<()> {
+    let legacy_path = Path::new("./lspt/src/generated/structs.rs");
+    if legacy_path.exists() {
+        fs::remove_file(legacy_path)?;
+    }
+
+    let output_dir = Path::new("./lspt/src/generated/structs");
+    if output_dir.exists() {
+        fs::remove_dir_all(output_dir)?;
+    }
+    fs::create_dir_all(output_dir)?;
+
+    let modules = group_structs(structs);
+    for (module, structs) in &modules {
+        let source = structs.iter().map(|structure| structure.source.as_str()).join("\n\n");
+        fs::write(
+            output_dir.join(format!("{module}.rs")),
+            format!("{}\n{}", gen_struct_module_header(), source),
+        )?;
+    }
+
+    let mod_declarations = modules.keys().map(|module| format!("pub mod {module};")).join("\n");
+    let re_exports = modules
+        .iter()
+        .flat_map(|(module, structs)| {
+            structs.iter().map(move |structure| {
+                let cfg = if structure.proposed {
+                    "#[cfg(feature = \"proposed\")]\n"
+                } else {
+                    ""
+                };
+                format!("{cfg}pub use self::{module}::{};", structure.name)
+            })
+        })
+        .join("\n");
+    fs::write(
+        output_dir.join("mod.rs"),
+        format!("// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(deprecated)]\n\n{mod_declarations}\n\n{re_exports}\n"),
+    )?;
+
+    Ok(())
+}
+
+fn gen_struct_module_header() -> &'static str {
+    "// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(unused_imports)]\n\nuse crate::{HashMap, Uri};\nuse serde::{Deserialize, Serialize};\nuse super::*;\nuse super::super::*;\n"
+}
+
+fn group_structs(structs: &[GeneratedStruct]) -> IndexMap<String, Vec<&GeneratedStruct>> {
+    let feature_stems = structs
+        .iter()
+        .filter_map(|structure| struct_alias(&structure.name))
+        .map(|alias| (alias.stem, alias.module))
+        .unique()
+        .sorted_by_key(|(stem, _)| std::cmp::Reverse(stem.len()))
+        .collect::<Vec<_>>();
+
+    let mut modules = IndexMap::<String, Vec<&GeneratedStruct>>::new();
+    for structure in structs {
+        modules
+            .entry(struct_module(&structure.name, &feature_stems))
+            .or_default()
+            .push(structure);
+    }
+    modules
+}
+
+fn struct_module(name: &str, feature_stems: &[(String, String)]) -> String {
+    if let Some(alias) = struct_alias(name) {
+        return alias.module;
+    }
+
+    feature_stems
+        .iter()
+        .find(|(stem, _)| name.starts_with(stem))
+        .map(|(_, module)| module.clone())
+        .unwrap_or_else(|| "common".into())
+}
+
+fn struct_alias(name: &str) -> Option<StructAlias> {
+    const SUFFIXES: &[&str] = &[
+        "WorkspaceClientCapabilities",
+        "ClientCapabilities",
+        "ServerCapabilities",
+        "RegistrationOptions",
+        "PartialResult",
+        "Options",
+        "Params",
+        "Result",
+        "Report",
+        "Identifier",
+    ];
+
+    SUFFIXES.iter().find_map(|suffix| {
+        let stem = name.strip_suffix(suffix)?;
+        if stem.is_empty() {
+            return None;
+        }
+        let stem = stem.strip_prefix("Client").filter(|stem| !stem.is_empty()).unwrap_or(stem);
+        Some(StructAlias {
+            module: stem.to_snake_case(),
+            stem: stem.into(),
+        })
+    })
 }
 fn can_derive_default(structure: &Structure, lsp_def: &LspDef) -> bool {
     !structure
