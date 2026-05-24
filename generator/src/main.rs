@@ -434,22 +434,22 @@ fn write_generated_structs(structs: &[GeneratedStruct]) -> anyhow::Result<()> {
     }
 
     let mod_declarations = modules.keys().map(|module| format!("pub mod {module};")).join("\n");
-    let re_exports = modules
+    let internal_re_exports = modules
         .iter()
         .flat_map(|(module, structs)| {
             structs.iter().map(move |structure| {
                 let cfg = if structure.proposed {
-                    "#[cfg(feature = \"proposed\")]\n"
+                    "    #[cfg(feature = \"proposed\")]\n"
                 } else {
                     ""
                 };
-                format!("{cfg}pub use self::{module}::{};", structure.name)
+                format!("{cfg}    pub(crate) use super::{module}::{};", structure.name)
             })
         })
         .join("\n");
     fs::write(
         output_dir.join("mod.rs"),
-        format!("// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(deprecated)]\n\n{mod_declarations}\n\n{re_exports}\n"),
+        format!("// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(deprecated)]\n\n{mod_declarations}\n\npub(crate) mod internal {{\n    #![allow(unused_imports)]\n\n{internal_re_exports}\n}}\n"),
     )?;
 
     Ok(())
