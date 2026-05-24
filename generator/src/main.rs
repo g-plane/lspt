@@ -636,6 +636,8 @@ impl<'de> Deserialize<'de> for {name} {{
 struct UnionRegistry {
     names: IndexSet<String>,
     definitions: Vec<UnionDef>,
+    aliases: Vec<UnionAlias>,
+    entries: Vec<UnionEntry>,
 }
 
 struct UnionDef {
@@ -644,6 +646,19 @@ struct UnionDef {
     variants: Vec<UnionVariant>,
     documentation: Option<String>,
     proposed: bool,
+}
+
+struct UnionAlias {
+    requested_name: String,
+    name: String,
+    target: String,
+    documentation: Option<String>,
+    proposed: bool,
+}
+
+enum UnionEntry {
+    Definition(usize),
+    Alias(usize),
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -661,6 +676,37 @@ impl UnionRegistry {
         documentation: Option<&str>,
         proposed: bool,
     ) -> String {
+        if let Some(target_name) = reusable_union_name(&variants) {
+            return self.push_reusable(name, target_name, variants, documentation, proposed);
+        }
+
+        self.push_definition(name, variants, documentation, proposed)
+    }
+
+    fn push_reusable(
+        &mut self,
+        requested_name: String,
+        target_name: &str,
+        variants: Vec<UnionVariant>,
+        documentation: Option<&str>,
+        proposed: bool,
+    ) -> String {
+        let target_documentation = (requested_name == target_name).then_some(documentation).flatten();
+        let target = self.push_definition(target_name.into(), variants, target_documentation, proposed);
+        if requested_name == target {
+            target
+        } else {
+            self.push_alias(requested_name, target, documentation, proposed)
+        }
+    }
+
+    fn push_definition(
+        &mut self,
+        name: String,
+        variants: Vec<UnionVariant>,
+        documentation: Option<&str>,
+        proposed: bool,
+    ) -> String {
         let requested_name = name;
         if let Some(definition) = self
             .definitions
@@ -672,6 +718,7 @@ impl UnionRegistry {
         }
 
         let name = self.unique_name(requested_name.clone());
+        let index = self.definitions.len();
         self.definitions.push(UnionDef {
             requested_name,
             name: name.clone(),
@@ -679,6 +726,36 @@ impl UnionRegistry {
             documentation: documentation.map(str::to_string),
             proposed,
         });
+        self.entries.push(UnionEntry::Definition(index));
+        name
+    }
+
+    fn push_alias(
+        &mut self,
+        requested_name: String,
+        target: String,
+        documentation: Option<&str>,
+        proposed: bool,
+    ) -> String {
+        if let Some(alias) = self
+            .aliases
+            .iter_mut()
+            .find(|alias| alias.requested_name == requested_name && alias.target == target)
+        {
+            alias.proposed &= proposed;
+            return alias.name.clone();
+        }
+
+        let name = self.unique_name(requested_name.clone());
+        let index = self.aliases.len();
+        self.aliases.push(UnionAlias {
+            requested_name,
+            name: name.clone(),
+            target,
+            documentation: documentation.map(str::to_string),
+            proposed,
+        });
+        self.entries.push(UnionEntry::Alias(index));
         name
     }
 
@@ -696,6 +773,45 @@ impl UnionRegistry {
 
         unreachable!()
     }
+}
+
+struct ReusableUnion {
+    name: &'static str,
+    variants: &'static [ReusableUnionVariant],
+}
+
+struct ReusableUnionVariant {
+    name: &'static str,
+    ty: &'static str,
+}
+
+const REUSABLE_UNIONS: &[ReusableUnion] = &[ReusableUnion {
+    name: "StringOrMarkupContent",
+    variants: &[
+        ReusableUnionVariant {
+            name: "String",
+            ty: "String",
+        },
+        ReusableUnionVariant {
+            name: "MarkupContent",
+            ty: "MarkupContent",
+        },
+    ],
+}];
+
+fn reusable_union_name(variants: &[UnionVariant]) -> Option<&'static str> {
+    REUSABLE_UNIONS
+        .iter()
+        .find(|reusable| {
+            variants.len() == reusable.variants.len()
+                && variants
+                    .iter()
+                    .zip(reusable.variants)
+                    .all(|(variant, reusable_variant)| {
+                        variant.name == reusable_variant.name && variant.ty == reusable_variant.ty
+                    })
+        })
+        .map(|reusable| reusable.name)
 }
 
 #[derive(Clone)]
@@ -808,9 +924,7 @@ fn is_notebook_filter_notebook_field(parent: &str, field: &str) -> bool {
     field == "notebook"
         && matches!(
             parent,
-            "NotebookDocumentFilterWithNotebook"
-                | "NotebookDocumentFilterWithCells"
-                | "NotebookCellTextDocumentFilter"
+            "NotebookDocumentFilterWithNotebook" | "NotebookDocumentFilterWithCells" | "NotebookCellTextDocumentFilter"
         )
 }
 
@@ -831,41 +945,62 @@ fn shorten_field_union_name(parent: &str, field: &str) -> String {
 
 fn gen_unions(unions: &UnionRegistry) -> String {
     unions
-        .definitions
+        .entries
         .iter()
-        .map(|union| {
-            let doc = gen_doc(union.documentation.as_deref(), 0);
-            let cfg = gen_union_cfg(union);
-            let variants = union
-                .variants
-                .iter()
-                .map(|variant| {
-                    let original_name = variant
-                        .original_name
-                        .as_ref()
-                        .map(|name| format!("    /// `{name}`.\n"))
-                        .unwrap_or_default();
-                    format!("{original_name}    {}({}),", variant.name, variant.ty)
-                })
-                .join("\n");
-            let from_impls = gen_union_from_impls(union);
-            format!(
-                "{cfg}{}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]\npub enum {} {{\n{}\n}}{from_impls}",
-                doc,
-                if doc.is_empty() { "" } else { "\n" },
-                union.name,
-                variants,
-            )
+        .map(|entry| match entry {
+            UnionEntry::Definition(index) => gen_union_def(&unions.definitions[*index]),
+            UnionEntry::Alias(index) => gen_union_alias(&unions.aliases[*index]),
         })
         .join("\n\n")
 }
 
-fn gen_union_cfg(union: &UnionDef) -> &'static str {
-    if union.proposed {
+fn gen_union_def(union: &UnionDef) -> String {
+    let doc = gen_doc(union.documentation.as_deref(), 0);
+    let cfg = gen_cfg(union.proposed);
+    let variants = union
+        .variants
+        .iter()
+        .map(|variant| {
+            let original_name = variant
+                .original_name
+                .as_ref()
+                .map(|name| format!("    /// `{name}`.\n"))
+                .unwrap_or_default();
+            format!("{original_name}    {}({}),", variant.name, variant.ty)
+        })
+        .join("\n");
+    let from_impls = gen_union_from_impls(union);
+    format!(
+        "{cfg}{}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]\npub enum {} {{\n{}\n}}{from_impls}",
+        doc,
+        if doc.is_empty() { "" } else { "\n" },
+        union.name,
+        variants,
+    )
+}
+
+fn gen_union_alias(alias: &UnionAlias) -> String {
+    let doc = gen_doc(alias.documentation.as_deref(), 0);
+    let cfg = gen_cfg(alias.proposed);
+    format!(
+        "{cfg}{}{}pub type {} = {};",
+        doc,
+        if doc.is_empty() { "" } else { "\n" },
+        alias.name,
+        alias.target
+    )
+}
+
+fn gen_cfg(proposed: bool) -> &'static str {
+    if proposed {
         "#[cfg(feature = \"proposed\")]\n"
     } else {
         ""
     }
+}
+
+fn gen_union_cfg(union: &UnionDef) -> &'static str {
+    gen_cfg(union.proposed)
 }
 
 fn gen_union_from_impls(union: &UnionDef) -> String {
@@ -1021,7 +1156,9 @@ fn shorten_variant_names(type_defs: &[TypeDef], names: Vec<String>, enum_name: &
             let is_base_variant = is_base_variant_type(&type_defs[index]);
             let candidates = [
                 (!is_base_variant)
-                    .then(|| shortened_variant_against_enum(&segments[index], &enum_segments, named_variant_indices.len()))
+                    .then(|| {
+                        shortened_variant_against_enum(&segments[index], &enum_segments, named_variant_indices.len())
+                    })
                     .flatten(),
                 candidate_segments
                     .as_ref()

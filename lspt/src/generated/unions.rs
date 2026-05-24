@@ -795,22 +795,24 @@ impl From<Vec<InlayHintLabelPart>> for InlayHintLabel {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum InlayHintTooltip {
+pub enum StringOrMarkupContent {
     String(String),
     MarkupContent(MarkupContent),
 }
 
-impl From<String> for InlayHintTooltip {
+impl From<String> for StringOrMarkupContent {
     fn from(value: String) -> Self {
         Self::String(value)
     }
 }
 
-impl From<MarkupContent> for InlayHintTooltip {
+impl From<MarkupContent> for StringOrMarkupContent {
     fn from(value: MarkupContent) -> Self {
         Self::MarkupContent(value)
     }
 }
+
+pub type InlayHintTooltip = StringOrMarkupContent;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -895,24 +897,7 @@ impl From<Vec<String>> for DidChangeConfigurationSection {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CompletionItemDocumentation {
-    String(String),
-    MarkupContent(MarkupContent),
-}
-
-impl From<String> for CompletionItemDocumentation {
-    fn from(value: String) -> Self {
-        Self::String(value)
-    }
-}
-
-impl From<MarkupContent> for CompletionItemDocumentation {
-    fn from(value: MarkupContent) -> Self {
-        Self::MarkupContent(value)
-    }
-}
+pub type CompletionItemDocumentation = StringOrMarkupContent;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -1017,24 +1002,7 @@ impl From<AnnotatedTextEdit> for TextDocumentEditEditsItem {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum InlayHintLabelPartTooltip {
-    String(String),
-    MarkupContent(MarkupContent),
-}
-
-impl From<String> for InlayHintLabelPartTooltip {
-    fn from(value: String) -> Self {
-        Self::String(value)
-    }
-}
-
-impl From<MarkupContent> for InlayHintLabelPartTooltip {
-    fn from(value: MarkupContent) -> Self {
-        Self::MarkupContent(value)
-    }
-}
+pub type InlayHintLabelPartTooltip = StringOrMarkupContent;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -1716,24 +1684,7 @@ impl From<EditRangeWithInsertReplace> for CompletionItemDefaultsEditRange {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum SignatureInformationDocumentation {
-    String(String),
-    MarkupContent(MarkupContent),
-}
-
-impl From<String> for SignatureInformationDocumentation {
-    fn from(value: String) -> Self {
-        Self::String(value)
-    }
-}
-
-impl From<MarkupContent> for SignatureInformationDocumentation {
-    fn from(value: MarkupContent) -> Self {
-        Self::MarkupContent(value)
-    }
-}
+pub type SignatureInformationDocumentation = StringOrMarkupContent;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -1816,24 +1767,7 @@ impl From<(u32, u32)> for ParameterInformationLabel {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ParameterInformationDocumentation {
-    String(String),
-    MarkupContent(MarkupContent),
-}
-
-impl From<String> for ParameterInformationDocumentation {
-    fn from(value: String) -> Self {
-        Self::String(value)
-    }
-}
-
-impl From<MarkupContent> for ParameterInformationDocumentation {
-    fn from(value: MarkupContent) -> Self {
-        Self::MarkupContent(value)
-    }
-}
+pub type ParameterInformationDocumentation = StringOrMarkupContent;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
