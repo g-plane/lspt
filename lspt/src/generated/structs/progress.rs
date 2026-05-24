@@ -7,14 +7,23 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProgressParams {
-    /// The progress token provided by the client or server.
-    pub token: ProgressToken,
+mod raw {
+    #![allow(unused_imports)]
 
-    /// The progress data.
-    pub value: serde_json::Value,
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ProgressParams {
+        /// The progress token provided by the client or server.
+        pub token: ProgressToken,
+
+        /// The progress data.
+        pub value: serde_json::Value,
+    }
 }
 
-pub type Params = ProgressParams;
+pub type Params = raw::ProgressParams;

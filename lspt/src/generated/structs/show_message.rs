@@ -7,16 +7,25 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// The parameters of a notification message.
-pub struct ShowMessageParams {
-    #[serde(rename = "type")]
-    /// The message type. See {@link MessageType}
-    pub ty: MessageType,
+mod raw {
+    #![allow(unused_imports)]
 
-    /// The actual message.
-    pub message: String,
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// The parameters of a notification message.
+    pub struct ShowMessageParams {
+        #[serde(rename = "type")]
+        /// The message type. See {@link MessageType}
+        pub ty: MessageType,
+
+        /// The actual message.
+        pub message: String,
+    }
 }
 
-pub type Params = ShowMessageParams;
+pub type Params = raw::ShowMessageParams;

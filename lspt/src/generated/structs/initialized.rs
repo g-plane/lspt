@@ -7,8 +7,17 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InitializedParams {}
+mod raw {
+    #![allow(unused_imports)]
 
-pub type Params = InitializedParams;
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct InitializedParams {}
+}
+
+pub type Params = raw::InitializedParams;

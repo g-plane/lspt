@@ -9,24 +9,6 @@ use super::super::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Parameters for a {@link DocumentSymbolRequest}.
-pub struct DocumentSymbolParams {
-    /// The text document.
-    pub text_document: TextDocumentIdentifier,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report work done progress.
-    pub work_done_token: Option<ProgressToken>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report partial results (e.g. streaming) to
-    /// the client.
-    pub partial_result_token: Option<ProgressToken>,
-}
-
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 /// Represents programming constructs like variables, classes, interfaces etc.
 /// that appear in a document. Document symbols can be hierarchical and they
 /// have two ranges: one that encloses its definition and one that points to
@@ -64,77 +46,104 @@ pub struct DocumentSymbol {
 }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Registration options for a {@link DocumentSymbolRequest}.
-pub struct DocumentSymbolRegistrationOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// A document selector to identify the scope of the registration. If set to null
-    /// the document selector provided on the client side will be used.
-    pub document_selector: Option<DocumentSelector>,
+mod raw {
+    #![allow(unused_imports)]
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// A human-readable string that is shown when multiple outlines trees
-    /// are shown for the same document.
-    ///
-    /// @since 3.16.0
-    pub label: Option<String>,
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Parameters for a {@link DocumentSymbolRequest}.
+    pub struct DocumentSymbolParams {
+        /// The text document.
+        pub text_document: TextDocumentIdentifier,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// An optional token that a server can use to report work done progress.
+        pub work_done_token: Option<ProgressToken>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// An optional token that a server can use to report partial results (e.g. streaming) to
+        /// the client.
+        pub partial_result_token: Option<ProgressToken>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Registration options for a {@link DocumentSymbolRequest}.
+    pub struct DocumentSymbolRegistrationOptions {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// A document selector to identify the scope of the registration. If set to null
+        /// the document selector provided on the client side will be used.
+        pub document_selector: Option<DocumentSelector>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// A human-readable string that is shown when multiple outlines trees
+        /// are shown for the same document.
+        ///
+        /// @since 3.16.0
+        pub label: Option<String>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Provider options for a {@link DocumentSymbolRequest}.
+    pub struct DocumentSymbolOptions {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// A human-readable string that is shown when multiple outlines trees
+        /// are shown for the same document.
+        ///
+        /// @since 3.16.0
+        pub label: Option<String>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub work_done_progress: Option<bool>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Client Capabilities for a {@link DocumentSymbolRequest}.
+    pub struct DocumentSymbolClientCapabilities {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether document symbol supports dynamic registration.
+        pub dynamic_registration: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Specific capabilities for the `SymbolKind` in the
+        /// `textDocument/documentSymbol` request.
+        pub symbol_kind: Option<ClientSymbolKindOptions>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// The client supports hierarchical document symbols.
+        pub hierarchical_document_symbol_support: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// The client supports tags on `SymbolInformation`. Tags are supported on
+        /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.16.0
+        pub tag_support: Option<ClientSymbolTagOptions>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// The client supports an additional label presented in the UI when
+        /// registering a document symbol provider.
+        ///
+        /// @since 3.16.0
+        pub label_support: Option<bool>,
+    }
 }
 
+pub type Params = raw::DocumentSymbolParams;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Provider options for a {@link DocumentSymbolRequest}.
-pub struct DocumentSymbolOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// A human-readable string that is shown when multiple outlines trees
-    /// are shown for the same document.
-    ///
-    /// @since 3.16.0
-    pub label: Option<String>,
+pub type RegistrationOptions = raw::DocumentSymbolRegistrationOptions;
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub work_done_progress: Option<bool>,
-}
+pub type Options = raw::DocumentSymbolOptions;
 
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Client Capabilities for a {@link DocumentSymbolRequest}.
-pub struct DocumentSymbolClientCapabilities {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether document symbol supports dynamic registration.
-    pub dynamic_registration: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Specific capabilities for the `SymbolKind` in the
-    /// `textDocument/documentSymbol` request.
-    pub symbol_kind: Option<ClientSymbolKindOptions>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The client supports hierarchical document symbols.
-    pub hierarchical_document_symbol_support: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The client supports tags on `SymbolInformation`. Tags are supported on
-    /// `DocumentSymbol` if `hierarchicalDocumentSymbolSupport` is set to true.
-    /// Clients supporting tags have to handle unknown tags gracefully.
-    ///
-    /// @since 3.16.0
-    pub tag_support: Option<ClientSymbolTagOptions>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The client supports an additional label presented in the UI when
-    /// registering a document symbol provider.
-    ///
-    /// @since 3.16.0
-    pub label_support: Option<bool>,
-}
-
-pub type Params = DocumentSymbolParams;
-
-pub type RegistrationOptions = DocumentSymbolRegistrationOptions;
-
-pub type Options = DocumentSymbolOptions;
-
-pub type ClientCapabilities = DocumentSymbolClientCapabilities;
+pub type ClientCapabilities = raw::DocumentSymbolClientCapabilities;

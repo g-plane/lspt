@@ -1721,4 +1721,3 @@ pub struct ClientDiagnosticsTagOptions {
     /// The tags supported by the client.
     pub value_set: Vec<DiagnosticTag>,
 }
-

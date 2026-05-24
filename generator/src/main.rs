@@ -435,11 +435,21 @@ fn write_generated_structs(lsp_def: &LspDef, structs: &[GeneratedStruct]) -> any
 
     let modules = group_structs(lsp_def, structs);
     for (module, structs) in &modules {
-        let source = structs.iter().map(|structure| structure.source.as_str()).join("\n\n");
-        let aliases = gen_struct_aliases(module, structs);
+        let alias_paths = module_struct_alias_paths(module, structs);
+        let public_source = structs
+            .iter()
+            .filter(|structure| !alias_paths.contains_key(&structure.name))
+            .map(|structure| structure.source.as_str())
+            .join("\n\n");
+        let raw_source = gen_raw_structs(structs, &alias_paths);
+        let aliases = gen_struct_aliases(&alias_paths, structs);
+        let source = [public_source, raw_source, aliases]
+            .into_iter()
+            .filter(|source| !source.is_empty())
+            .join("\n\n");
         fs::write(
             output_dir.join(format!("{module}.rs")),
-            format!("{}\n{}\n{}", gen_struct_module_header(), source, aliases),
+            format!("{}\n{}", gen_struct_module_header(), source),
         )?;
     }
 
@@ -473,6 +483,40 @@ fn write_generated_structs(lsp_def: &LspDef, structs: &[GeneratedStruct]) -> any
 
 fn gen_struct_module_header() -> &'static str {
     "// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(unused_imports)]\n\nuse crate::{HashMap, Uri};\nuse serde::{Deserialize, Serialize};\nuse super::*;\nuse super::super::*;\n"
+}
+
+fn gen_raw_structs(structs: &[&GeneratedStruct], aliases: &IndexMap<String, Vec<String>>) -> String {
+    let source = structs
+        .iter()
+        .filter(|structure| aliases.contains_key(&structure.name))
+        .map(|structure| structure.source.as_str())
+        .join("\n\n");
+    if source.is_empty() {
+        String::new()
+    } else {
+        format!(
+            "mod raw {{\n{}\n}}",
+            indent_source(&format!("{}\n\n{source}", gen_raw_struct_module_header()), 4)
+        )
+    }
+}
+
+fn gen_raw_struct_module_header() -> &'static str {
+    "#![allow(unused_imports)]\n\nuse crate::{HashMap, Uri};\nuse serde::{Deserialize, Serialize};\nuse super::*;\nuse super::super::*;"
+}
+
+fn indent_source(source: &str, spaces: usize) -> String {
+    let indent = " ".repeat(spaces);
+    source
+        .lines()
+        .map(|line| {
+            if line.is_empty() {
+                String::new()
+            } else {
+                format!("{indent}{line}")
+            }
+        })
+        .join("\n")
 }
 
 fn group_structs<'a>(lsp_def: &LspDef, structs: &'a [GeneratedStruct]) -> IndexMap<String, Vec<&'a GeneratedStruct>> {
@@ -798,8 +842,7 @@ fn collect_type_refs(type_def: &TypeDef, refs: &mut IndexSet<String>) {
     }
 }
 
-fn gen_struct_aliases(module: &str, structs: &[&GeneratedStruct]) -> String {
-    let aliases = module_struct_alias_paths(module, structs);
+fn gen_struct_aliases(aliases: &IndexMap<String, Vec<String>>, structs: &[&GeneratedStruct]) -> String {
     let mut tree = StructAliasTree::default();
     for structure in structs {
         if let Some(alias_path) = aliases.get(&structure.name) {
@@ -807,7 +850,7 @@ fn gen_struct_aliases(module: &str, structs: &[&GeneratedStruct]) -> String {
                 alias_path,
                 StructAliasLeaf {
                     alias: alias_path.last().cloned().unwrap(),
-                    target: structure.name.clone(),
+                    target: format!("raw::{}", structure.name),
                     proposed: structure.proposed,
                 },
             );

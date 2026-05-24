@@ -7,30 +7,6 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Parameters for a {@link ColorPresentationRequest}.
-pub struct ColorPresentationParams {
-    /// The text document.
-    pub text_document: TextDocumentIdentifier,
-
-    /// The color to request presentations for.
-    pub color: Color,
-
-    /// The range where the color would be inserted. Serves as a context.
-    pub range: Range,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report work done progress.
-    pub work_done_token: Option<ProgressToken>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report partial results (e.g. streaming) to
-    /// the client.
-    pub partial_result_token: Option<ProgressToken>,
-}
-
-
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ColorPresentation {
@@ -51,4 +27,37 @@ pub struct ColorPresentation {
     pub additional_text_edits: Option<Vec<TextEdit>>,
 }
 
-pub type Params = ColorPresentationParams;
+
+mod raw {
+    #![allow(unused_imports)]
+
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Parameters for a {@link ColorPresentationRequest}.
+    pub struct ColorPresentationParams {
+        /// The text document.
+        pub text_document: TextDocumentIdentifier,
+
+        /// The color to request presentations for.
+        pub color: Color,
+
+        /// The range where the color would be inserted. Serves as a context.
+        pub range: Range,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// An optional token that a server can use to report work done progress.
+        pub work_done_token: Option<ProgressToken>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// An optional token that a server can use to report partial results (e.g. streaming) to
+        /// the client.
+        pub partial_result_token: Option<ProgressToken>,
+    }
+}
+
+pub type Params = raw::ColorPresentationParams;

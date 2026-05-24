@@ -7,30 +7,6 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// The parameters of a {@link CodeActionRequest}.
-pub struct CodeActionParams {
-    /// The document in which the command was invoked.
-    pub text_document: TextDocumentIdentifier,
-
-    /// The range for which the command was invoked.
-    pub range: Range,
-
-    /// Context carrying additional information.
-    pub context: CodeActionContext,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report work done progress.
-    pub work_done_token: Option<ProgressToken>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report partial results (e.g. streaming) to
-    /// the client.
-    pub partial_result_token: Option<ProgressToken>,
-}
-
-
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// A code action represents a change that can be performed in code, e.g. to fix a problem or
@@ -104,285 +80,318 @@ pub struct CodeAction {
 }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Registration options for a {@link CodeActionRequest}.
-pub struct CodeActionRegistrationOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// A document selector to identify the scope of the registration. If set to null
-    /// the document selector provided on the client side will be used.
-    pub document_selector: Option<DocumentSelector>,
+mod raw {
+    #![allow(unused_imports)]
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// CodeActionKinds that this server may return.
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// The parameters of a {@link CodeActionRequest}.
+    pub struct CodeActionParams {
+        /// The document in which the command was invoked.
+        pub text_document: TextDocumentIdentifier,
+
+        /// The range for which the command was invoked.
+        pub range: Range,
+
+        /// Context carrying additional information.
+        pub context: CodeActionContext,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// An optional token that a server can use to report work done progress.
+        pub work_done_token: Option<ProgressToken>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// An optional token that a server can use to report partial results (e.g. streaming) to
+        /// the client.
+        pub partial_result_token: Option<ProgressToken>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Registration options for a {@link CodeActionRequest}.
+    pub struct CodeActionRegistrationOptions {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// A document selector to identify the scope of the registration. If set to null
+        /// the document selector provided on the client side will be used.
+        pub document_selector: Option<DocumentSelector>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// CodeActionKinds that this server may return.
+        ///
+        /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
+        /// may list out every specific kind they provide.
+        pub code_action_kinds: Option<Vec<CodeActionKind>>,
+
+        #[cfg(feature = "proposed")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Static documentation for a class of code actions.
+        ///
+        /// Documentation from the provider should be shown in the code actions menu if either:
+        ///
+        /// - Code actions of `kind` are requested by the editor. In this case, the editor will show the documentation that
+        ///   most closely matches the requested code action kind. For example, if a provider has documentation for
+        ///   both `Refactor` and `RefactorExtract`, when the user requests code actions for `RefactorExtract`,
+        ///   the editor will use the documentation for `RefactorExtract` instead of the documentation for `Refactor`.
+        ///
+        /// - Any code actions of `kind` are returned by the provider.
+        ///
+        /// At most one documentation entry should be shown per provider.
+        ///
+        /// @since 3.18.0
+        /// @proposed
+        pub documentation: Option<Vec<CodeActionKindDocumentation>>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// The server provides support to resolve additional
+        /// information for a code action.
+        ///
+        /// @since 3.16.0
+        pub resolve_provider: Option<bool>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Contains additional diagnostic information about the context in which
+    /// a {@link CodeActionProvider.provideCodeActions code action} is run.
+    pub struct CodeActionContext {
+        /// An array of diagnostics known on the client side overlapping the range provided to the
+        /// `textDocument/codeAction` request. They are provided so that the server knows which
+        /// errors are currently presented to the user for the given range. There is no guarantee
+        /// that these accurately reflect the error state of the resource. The primary parameter
+        /// to compute code actions is the provided range.
+        pub diagnostics: Vec<Diagnostic>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Requested kind of actions to return.
+        ///
+        /// Actions not of this kind are filtered out by the client before being shown. So servers
+        /// can omit computing them.
+        pub only: Option<Vec<CodeActionKind>>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// The reason why code actions were requested.
+        ///
+        /// @since 3.17.0
+        pub trigger_kind: Option<CodeActionTriggerKind>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Captures why the code action is currently disabled.
     ///
-    /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
-    /// may list out every specific kind they provide.
-    pub code_action_kinds: Option<Vec<CodeActionKind>>,
+    /// @since 3.18.0
+    pub struct CodeActionDisabled {
+        /// Human readable description of why the code action is currently disabled.
+        ///
+        /// This is displayed in the code actions UI.
+        pub reason: String,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Provider options for a {@link CodeActionRequest}.
+    pub struct CodeActionOptions {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// CodeActionKinds that this server may return.
+        ///
+        /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
+        /// may list out every specific kind they provide.
+        pub code_action_kinds: Option<Vec<CodeActionKind>>,
+
+        #[cfg(feature = "proposed")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Static documentation for a class of code actions.
+        ///
+        /// Documentation from the provider should be shown in the code actions menu if either:
+        ///
+        /// - Code actions of `kind` are requested by the editor. In this case, the editor will show the documentation that
+        ///   most closely matches the requested code action kind. For example, if a provider has documentation for
+        ///   both `Refactor` and `RefactorExtract`, when the user requests code actions for `RefactorExtract`,
+        ///   the editor will use the documentation for `RefactorExtract` instead of the documentation for `Refactor`.
+        ///
+        /// - Any code actions of `kind` are returned by the provider.
+        ///
+        /// At most one documentation entry should be shown per provider.
+        ///
+        /// @since 3.18.0
+        /// @proposed
+        pub documentation: Option<Vec<CodeActionKindDocumentation>>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// The server provides support to resolve additional
+        /// information for a code action.
+        ///
+        /// @since 3.16.0
+        pub resolve_provider: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub work_done_progress: Option<bool>,
+    }
+
 
     #[cfg(feature = "proposed")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Static documentation for a class of code actions.
-    ///
-    /// Documentation from the provider should be shown in the code actions menu if either:
-    ///
-    /// - Code actions of `kind` are requested by the editor. In this case, the editor will show the documentation that
-    ///   most closely matches the requested code action kind. For example, if a provider has documentation for
-    ///   both `Refactor` and `RefactorExtract`, when the user requests code actions for `RefactorExtract`,
-    ///   the editor will use the documentation for `RefactorExtract` instead of the documentation for `Refactor`.
-    ///
-    /// - Any code actions of `kind` are returned by the provider.
-    ///
-    /// At most one documentation entry should be shown per provider.
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Documentation for a class of code actions.
     ///
     /// @since 3.18.0
     /// @proposed
-    pub documentation: Option<Vec<CodeActionKindDocumentation>>,
+    pub struct CodeActionKindDocumentation {
+        /// The kind of the code action being documented.
+        ///
+        /// If the kind is generic, such as `CodeActionKind.Refactor`, the documentation will be shown whenever any
+        /// refactorings are returned. If the kind if more specific, such as `CodeActionKind.RefactorExtract`, the
+        /// documentation will only be shown when extract refactoring code actions are returned.
+        pub kind: CodeActionKind,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The server provides support to resolve additional
-    /// information for a code action.
-    ///
-    /// @since 3.16.0
-    pub resolve_provider: Option<bool>,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Contains additional diagnostic information about the context in which
-/// a {@link CodeActionProvider.provideCodeActions code action} is run.
-pub struct CodeActionContext {
-    /// An array of diagnostics known on the client side overlapping the range provided to the
-    /// `textDocument/codeAction` request. They are provided so that the server knows which
-    /// errors are currently presented to the user for the given range. There is no guarantee
-    /// that these accurately reflect the error state of the resource. The primary parameter
-    /// to compute code actions is the provided range.
-    pub diagnostics: Vec<Diagnostic>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Requested kind of actions to return.
-    ///
-    /// Actions not of this kind are filtered out by the client before being shown. So servers
-    /// can omit computing them.
-    pub only: Option<Vec<CodeActionKind>>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The reason why code actions were requested.
-    ///
-    /// @since 3.17.0
-    pub trigger_kind: Option<CodeActionTriggerKind>,
-}
+        /// Command that is ued to display the documentation to the user.
+        ///
+        /// The title of this documentation code action is taken from {@linkcode Command.title}
+        pub command: Command,
+    }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Captures why the code action is currently disabled.
-///
-/// @since 3.18.0
-pub struct CodeActionDisabled {
-    /// Human readable description of why the code action is currently disabled.
-    ///
-    /// This is displayed in the code actions UI.
-    pub reason: String,
-}
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// The Client Capabilities of a {@link CodeActionRequest}.
+    pub struct CodeActionClientCapabilities {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether code action supports dynamic registration.
+        pub dynamic_registration: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// The client support code action literals of type `CodeAction` as a valid
+        /// response of the `textDocument/codeAction` request. If the property is not
+        /// set the request can only return `Command` literals.
+        ///
+        /// @since 3.8.0
+        pub code_action_literal_support: Option<ClientCodeActionLiteralOptions>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether code action supports the `isPreferred` property.
+        ///
+        /// @since 3.15.0
+        pub is_preferred_support: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether code action supports the `disabled` property.
+        ///
+        /// @since 3.16.0
+        pub disabled_support: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether code action supports the `data` property which is
+        /// preserved between a `textDocument/codeAction` and a
+        /// `codeAction/resolve` request.
+        ///
+        /// @since 3.16.0
+        pub data_support: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether the client supports resolving additional code action
+        /// properties via a separate `codeAction/resolve` request.
+        ///
+        /// @since 3.16.0
+        pub resolve_support: Option<ClientCodeActionResolveOptions>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether the client honors the change annotations in
+        /// text edits and resource operations returned via the
+        /// `CodeAction#edit` property by for example presenting
+        /// the workspace edit in the user interface and asking
+        /// for confirmation.
+        ///
+        /// @since 3.16.0
+        pub honors_change_annotations: Option<bool>,
+
+        #[cfg(feature = "proposed")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether the client supports documentation for a class of
+        /// code actions.
+        ///
+        /// @since 3.18.0
+        /// @proposed
+        pub documentation_support: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Client supports the tag property on a code action. Clients
+        /// supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.18.0 - proposed
+        pub tag_support: Option<CodeActionTagOptions>,
+    }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Provider options for a {@link CodeActionRequest}.
-pub struct CodeActionOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// CodeActionKinds that this server may return.
-    ///
-    /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
-    /// may list out every specific kind they provide.
-    pub code_action_kinds: Option<Vec<CodeActionKind>>,
-
-    #[cfg(feature = "proposed")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Static documentation for a class of code actions.
-    ///
-    /// Documentation from the provider should be shown in the code actions menu if either:
-    ///
-    /// - Code actions of `kind` are requested by the editor. In this case, the editor will show the documentation that
-    ///   most closely matches the requested code action kind. For example, if a provider has documentation for
-    ///   both `Refactor` and `RefactorExtract`, when the user requests code actions for `RefactorExtract`,
-    ///   the editor will use the documentation for `RefactorExtract` instead of the documentation for `Refactor`.
-    ///
-    /// - Any code actions of `kind` are returned by the provider.
-    ///
-    /// At most one documentation entry should be shown per provider.
-    ///
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
     /// @since 3.18.0
-    /// @proposed
-    pub documentation: Option<Vec<CodeActionKindDocumentation>>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The server provides support to resolve additional
-    /// information for a code action.
-    ///
-    /// @since 3.16.0
-    pub resolve_provider: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub work_done_progress: Option<bool>,
-}
+    pub struct ClientCodeActionLiteralOptions {
+        /// The code action kind is support with the following value
+        /// set.
+        pub code_action_kind: ClientCodeActionKindOptions,
+    }
 
 
-#[cfg(feature = "proposed")]
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Documentation for a class of code actions.
-///
-/// @since 3.18.0
-/// @proposed
-pub struct CodeActionKindDocumentation {
-    /// The kind of the code action being documented.
-    ///
-    /// If the kind is generic, such as `CodeActionKind.Refactor`, the documentation will be shown whenever any
-    /// refactorings are returned. If the kind if more specific, such as `CodeActionKind.RefactorExtract`, the
-    /// documentation will only be shown when extract refactoring code actions are returned.
-    pub kind: CodeActionKind,
-
-    /// Command that is ued to display the documentation to the user.
-    ///
-    /// The title of this documentation code action is taken from {@linkcode Command.title}
-    pub command: Command,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// The Client Capabilities of a {@link CodeActionRequest}.
-pub struct CodeActionClientCapabilities {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether code action supports dynamic registration.
-    pub dynamic_registration: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The client support code action literals of type `CodeAction` as a valid
-    /// response of the `textDocument/codeAction` request. If the property is not
-    /// set the request can only return `Command` literals.
-    ///
-    /// @since 3.8.0
-    pub code_action_literal_support: Option<ClientCodeActionLiteralOptions>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether code action supports the `isPreferred` property.
-    ///
-    /// @since 3.15.0
-    pub is_preferred_support: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether code action supports the `disabled` property.
-    ///
-    /// @since 3.16.0
-    pub disabled_support: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether code action supports the `data` property which is
-    /// preserved between a `textDocument/codeAction` and a
-    /// `codeAction/resolve` request.
-    ///
-    /// @since 3.16.0
-    pub data_support: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether the client supports resolving additional code action
-    /// properties via a separate `codeAction/resolve` request.
-    ///
-    /// @since 3.16.0
-    pub resolve_support: Option<ClientCodeActionResolveOptions>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether the client honors the change annotations in
-    /// text edits and resource operations returned via the
-    /// `CodeAction#edit` property by for example presenting
-    /// the workspace edit in the user interface and asking
-    /// for confirmation.
-    ///
-    /// @since 3.16.0
-    pub honors_change_annotations: Option<bool>,
-
-    #[cfg(feature = "proposed")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether the client supports documentation for a class of
-    /// code actions.
-    ///
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
     /// @since 3.18.0
-    /// @proposed
-    pub documentation_support: Option<bool>,
+    pub struct ClientCodeActionResolveOptions {
+        /// The properties that a client can resolve lazily.
+        pub properties: Vec<String>,
+    }
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Client supports the tag property on a code action. Clients
-    /// supporting tags have to handle unknown tags gracefully.
-    ///
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
     /// @since 3.18.0 - proposed
-    pub tag_support: Option<CodeActionTagOptions>,
+    pub struct CodeActionTagOptions {
+        /// The tags supported by the client.
+        pub value_set: Vec<CodeActionTag>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// @since 3.18.0
+    pub struct ClientCodeActionKindOptions {
+        /// The code action kind values the client supports. When this
+        /// property exists the client also guarantees that it will
+        /// handle values outside its set gracefully and falls back
+        /// to a default value when unknown.
+        pub value_set: Vec<CodeActionKind>,
+    }
 }
 
+pub type Params = raw::CodeActionParams;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// @since 3.18.0
-pub struct ClientCodeActionLiteralOptions {
-    /// The code action kind is support with the following value
-    /// set.
-    pub code_action_kind: ClientCodeActionKindOptions,
-}
+pub type RegistrationOptions = raw::CodeActionRegistrationOptions;
 
+pub type Context = raw::CodeActionContext;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// @since 3.18.0
-pub struct ClientCodeActionResolveOptions {
-    /// The properties that a client can resolve lazily.
-    pub properties: Vec<String>,
-}
+pub type Disabled = raw::CodeActionDisabled;
 
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// @since 3.18.0 - proposed
-pub struct CodeActionTagOptions {
-    /// The tags supported by the client.
-    pub value_set: Vec<CodeActionTag>,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// @since 3.18.0
-pub struct ClientCodeActionKindOptions {
-    /// The code action kind values the client supports. When this
-    /// property exists the client also guarantees that it will
-    /// handle values outside its set gracefully and falls back
-    /// to a default value when unknown.
-    pub value_set: Vec<CodeActionKind>,
-}
-
-pub type Params = CodeActionParams;
-
-pub type RegistrationOptions = CodeActionRegistrationOptions;
-
-pub type Context = CodeActionContext;
-
-pub type Disabled = CodeActionDisabled;
-
-pub type Options = CodeActionOptions;
+pub type Options = raw::CodeActionOptions;
 
 #[cfg(feature = "proposed")]
-pub type KindDocumentation = CodeActionKindDocumentation;
+pub type KindDocumentation = raw::CodeActionKindDocumentation;
 
-pub type TagOptions = CodeActionTagOptions;
+pub type TagOptions = raw::CodeActionTagOptions;
 
 pub mod client {
-    pub type Capabilities = super::CodeActionClientCapabilities;
+    pub type Capabilities = super::raw::CodeActionClientCapabilities;
 
-    pub type LiteralOptions = super::ClientCodeActionLiteralOptions;
+    pub type LiteralOptions = super::raw::ClientCodeActionLiteralOptions;
 
-    pub type ResolveOptions = super::ClientCodeActionResolveOptions;
+    pub type ResolveOptions = super::raw::ClientCodeActionResolveOptions;
 
-    pub type KindOptions = super::ClientCodeActionKindOptions;
+    pub type KindOptions = super::raw::ClientCodeActionKindOptions;
 }

@@ -7,13 +7,22 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LogTraceParams {
-    pub message: String,
+mod raw {
+    #![allow(unused_imports)]
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub verbose: Option<String>,
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct LogTraceParams {
+        pub message: String,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub verbose: Option<String>,
+    }
 }
 
-pub type Params = LogTraceParams;
+pub type Params = raw::LogTraceParams;

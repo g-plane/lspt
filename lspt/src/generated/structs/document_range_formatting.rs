@@ -26,25 +26,6 @@ pub struct DocumentRangeFormattingParams {
 }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Registration options for a {@link DocumentRangeFormattingRequest}.
-pub struct DocumentRangeFormattingRegistrationOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// A document selector to identify the scope of the registration. If set to null
-    /// the document selector provided on the client side will be used.
-    pub document_selector: Option<DocumentSelector>,
-
-    #[cfg(feature = "proposed")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether the server supports formatting multiple ranges at once.
-    ///
-    /// @since 3.18.0
-    /// @proposed
-    pub ranges_support: Option<bool>,
-}
-
-
 #[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -68,42 +49,70 @@ pub struct DocumentRangesFormattingParams {
 }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Provider options for a {@link DocumentRangeFormattingRequest}.
-pub struct DocumentRangeFormattingOptions {
-    #[cfg(feature = "proposed")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether the server supports formatting multiple ranges at once.
-    ///
-    /// @since 3.18.0
-    /// @proposed
-    pub ranges_support: Option<bool>,
+mod raw {
+    #![allow(unused_imports)]
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub work_done_progress: Option<bool>,
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Registration options for a {@link DocumentRangeFormattingRequest}.
+    pub struct DocumentRangeFormattingRegistrationOptions {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// A document selector to identify the scope of the registration. If set to null
+        /// the document selector provided on the client side will be used.
+        pub document_selector: Option<DocumentSelector>,
+
+        #[cfg(feature = "proposed")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether the server supports formatting multiple ranges at once.
+        ///
+        /// @since 3.18.0
+        /// @proposed
+        pub ranges_support: Option<bool>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Provider options for a {@link DocumentRangeFormattingRequest}.
+    pub struct DocumentRangeFormattingOptions {
+        #[cfg(feature = "proposed")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether the server supports formatting multiple ranges at once.
+        ///
+        /// @since 3.18.0
+        /// @proposed
+        pub ranges_support: Option<bool>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub work_done_progress: Option<bool>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// Client capabilities of a {@link DocumentRangeFormattingRequest}.
+    pub struct DocumentRangeFormattingClientCapabilities {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether range formatting supports dynamic registration.
+        pub dynamic_registration: Option<bool>,
+
+        #[cfg(feature = "proposed")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether the client supports formatting multiple ranges at once.
+        ///
+        /// @since 3.18.0
+        /// @proposed
+        pub ranges_support: Option<bool>,
+    }
 }
 
+pub type RegistrationOptions = raw::DocumentRangeFormattingRegistrationOptions;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Client capabilities of a {@link DocumentRangeFormattingRequest}.
-pub struct DocumentRangeFormattingClientCapabilities {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether range formatting supports dynamic registration.
-    pub dynamic_registration: Option<bool>,
+pub type Options = raw::DocumentRangeFormattingOptions;
 
-    #[cfg(feature = "proposed")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether the client supports formatting multiple ranges at once.
-    ///
-    /// @since 3.18.0
-    /// @proposed
-    pub ranges_support: Option<bool>,
-}
-
-pub type RegistrationOptions = DocumentRangeFormattingRegistrationOptions;
-
-pub type Options = DocumentRangeFormattingOptions;
-
-pub type ClientCapabilities = DocumentRangeFormattingClientCapabilities;
+pub type ClientCapabilities = raw::DocumentRangeFormattingClientCapabilities;

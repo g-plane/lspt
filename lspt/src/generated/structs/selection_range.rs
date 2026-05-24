@@ -7,27 +7,6 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// A parameter literal used in selection range requests.
-pub struct SelectionRangeParams {
-    /// The text document.
-    pub text_document: TextDocumentIdentifier,
-
-    /// The positions inside the text document.
-    pub positions: Vec<Position>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report work done progress.
-    pub work_done_token: Option<ProgressToken>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional token that a server can use to report partial results (e.g. streaming) to
-    /// the client.
-    pub partial_result_token: Option<ProgressToken>,
-}
-
-
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// A selection range represents a part of a selection hierarchy. A selection range
@@ -42,43 +21,73 @@ pub struct SelectionRange {
 }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SelectionRangeRegistrationOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// A document selector to identify the scope of the registration. If set to null
-    /// the document selector provided on the client side will be used.
-    pub document_selector: Option<DocumentSelector>,
+mod raw {
+    #![allow(unused_imports)]
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The id used to register the request. The id can be used to deregister
-    /// the request again. See also Registration#id.
-    pub id: Option<String>,
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    /// A parameter literal used in selection range requests.
+    pub struct SelectionRangeParams {
+        /// The text document.
+        pub text_document: TextDocumentIdentifier,
+
+        /// The positions inside the text document.
+        pub positions: Vec<Position>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// An optional token that a server can use to report work done progress.
+        pub work_done_token: Option<ProgressToken>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// An optional token that a server can use to report partial results (e.g. streaming) to
+        /// the client.
+        pub partial_result_token: Option<ProgressToken>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct SelectionRangeRegistrationOptions {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// A document selector to identify the scope of the registration. If set to null
+        /// the document selector provided on the client side will be used.
+        pub document_selector: Option<DocumentSelector>,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// The id used to register the request. The id can be used to deregister
+        /// the request again. See also Registration#id.
+        pub id: Option<String>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct SelectionRangeOptions {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub work_done_progress: Option<bool>,
+    }
+
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct SelectionRangeClientCapabilities {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        /// Whether implementation supports dynamic registration for selection range providers. If this is set to `true`
+        /// the client supports the new `SelectionRangeRegistrationOptions` return value for the corresponding server
+        /// capability as well.
+        pub dynamic_registration: Option<bool>,
+    }
 }
 
+pub type Params = raw::SelectionRangeParams;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SelectionRangeOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub work_done_progress: Option<bool>,
-}
+pub type RegistrationOptions = raw::SelectionRangeRegistrationOptions;
 
+pub type Options = raw::SelectionRangeOptions;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SelectionRangeClientCapabilities {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether implementation supports dynamic registration for selection range providers. If this is set to `true`
-    /// the client supports the new `SelectionRangeRegistrationOptions` return value for the corresponding server
-    /// capability as well.
-    pub dynamic_registration: Option<bool>,
-}
-
-pub type Params = SelectionRangeParams;
-
-pub type RegistrationOptions = SelectionRangeRegistrationOptions;
-
-pub type Options = SelectionRangeOptions;
-
-pub type ClientCapabilities = SelectionRangeClientCapabilities;
+pub type ClientCapabilities = raw::SelectionRangeClientCapabilities;

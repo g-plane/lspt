@@ -7,11 +7,20 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CancelParams {
-    /// The request id to cancel.
-    pub id: CancelParamsId,
+mod raw {
+    #![allow(unused_imports)]
+
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct CancelParams {
+        /// The request id to cancel.
+        pub id: CancelParamsId,
+    }
 }
 
-pub type Params = CancelParams;
+pub type Params = raw::CancelParams;

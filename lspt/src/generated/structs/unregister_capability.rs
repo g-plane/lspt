@@ -9,13 +9,6 @@ use super::super::*;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UnregistrationParams {
-    pub unregisterations: Vec<Unregistration>,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 /// General parameters to unregister a request or notification.
 pub struct Unregistration {
     /// The id used to unregister the request or notification. Usually an id
@@ -26,4 +19,20 @@ pub struct Unregistration {
     pub method: String,
 }
 
-pub type Params = UnregistrationParams;
+
+mod raw {
+    #![allow(unused_imports)]
+
+    use crate::{HashMap, Uri};
+    use serde::{Deserialize, Serialize};
+    use super::*;
+    use super::super::*;
+
+    #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct UnregistrationParams {
+        pub unregisterations: Vec<Unregistration>,
+    }
+}
+
+pub type Params = raw::UnregistrationParams;
