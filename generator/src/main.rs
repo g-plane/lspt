@@ -764,14 +764,7 @@ impl UnionRegistry {
             return name;
         }
 
-        for index in 2.. {
-            let candidate = format!("{name}{index}");
-            if self.names.insert(candidate.clone()) {
-                return candidate;
-            }
-        }
-
-        unreachable!()
+        panic!("duplicate generated union name `{name}`")
     }
 }
 
@@ -1180,7 +1173,7 @@ fn shorten_variant_names(type_defs: &[TypeDef], names: Vec<String>, enum_name: &
                     .and_then(|segments| segments.get(&index))
                     .map(|segments| segments.concat()),
             ];
-            let name = choose_variant_name(&shortened_names, &name, candidates.into_iter().flatten(), index);
+            let name = choose_variant_name(&shortened_names, &name, candidates.into_iter().flatten(), enum_name);
             shortened_names.insert(name);
             shortened_names
         })
@@ -1319,7 +1312,7 @@ fn choose_variant_name(
     names: &IndexSet<String>,
     original: &str,
     candidates: impl IntoIterator<Item = String>,
-    index: usize,
+    enum_name: &str,
 ) -> String {
     for candidate in candidates.into_iter().chain([original.to_string()]) {
         if !candidate.is_empty() && !names.contains(&candidate) {
@@ -1327,14 +1320,7 @@ fn choose_variant_name(
         }
     }
 
-    for suffix in 2.. {
-        let candidate = format!("{original}{suffix}");
-        if !names.contains(&candidate) {
-            return candidate;
-        }
-    }
-
-    format!("Variant{index}")
+    panic!("duplicate generated variant `{original}` in union `{enum_name}`")
 }
 
 fn gen_base_type(base_type: &BaseType) -> &'static str {
