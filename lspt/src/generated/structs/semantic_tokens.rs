@@ -77,6 +77,69 @@ pub struct SemanticTokensRegistrationOptions {
 }
 
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.16.0
+pub struct SemanticTokensDeltaParams {
+    /// The text document.
+    pub text_document: TextDocumentIdentifier,
+
+    /// The result id of a previous response. The result Id can either point to a full response
+    /// or a delta response depending on what was received last.
+    pub previous_result_id: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.16.0
+pub struct SemanticTokensDelta {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result_id: Option<String>,
+
+    /// The semantic token edits to transform a previous result into a new result.
+    pub edits: Vec<SemanticTokensEdit>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.16.0
+pub struct SemanticTokensDeltaPartialResult {
+    pub edits: Vec<SemanticTokensEdit>,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.16.0
+pub struct SemanticTokensRangeParams {
+    /// The text document.
+    pub text_document: TextDocumentIdentifier,
+
+    /// The range the semantic tokens are requested for.
+    pub range: Range,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
+}
+
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// @since 3.16.0
@@ -214,14 +277,59 @@ pub struct SemanticTokensClientCapabilities {
     pub augments_syntax_tokens: Option<bool>,
 }
 
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientSemanticTokensRequestOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The client will send the `textDocument/semanticTokens/range` request if
+    /// the server provides a corresponding handler.
+    pub range: Option<ClientSemanticTokensRequestRange>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The client will send the `textDocument/semanticTokens/full` request if
+    /// the server provides a corresponding handler.
+    pub full: Option<ClientSemanticTokensRequestFull>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientSemanticTokensRequestFullDelta {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The client will send the `textDocument/semanticTokens/full/delta` request if
+    /// the server provides a corresponding handler.
+    pub delta: Option<bool>,
+}
+
 pub type Params = SemanticTokensParams;
 
 pub type PartialResult = SemanticTokensPartialResult;
 
 pub type RegistrationOptions = SemanticTokensRegistrationOptions;
 
+pub type DeltaParams = SemanticTokensDeltaParams;
+
+pub type Delta = SemanticTokensDelta;
+
+pub type DeltaPartialResult = SemanticTokensDeltaPartialResult;
+
+pub type RangeParams = SemanticTokensRangeParams;
+
 pub type Options = SemanticTokensOptions;
+
+pub type Edit = SemanticTokensEdit;
+
+pub type Legend = SemanticTokensLegend;
+
+pub type FullDelta = SemanticTokensFullDelta;
 
 pub type WorkspaceClientCapabilities = SemanticTokensWorkspaceClientCapabilities;
 
 pub type ClientCapabilities = SemanticTokensClientCapabilities;
+
+pub type ClientRequestOptions = ClientSemanticTokensRequestOptions;
+
+pub type ClientRequestFullDelta = ClientSemanticTokensRequestFullDelta;

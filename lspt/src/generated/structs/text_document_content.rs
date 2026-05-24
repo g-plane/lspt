@@ -55,6 +55,19 @@ pub struct TextDocumentContentRegistrationOptions {
 
 
 #[cfg(feature = "proposed")]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Parameters for the `workspace/textDocumentContent/refresh` request.
+///
+/// @since 3.18.0
+/// @proposed
+pub struct TextDocumentContentRefreshParams {
+    /// The uri of the text document to refresh.
+    pub uri: Uri,
+}
+
+
+#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Text document content provider options.
@@ -64,27 +77,6 @@ pub struct TextDocumentContentRegistrationOptions {
 pub struct TextDocumentContentOptions {
     /// The schemes for which the server provides content.
     pub schemes: Vec<String>,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// @since 3.18.0
-pub struct TextDocumentContentChangePartial {
-    /// The range of the document that changed.
-    pub range: Range,
-
-    /// The new text for the provided range.
-    pub text: String,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// @since 3.18.0
-pub struct TextDocumentContentChangeWholeDocument {
-    /// The new text of the whole document.
-    pub text: String,
 }
 
 
@@ -109,6 +101,9 @@ pub type Result = TextDocumentContentResult;
 
 #[cfg(feature = "proposed")]
 pub type RegistrationOptions = TextDocumentContentRegistrationOptions;
+
+#[cfg(feature = "proposed")]
+pub type RefreshParams = TextDocumentContentRefreshParams;
 
 #[cfg(feature = "proposed")]
 pub type Options = TextDocumentContentOptions;

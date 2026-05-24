@@ -195,12 +195,25 @@ pub struct InlayHintClientCapabilities {
     pub resolve_support: Option<ClientInlayHintResolveOptions>,
 }
 
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientInlayHintResolveOptions {
+    /// The properties that a client can resolve lazily.
+    pub properties: Vec<String>,
+}
+
 pub type Params = InlayHintParams;
 
 pub type RegistrationOptions = InlayHintRegistrationOptions;
+
+pub type LabelPart = InlayHintLabelPart;
 
 pub type Options = InlayHintOptions;
 
 pub type WorkspaceClientCapabilities = InlayHintWorkspaceClientCapabilities;
 
 pub type ClientCapabilities = InlayHintClientCapabilities;
+
+pub type ClientResolveOptions = ClientInlayHintResolveOptions;

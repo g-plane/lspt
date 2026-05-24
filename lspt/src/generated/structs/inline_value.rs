@@ -62,59 +62,6 @@ pub struct InlineValueContext {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Provide inline value as text.
-///
-/// @since 3.17.0
-pub struct InlineValueText {
-    /// The document range for which the inline value applies.
-    pub range: Range,
-
-    /// The text of the inline value.
-    pub text: String,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Provide inline value through a variable lookup.
-/// If only a range is specified, the variable name will be extracted from the underlying document.
-/// An optional variable name can be used to override the extracted name.
-///
-/// @since 3.17.0
-pub struct InlineValueVariableLookup {
-    /// The document range for which the inline value applies.
-    /// The range is used to extract the variable name from the underlying document.
-    pub range: Range,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// If specified the name of the variable to look up.
-    pub variable_name: Option<String>,
-
-    /// How to perform the lookup.
-    pub case_sensitive_lookup: bool,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Provide an inline value through an expression evaluation.
-/// If only a range is specified, the expression will be extracted from the underlying document.
-/// An optional expression can be used to override the extracted expression.
-///
-/// @since 3.17.0
-pub struct InlineValueEvaluatableExpression {
-    /// The document range for which the inline value applies.
-    /// The range is used to extract the evaluatable expression from the underlying document.
-    pub range: Range,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// If specified the expression overrides the extracted expression.
-    pub expression: Option<String>,
-}
-
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 /// Inline value options used during static registration.
 ///
 /// @since 3.17.0
@@ -156,6 +103,8 @@ pub struct InlineValueClientCapabilities {
 pub type Params = InlineValueParams;
 
 pub type RegistrationOptions = InlineValueRegistrationOptions;
+
+pub type Context = InlineValueContext;
 
 pub type Options = InlineValueOptions;
 

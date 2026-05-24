@@ -122,6 +122,22 @@ pub struct InlineCompletionOptions {
 #[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// Describes the currently selected completion item.
+///
+/// @since 3.18.0
+/// @proposed
+pub struct SelectedCompletionInfo {
+    /// The range that will be replaced if this completion item is accepted.
+    pub range: Range,
+
+    /// The text the range will be replaced with if this completion is accepted.
+    pub text: String,
+}
+
+
+#[cfg(feature = "proposed")]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 /// Client capabilities specific to inline completions.
 ///
 /// @since 3.18.0
@@ -136,7 +152,16 @@ pub struct InlineCompletionClientCapabilities {
 pub type Params = InlineCompletionParams;
 
 #[cfg(feature = "proposed")]
+pub type List = InlineCompletionList;
+
+#[cfg(feature = "proposed")]
+pub type Item = InlineCompletionItem;
+
+#[cfg(feature = "proposed")]
 pub type RegistrationOptions = InlineCompletionRegistrationOptions;
+
+#[cfg(feature = "proposed")]
+pub type Context = InlineCompletionContext;
 
 #[cfg(feature = "proposed")]
 pub type Options = InlineCompletionOptions;

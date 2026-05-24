@@ -9,6 +9,24 @@ use super::super::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// The parameter of a `textDocument/prepareTypeHierarchy` request.
+///
+/// @since 3.17.0
+pub struct TypeHierarchyPrepareParams {
+    /// The text document.
+    pub text_document: TextDocumentIdentifier,
+
+    /// The position inside the text document.
+    pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 /// @since 3.17.0
 pub struct TypeHierarchyItem {
     /// The name of this item.
@@ -64,6 +82,44 @@ pub struct TypeHierarchyRegistrationOptions {
 }
 
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// The parameter of a `typeHierarchy/supertypes` request.
+///
+/// @since 3.17.0
+pub struct TypeHierarchySupertypesParams {
+    pub item: TypeHierarchyItem,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// The parameter of a `typeHierarchy/subtypes` request.
+///
+/// @since 3.17.0
+pub struct TypeHierarchySubtypesParams {
+    pub item: TypeHierarchyItem,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
+}
+
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Type hierarchy options used during static registration.
@@ -86,7 +142,15 @@ pub struct TypeHierarchyClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 
+pub type PrepareParams = TypeHierarchyPrepareParams;
+
+pub type Item = TypeHierarchyItem;
+
 pub type RegistrationOptions = TypeHierarchyRegistrationOptions;
+
+pub type SupertypesParams = TypeHierarchySupertypesParams;
+
+pub type SubtypesParams = TypeHierarchySubtypesParams;
 
 pub type Options = TypeHierarchyOptions;
 

@@ -9,12 +9,60 @@ use super::super::*;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// The parameters sent in notifications/requests for user-initiated creation of
+/// files.
+///
+/// @since 3.16.0
+pub struct CreateFilesParams {
+    /// An array of all files/folders created in this operation.
+    pub files: Vec<FileCreate>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 /// The options to register for file operations.
 ///
 /// @since 3.16.0
 pub struct FileOperationRegistrationOptions {
     /// The actual filters.
     pub filters: Vec<FileOperationFilter>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// The parameters sent in notifications/requests for user-initiated renames of
+/// files.
+///
+/// @since 3.16.0
+pub struct RenameFilesParams {
+    /// An array of all files/folders renamed in this operation. When a folder is renamed, only
+    /// the folder will be included, and not its children.
+    pub files: Vec<FileRename>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// The parameters sent in notifications/requests for user-initiated deletes of
+/// files.
+///
+/// @since 3.16.0
+pub struct DeleteFilesParams {
+    /// An array of all files/folders deleted in this operation.
+    pub files: Vec<FileDelete>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Represents information on a file/folder create.
+///
+/// @since 3.16.0
+pub struct FileCreate {
+    /// A file:// URI for the location of the file/folder being created.
+    pub uri: String,
 }
 
 
@@ -31,6 +79,71 @@ pub struct FileOperationFilter {
 
     /// The actual file operation pattern.
     pub pattern: FileOperationPattern,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Represents information on a file/folder rename.
+///
+/// @since 3.16.0
+pub struct FileRename {
+    /// A file:// URI for the original location of the file/folder being renamed.
+    pub old_uri: String,
+
+    /// A file:// URI for the new location of the file/folder being renamed.
+    pub new_uri: String,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Represents information on a file/folder delete.
+///
+/// @since 3.16.0
+pub struct FileDelete {
+    /// A file:// URI for the location of the file/folder being deleted.
+    pub uri: String,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// A pattern to describe in which file operation requests or notifications
+/// the server is interested in receiving.
+///
+/// @since 3.16.0
+pub struct FileOperationPattern {
+    /// The glob pattern to match. Glob patterns can have the following syntax:
+    /// - `*` to match one or more characters in a path segment
+    /// - `?` to match on one character in a path segment
+    /// - `**` to match any number of path segments, including none
+    /// - `{}` to group sub patterns into an OR expression. (e.g. `**​/*.{ts,js}` matches all TypeScript and JavaScript files)
+    /// - `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
+    /// - `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
+    pub glob: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Whether to match files or folders with this pattern.
+    ///
+    /// Matches both if undefined.
+    pub matches: Option<FileOperationPatternKind>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Additional options used during matching.
+    pub options: Option<FileOperationPatternOptions>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Matching options for the file operation pattern.
+///
+/// @since 3.16.0
+pub struct FileOperationPatternOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The pattern should be matched ignoring casing.
+    pub ignore_case: Option<bool>,
 }
 
 
@@ -105,6 +218,12 @@ pub struct FileOperationClientCapabilities {
 }
 
 pub type RegistrationOptions = FileOperationRegistrationOptions;
+
+pub type Filter = FileOperationFilter;
+
+pub type Pattern = FileOperationPattern;
+
+pub type PatternOptions = FileOperationPatternOptions;
 
 pub type Options = FileOperationOptions;
 

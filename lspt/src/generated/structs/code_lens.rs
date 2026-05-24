@@ -107,6 +107,15 @@ pub struct CodeLensClientCapabilities {
     pub resolve_support: Option<ClientCodeLensResolveOptions>,
 }
 
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientCodeLensResolveOptions {
+    /// The properties that a client can resolve lazily.
+    pub properties: Vec<String>,
+}
+
 pub type Params = CodeLensParams;
 
 pub type RegistrationOptions = CodeLensRegistrationOptions;
@@ -116,3 +125,5 @@ pub type Options = CodeLensOptions;
 pub type WorkspaceClientCapabilities = CodeLensWorkspaceClientCapabilities;
 
 pub type ClientCapabilities = CodeLensClientCapabilities;
+
+pub type ClientResolveOptions = ClientCodeLensResolveOptions;

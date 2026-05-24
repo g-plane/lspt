@@ -9,6 +9,15 @@ use super::super::*;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// The parameters of a `workspace/didChangeWorkspaceFolders` notification.
+pub struct DidChangeWorkspaceFoldersParams {
+    /// The actual workspace folder change event.
+    pub event: WorkspaceFoldersChangeEvent,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 /// The workspace folder change event.
 pub struct WorkspaceFoldersChangeEvent {
     /// The array of added workspace folders
@@ -36,5 +45,9 @@ pub struct WorkspaceFoldersServerCapabilities {
     /// using the `client/unregisterCapability` request.
     pub change_notifications: Option<WorkspaceFoldersChangeNotifications>,
 }
+
+pub type DidChangeParams = DidChangeWorkspaceFoldersParams;
+
+pub type ChangeEvent = WorkspaceFoldersChangeEvent;
 
 pub type ServerCapabilities = WorkspaceFoldersServerCapabilities;

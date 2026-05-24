@@ -9,6 +9,24 @@ use super::super::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// The parameter of a `textDocument/prepareCallHierarchy` request.
+///
+/// @since 3.16.0
+pub struct CallHierarchyPrepareParams {
+    /// The text document.
+    pub text_document: TextDocumentIdentifier,
+
+    /// The position inside the text document.
+    pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 /// Represents programming constructs like functions or constructors in the context
 /// of call hierarchy.
 ///
@@ -65,6 +83,25 @@ pub struct CallHierarchyRegistrationOptions {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// The parameter of a `callHierarchy/incomingCalls` request.
+///
+/// @since 3.16.0
+pub struct CallHierarchyIncomingCallsParams {
+    pub item: CallHierarchyItem,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 /// Represents an incoming call, e.g. a caller of a method or constructor.
 ///
 /// @since 3.16.0
@@ -75,6 +112,25 @@ pub struct CallHierarchyIncomingCall {
     /// The ranges at which the calls appear. This is relative to the caller
     /// denoted by {@link CallHierarchyIncomingCall.from `this.from`}.
     pub from_ranges: Vec<Range>,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// The parameter of a `callHierarchy/outgoingCalls` request.
+///
+/// @since 3.16.0
+pub struct CallHierarchyOutgoingCallsParams {
+    pub item: CallHierarchyItem,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
 }
 
 
@@ -116,7 +172,19 @@ pub struct CallHierarchyClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 
+pub type PrepareParams = CallHierarchyPrepareParams;
+
+pub type Item = CallHierarchyItem;
+
 pub type RegistrationOptions = CallHierarchyRegistrationOptions;
+
+pub type IncomingCallsParams = CallHierarchyIncomingCallsParams;
+
+pub type IncomingCall = CallHierarchyIncomingCall;
+
+pub type OutgoingCallsParams = CallHierarchyOutgoingCallsParams;
+
+pub type OutgoingCall = CallHierarchyOutgoingCall;
 
 pub type Options = CallHierarchyOptions;
 

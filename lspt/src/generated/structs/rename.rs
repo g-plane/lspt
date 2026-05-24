@@ -45,6 +45,21 @@ pub struct RenameRegistrationOptions {
 }
 
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrepareRenameParams {
+    /// The text document.
+    pub text_document: TextDocumentIdentifier,
+
+    /// The position inside the text document.
+    pub position: Position,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+}
+
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Provider options for a {@link RenameRequest}.
@@ -97,6 +112,8 @@ pub struct RenameClientCapabilities {
 pub type Params = RenameParams;
 
 pub type RegistrationOptions = RenameRegistrationOptions;
+
+pub type PrepareParams = PrepareRenameParams;
 
 pub type Options = RenameOptions;
 

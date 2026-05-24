@@ -25,6 +25,14 @@ pub struct ShowMessageRequestParams {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct MessageActionItem {
+    /// A short title like 'Retry', 'Open Log' etc.
+    pub title: String,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 /// Show message request client capabilities
 pub struct ShowMessageRequestClientCapabilities {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -32,6 +40,20 @@ pub struct ShowMessageRequestClientCapabilities {
     pub message_action_item: Option<ClientShowMessageActionItemOptions>,
 }
 
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientShowMessageActionItemOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Whether the client supports additional attributes which
+    /// are preserved and send back to the server in the
+    /// request's response.
+    pub additional_properties_support: Option<bool>,
+}
+
 pub type Params = ShowMessageRequestParams;
 
 pub type ClientCapabilities = ShowMessageRequestClientCapabilities;
+
+pub type Options = ClientShowMessageActionItemOptions;

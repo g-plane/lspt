@@ -148,6 +148,19 @@ pub struct FoldingRangeClientCapabilities {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// @since 3.18.0
+pub struct ClientFoldingRangeKindOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The folding range kind values the client supports. When this
+    /// property exists the client also guarantees that it will
+    /// handle values outside its set gracefully and falls back
+    /// to a default value when unknown.
+    pub value_set: Option<Vec<FoldingRangeKind>>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
 pub struct ClientFoldingRangeOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// If set, the client signals that it supports setting collapsedText on
@@ -161,7 +174,13 @@ pub type Params = FoldingRangeParams;
 
 pub type RegistrationOptions = FoldingRangeRegistrationOptions;
 
+pub type Options = FoldingRangeOptions;
+
 #[cfg(feature = "proposed")]
 pub type WorkspaceClientCapabilities = FoldingRangeWorkspaceClientCapabilities;
 
 pub type ClientCapabilities = FoldingRangeClientCapabilities;
+
+pub type ClientKindOptions = ClientFoldingRangeKindOptions;
+
+pub type ClientOptions = ClientFoldingRangeOptions;

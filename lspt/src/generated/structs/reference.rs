@@ -73,6 +73,8 @@ pub type Params = ReferenceParams;
 
 pub type RegistrationOptions = ReferenceRegistrationOptions;
 
+pub type Context = ReferenceContext;
+
 pub type Options = ReferenceOptions;
 
 pub type ClientCapabilities = ReferenceClientCapabilities;

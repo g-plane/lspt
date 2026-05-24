@@ -25,6 +25,35 @@ pub struct DidChangeWatchedFilesRegistrationOptions {
 }
 
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// An event describing a file change.
+pub struct FileEvent {
+    /// The file's uri.
+    pub uri: Uri,
+
+    #[serde(rename = "type")]
+    /// The change type.
+    pub ty: FileChangeType,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FileSystemWatcher {
+    /// The glob pattern to watch. See {@link GlobPattern glob pattern} for more detail.
+    ///
+    /// @since 3.17.0 support for relative patterns.
+    pub glob_pattern: GlobPattern,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The kind of events of interest. If omitted it defaults
+    /// to WatchKind.Create | WatchKind.Change | WatchKind.Delete
+    /// which is 7.
+    pub kind: Option<WatchKind>,
+}
+
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeWatchedFilesClientCapabilities {

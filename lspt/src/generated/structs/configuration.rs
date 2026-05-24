@@ -28,3 +28,5 @@ pub struct ConfigurationItem {
 }
 
 pub type Params = ConfigurationParams;
+
+pub type Item = ConfigurationItem;

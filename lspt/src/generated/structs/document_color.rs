@@ -27,6 +27,18 @@ pub struct DocumentColorParams {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// Represents a color range from a document.
+pub struct ColorInformation {
+    /// The range in the document where this color appears.
+    pub range: Range,
+
+    /// The actual color value for this color range.
+    pub color: Color,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DocumentColorRegistrationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A document selector to identify the scope of the registration. If set to null

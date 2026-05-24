@@ -230,6 +230,28 @@ pub struct CodeActionOptions {
 }
 
 
+#[cfg(feature = "proposed")]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Documentation for a class of code actions.
+///
+/// @since 3.18.0
+/// @proposed
+pub struct CodeActionKindDocumentation {
+    /// The kind of the code action being documented.
+    ///
+    /// If the kind is generic, such as `CodeActionKind.Refactor`, the documentation will be shown whenever any
+    /// refactorings are returned. If the kind if more specific, such as `CodeActionKind.RefactorExtract`, the
+    /// documentation will only be shown when extract refactoring code actions are returned.
+    pub kind: CodeActionKind,
+
+    /// Command that is ued to display the documentation to the user.
+    ///
+    /// The title of this documentation code action is taken from {@linkcode Command.title}
+    pub command: Command,
+}
+
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// The Client Capabilities of a {@link CodeActionRequest}.
@@ -300,10 +322,65 @@ pub struct CodeActionClientCapabilities {
     pub tag_support: Option<CodeActionTagOptions>,
 }
 
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientCodeActionLiteralOptions {
+    /// The code action kind is support with the following value
+    /// set.
+    pub code_action_kind: ClientCodeActionKindOptions,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientCodeActionResolveOptions {
+    /// The properties that a client can resolve lazily.
+    pub properties: Vec<String>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0 - proposed
+pub struct CodeActionTagOptions {
+    /// The tags supported by the client.
+    pub value_set: Vec<CodeActionTag>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientCodeActionKindOptions {
+    /// The code action kind values the client supports. When this
+    /// property exists the client also guarantees that it will
+    /// handle values outside its set gracefully and falls back
+    /// to a default value when unknown.
+    pub value_set: Vec<CodeActionKind>,
+}
+
 pub type Params = CodeActionParams;
 
 pub type RegistrationOptions = CodeActionRegistrationOptions;
 
+pub type Context = CodeActionContext;
+
+pub type Disabled = CodeActionDisabled;
+
 pub type Options = CodeActionOptions;
 
+#[cfg(feature = "proposed")]
+pub type KindDocumentation = CodeActionKindDocumentation;
+
 pub type ClientCapabilities = CodeActionClientCapabilities;
+
+pub type ClientLiteralOptions = ClientCodeActionLiteralOptions;
+
+pub type ClientResolveOptions = ClientCodeActionResolveOptions;
+
+pub type TagOptions = CodeActionTagOptions;
+
+pub type ClientKindOptions = ClientCodeActionKindOptions;

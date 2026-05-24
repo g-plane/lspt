@@ -52,6 +52,20 @@ pub struct ApplyWorkspaceEditResult {
     pub failed_change: Option<u32>,
 }
 
+
+#[cfg(feature = "proposed")]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Additional data about a workspace edit.
+///
+/// @since 3.18.0
+/// @proposed
+pub struct WorkspaceEditMetadata {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Signal to the editor that this edit is a refactoring.
+    pub is_refactoring: Option<bool>,
+}
+
 pub type Params = ApplyWorkspaceEditParams;
 
 pub type Result = ApplyWorkspaceEditResult;

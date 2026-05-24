@@ -7,13 +7,41 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Cancellation data returned from a diagnostic request.
+/// Parameters of the document diagnostic request.
 ///
 /// @since 3.17.0
-pub struct DiagnosticServerCancellationData {
-    pub retrigger_request: bool,
+pub struct DocumentDiagnosticParams {
+    /// The text document.
+    pub text_document: TextDocumentIdentifier,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The additional identifier  provided during registration.
+    pub identifier: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The result id of a previous response if provided.
+    pub previous_result_id: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// A partial result for a document diagnostic report.
+///
+/// @since 3.17.0
+pub struct DocumentDiagnosticReportPartialResult {
+    pub related_documents: HashMap<Uri, RelatedDocumentDiagnosticReport>,
 }
 
 
@@ -51,6 +79,90 @@ pub struct DiagnosticRegistrationOptions {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// Parameters of the workspace diagnostic request.
+///
+/// @since 3.17.0
+pub struct WorkspaceDiagnosticParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The additional identifier provided during registration.
+    pub identifier: Option<String>,
+
+    /// The currently known diagnostic reports with their
+    /// previous result ids.
+    pub previous_result_ids: Vec<PreviousResultId>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report partial results (e.g. streaming) to
+    /// the client.
+    pub partial_result_token: Option<ProgressToken>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// A workspace diagnostic report.
+///
+/// @since 3.17.0
+pub struct WorkspaceDiagnosticReport {
+    pub items: Vec<WorkspaceDocumentDiagnosticReport>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// A partial result for a workspace diagnostic report.
+///
+/// @since 3.17.0
+pub struct WorkspaceDiagnosticReportPartialResult {
+    pub items: Vec<WorkspaceDocumentDiagnosticReport>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// A diagnostic report with a full set of problems.
+///
+/// @since 3.17.0
+pub struct FullDocumentDiagnosticReport {
+    /// A full document diagnostic report.
+    pub kind: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional result id. If provided it will
+    /// be sent on the next diagnostic request for the
+    /// same document.
+    pub result_id: Option<String>,
+
+    /// The actual items.
+    pub items: Vec<Diagnostic>,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// A diagnostic report indicating that the last returned
+/// report is still accurate.
+///
+/// @since 3.17.0
+pub struct UnchangedDocumentDiagnosticReport {
+    /// A document diagnostic report indicating
+    /// no changes to the last result. A server can
+    /// only return `unchanged` if result ids are
+    /// provided.
+    pub kind: String,
+
+    /// A result id which will be sent on the next
+    /// diagnostic request for the same document.
+    pub result_id: String,
+}
+
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 /// Diagnostic options.
 ///
 /// @since 3.17.0
@@ -74,71 +186,18 @@ pub struct DiagnosticOptions {
 }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// Represents a diagnostic, such as a compiler error or warning. Diagnostic objects
-/// are only valid in the scope of a resource.
-pub struct Diagnostic {
-    /// The range at which the message applies
-    pub range: Range,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The diagnostic's severity. To avoid interpretation mismatches when a
-    /// server is used with different clients it is highly recommended that servers
-    /// always provide a severity value.
-    pub severity: Option<DiagnosticSeverity>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// The diagnostic's code, which usually appear in the user interface.
-    pub code: Option<DiagnosticCode>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional property to describe the error code.
-    /// Requires the code field (above) to be present/not null.
-    ///
-    /// @since 3.16.0
-    pub code_description: Option<CodeDescription>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// A human-readable string describing the source of this
-    /// diagnostic, e.g. 'typescript' or 'super lint'. It usually
-    /// appears in the user interface.
-    pub source: Option<String>,
-
-    /// The diagnostic's message. It usually appears in the user interface
-    pub message: String,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Additional metadata about the diagnostic.
-    ///
-    /// @since 3.15.0
-    pub tags: Option<Vec<DiagnosticTag>>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An array of related diagnostic information, e.g. when symbol-names within
-    /// a scope collide all definitions can be marked via this property.
-    pub related_information: Option<Vec<DiagnosticRelatedInformation>>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// A data entry field that is preserved between a `textDocument/publishDiagnostics`
-    /// notification and `textDocument/codeAction` request.
-    ///
-    /// @since 3.16.0
-    pub data: Option<serde_json::Value>,
-}
-
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Represents a related message and source code location for a diagnostic. This should be
-/// used to point to code locations that cause or related to a diagnostics, e.g when duplicating
-/// a symbol in a scope.
-pub struct DiagnosticRelatedInformation {
-    /// The location of this related diagnostic information.
-    pub location: Location,
+/// A previous result id in a workspace pull request.
+///
+/// @since 3.17.0
+pub struct PreviousResultId {
+    /// The URI for which the client knowns a
+    /// result id.
+    pub uri: Uri,
 
-    /// The message of this related diagnostic information.
-    pub message: String,
+    /// The value of the previous result id.
+    pub value: String,
 }
 
 
@@ -202,38 +261,21 @@ pub struct DiagnosticClientCapabilities {
     pub related_document_support: Option<bool>,
 }
 
+pub type DocumentParams = DocumentDiagnosticParams;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// General diagnostics capabilities for pull and push model.
-pub struct DiagnosticsCapabilities {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether the clients accepts diagnostics with related information.
-    pub related_information: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Client supports the tag property to provide meta data about a diagnostic.
-    /// Clients supporting tags have to handle unknown tags gracefully.
-    ///
-    /// @since 3.15.0
-    pub tag_support: Option<ClientDiagnosticsTagOptions>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Client supports a codeDescription property
-    ///
-    /// @since 3.16.0
-    pub code_description_support: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Whether code action supports the `data` property which is
-    /// preserved between a `textDocument/publishDiagnostics` and
-    /// `textDocument/codeAction` request.
-    ///
-    /// @since 3.16.0
-    pub data_support: Option<bool>,
-}
+pub type DocumentReportPartialResult = DocumentDiagnosticReportPartialResult;
 
 pub type RegistrationOptions = DiagnosticRegistrationOptions;
+
+pub type WorkspaceParams = WorkspaceDiagnosticParams;
+
+pub type WorkspaceReport = WorkspaceDiagnosticReport;
+
+pub type WorkspaceReportPartialResult = WorkspaceDiagnosticReportPartialResult;
+
+pub type FullDocumentReport = FullDocumentDiagnosticReport;
+
+pub type UnchangedDocumentReport = UnchangedDocumentDiagnosticReport;
 
 pub type Options = DiagnosticOptions;
 

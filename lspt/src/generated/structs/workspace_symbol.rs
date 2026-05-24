@@ -86,6 +86,16 @@ pub struct WorkspaceSymbolRegistrationOptions {
 }
 
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// Location with only uri and does not include range.
+///
+/// @since 3.18.0
+pub struct LocationUriOnly {
+    pub uri: Uri,
+}
+
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Server capabilities for a {@link WorkspaceSymbolRequest}.
@@ -130,10 +140,18 @@ pub struct WorkspaceSymbolClientCapabilities {
     pub resolve_support: Option<ClientSymbolResolveOptions>,
 }
 
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// @since 3.18.0
+pub struct ClientSymbolResolveOptions {
+    /// The properties that a client can resolve lazily. Usually
+    /// `location.range`
+    pub properties: Vec<String>,
+}
+
 pub type Params = WorkspaceSymbolParams;
 
 pub type RegistrationOptions = WorkspaceSymbolRegistrationOptions;
-
-pub type Options = WorkspaceSymbolOptions;
 
 pub type ClientCapabilities = WorkspaceSymbolClientCapabilities;

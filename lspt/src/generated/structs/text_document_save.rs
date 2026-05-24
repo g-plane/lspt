@@ -7,6 +7,20 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// The parameters sent in a save text document notification
+pub struct DidSaveTextDocumentParams {
+    /// The document that was saved.
+    pub text_document: TextDocumentIdentifier,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Optional the content when saved. Depends on the includeText value
+    /// when the save notification was requested.
+    pub text: Option<String>,
+}
+
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Save registration options.
@@ -20,5 +34,7 @@ pub struct TextDocumentSaveRegistrationOptions {
     /// The client is supposed to include the content on save.
     pub include_text: Option<bool>,
 }
+
+pub type Params = DidSaveTextDocumentParams;
 
 pub type RegistrationOptions = TextDocumentSaveRegistrationOptions;

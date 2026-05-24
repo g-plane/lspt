@@ -45,6 +45,29 @@ pub struct DocumentRangeFormattingRegistrationOptions {
 }
 
 
+#[cfg(feature = "proposed")]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// The parameters of a {@link DocumentRangesFormattingRequest}.
+///
+/// @since 3.18.0
+/// @proposed
+pub struct DocumentRangesFormattingParams {
+    /// The document to format.
+    pub text_document: TextDocumentIdentifier,
+
+    /// The ranges to format
+    pub ranges: Vec<Range>,
+
+    /// The format options
+    pub options: FormattingOptions,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional token that a server can use to report work done progress.
+    pub work_done_token: Option<ProgressToken>,
+}
+
+
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Provider options for a {@link DocumentRangeFormattingRequest}.
@@ -78,8 +101,6 @@ pub struct DocumentRangeFormattingClientCapabilities {
     /// @proposed
     pub ranges_support: Option<bool>,
 }
-
-pub type Params = DocumentRangeFormattingParams;
 
 pub type RegistrationOptions = DocumentRangeFormattingRegistrationOptions;
 
