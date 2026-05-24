@@ -310,12 +310,6 @@ pub type PartialResult = SemanticTokensPartialResult;
 
 pub type RegistrationOptions = SemanticTokensRegistrationOptions;
 
-pub type DeltaParams = SemanticTokensDeltaParams;
-
-pub type Delta = SemanticTokensDelta;
-
-pub type DeltaPartialResult = SemanticTokensDeltaPartialResult;
-
 pub type RangeParams = SemanticTokensRangeParams;
 
 pub type Options = SemanticTokensOptions;
@@ -328,8 +322,20 @@ pub type FullDelta = SemanticTokensFullDelta;
 
 pub type WorkspaceClientCapabilities = SemanticTokensWorkspaceClientCapabilities;
 
-pub type ClientCapabilities = SemanticTokensClientCapabilities;
+pub mod delta {
+    pub type Params = super::SemanticTokensDeltaParams;
 
-pub type ClientRequestOptions = ClientSemanticTokensRequestOptions;
+    pub type Delta = super::SemanticTokensDelta;
 
-pub type ClientRequestFullDelta = ClientSemanticTokensRequestFullDelta;
+    pub type PartialResult = super::SemanticTokensDeltaPartialResult;
+}
+
+pub mod client {
+    pub type Capabilities = super::SemanticTokensClientCapabilities;
+
+    pub mod request {
+        pub type Options = super::super::ClientSemanticTokensRequestOptions;
+
+        pub type FullDelta = super::super::ClientSemanticTokensRequestFullDelta;
+    }
+}

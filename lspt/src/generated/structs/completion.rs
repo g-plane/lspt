@@ -708,34 +708,40 @@ pub struct ClientCompletionItemInsertTextModeOptions {
 
 pub type Params = CompletionParams;
 
-pub type Item = CompletionItem;
-
 pub type List = CompletionList;
 
 pub type RegistrationOptions = CompletionRegistrationOptions;
 
 pub type Context = CompletionContext;
 
-pub type ItemLabelDetails = CompletionItemLabelDetails;
-
-pub type ItemDefaults = CompletionItemDefaults;
-
-pub type ItemApplyKinds = CompletionItemApplyKinds;
-
 pub type Options = CompletionOptions;
 
 pub type ServerItemOptions = ServerCompletionItemOptions;
 
-pub type ClientCapabilities = CompletionClientCapabilities;
-
-pub type ClientItemOptions = ClientCompletionItemOptions;
-
-pub type ClientItemOptionsKind = ClientCompletionItemOptionsKind;
-
 pub type ListCapabilities = CompletionListCapabilities;
 
-pub type ItemTagOptions = CompletionItemTagOptions;
+pub mod item {
+    pub type Item = super::CompletionItem;
 
-pub type ClientItemResolveOptions = ClientCompletionItemResolveOptions;
+    pub type LabelDetails = super::CompletionItemLabelDetails;
 
-pub type ClientItemInsertTextModeOptions = ClientCompletionItemInsertTextModeOptions;
+    pub type Defaults = super::CompletionItemDefaults;
+
+    pub type ApplyKinds = super::CompletionItemApplyKinds;
+
+    pub type TagOptions = super::CompletionItemTagOptions;
+}
+
+pub mod client {
+    pub type Capabilities = super::CompletionClientCapabilities;
+
+    pub mod item {
+        pub type Options = super::super::ClientCompletionItemOptions;
+
+        pub type OptionsKind = super::super::ClientCompletionItemOptionsKind;
+
+        pub type ResolveOptions = super::super::ClientCompletionItemResolveOptions;
+
+        pub type InsertTextModeOptions = super::super::ClientCompletionItemInsertTextModeOptions;
+    }
+}

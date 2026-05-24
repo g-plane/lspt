@@ -36,8 +36,10 @@ pub struct WillSaveTextDocumentParams {
     pub reason: TextDocumentSaveReason,
 }
 
-pub type DidOpenParams = DidOpenTextDocumentParams;
-
-pub type DidCloseParams = DidCloseTextDocumentParams;
-
 pub type WillSaveParams = WillSaveTextDocumentParams;
+
+pub mod did {
+    pub type OpenParams = super::DidOpenTextDocumentParams;
+
+    pub type CloseParams = super::DidCloseTextDocumentParams;
+}

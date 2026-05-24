@@ -447,14 +447,15 @@ fn write_generated_structs(lsp_def: &LspDef, structs: &[GeneratedStruct]) -> any
     let internal_re_exports = modules
         .iter()
         .flat_map(|(module, structs)| {
-            let aliases = module_struct_aliases(module, structs);
+            let aliases = module_struct_alias_paths(module, structs);
             structs.iter().map(move |structure| {
                 let cfg = if structure.proposed {
                     "    #[cfg(feature = \"proposed\")]\n"
                 } else {
                     ""
                 };
-                if let Some(alias) = aliases.get(&structure.name) {
+                if let Some(alias_path) = aliases.get(&structure.name) {
+                    let alias = alias_path.join("::");
                     format!("{cfg}    pub(crate) use super::{module}::{alias} as {};", structure.name)
                 } else {
                     format!("{cfg}    pub(crate) use super::{module}::{};", structure.name)
@@ -798,23 +799,25 @@ fn collect_type_refs(type_def: &TypeDef, refs: &mut IndexSet<String>) {
 }
 
 fn gen_struct_aliases(module: &str, structs: &[&GeneratedStruct]) -> String {
-    let aliases = module_struct_aliases(module, structs);
-    structs
-        .iter()
-        .filter_map(|structure| {
-            aliases.get(&structure.name).map(|alias| {
-                let cfg = if structure.proposed {
-                    "#[cfg(feature = \"proposed\")]\n"
-                } else {
-                    ""
-                };
-                format!("{cfg}pub type {alias} = {};", structure.name)
-            })
-        })
-        .join("\n\n")
+    let aliases = module_struct_alias_paths(module, structs);
+    let mut tree = StructAliasTree::default();
+    for structure in structs {
+        if let Some(alias_path) = aliases.get(&structure.name) {
+            tree.insert(
+                alias_path,
+                StructAliasLeaf {
+                    alias: alias_path.last().cloned().unwrap(),
+                    target: structure.name.clone(),
+                    proposed: structure.proposed,
+                },
+            );
+        }
+    }
+
+    tree.render(0)
 }
 
-fn module_struct_aliases(module: &str, structs: &[&GeneratedStruct]) -> IndexMap<String, String> {
+fn module_struct_alias_paths(module: &str, structs: &[&GeneratedStruct]) -> IndexMap<String, Vec<String>> {
     if module == COMMON_STRUCT_MODULE {
         return IndexMap::new();
     }
@@ -825,22 +828,137 @@ fn module_struct_aliases(module: &str, structs: &[&GeneratedStruct]) -> IndexMap
         .collect::<IndexSet<_>>();
     let aliases = structs
         .iter()
-        .filter_map(|structure| struct_alias_name(module, &structure.name).map(|alias| (alias, *structure)))
+        .filter_map(|structure| {
+            struct_alias_name(module, &structure.name).map(|alias| {
+                (
+                    alias.clone(),
+                    StructAliasCandidate {
+                        target: structure.name.clone(),
+                        tokens: Vec::new(),
+                    },
+                )
+            })
+        })
         .collect::<Vec<_>>();
     let alias_counts = aliases.iter().fold(IndexMap::<String, usize>::new(), |mut counts, (alias, _)| {
         *counts.entry(alias.clone()).or_insert(0) += 1;
         counts
     });
 
-    aliases
+    let candidates = aliases
         .into_iter()
-        .filter(|(alias, structure)| {
-            alias_counts.get(alias) == Some(&1)
-                && alias != &structure.name
-                && !struct_names.contains(alias)
+        .filter_map(|(alias, mut candidate)| {
+            let keep = alias_counts.get(&alias) == Some(&1)
+                && alias != candidate.target
+                && !struct_names.contains(&alias)
+                && {
+                    candidate.tokens = split_upper_camel_case(&alias);
+                    !candidate.tokens.is_empty()
+                };
+            keep.then_some(candidate)
         })
-        .map(|(alias, structure)| (structure.name.clone(), alias))
-        .collect()
+        .collect::<Vec<_>>();
+
+    let mut paths = IndexMap::new();
+    assign_struct_alias_paths(candidates, Vec::new(), &mut paths);
+    paths
+}
+
+struct StructAliasCandidate {
+    target: String,
+    tokens: Vec<String>,
+}
+
+// Build one alias path per struct by recursively splitting shared UpperCamel
+// prefixes. This avoids protocol-specific word lists while keeping paths stable.
+fn assign_struct_alias_paths(
+    candidates: Vec<StructAliasCandidate>,
+    module_path: Vec<String>,
+    paths: &mut IndexMap<String, Vec<String>>,
+) {
+    let nested_group_counts = candidates.iter().fold(IndexMap::<String, usize>::new(), |mut counts, candidate| {
+        if let Some(token) = candidate.tokens.first() {
+            if candidate.tokens.len() > 1 {
+                *counts.entry(token.clone()).or_insert(0) += 1;
+            }
+        }
+        counts
+    });
+    let mut nested = IndexMap::<String, Vec<StructAliasCandidate>>::new();
+
+    for mut candidate in candidates {
+        let Some(first_token) = candidate.tokens.first().cloned() else {
+            continue;
+        };
+        if nested_group_counts.get(&first_token).copied().unwrap_or_default() > 1 {
+            candidate.tokens.remove(0);
+            if candidate.tokens.is_empty() {
+                candidate.tokens.push(first_token.clone());
+            }
+            nested.entry(first_token.to_snake_case()).or_default().push(candidate);
+        } else {
+            let mut path = module_path.clone();
+            path.push(candidate.tokens.join(""));
+            paths.insert(candidate.target, path);
+        }
+    }
+
+    for (module, candidates) in nested {
+        let mut nested_path = module_path.clone();
+        nested_path.push(module);
+        assign_struct_alias_paths(candidates, nested_path, paths);
+    }
+}
+
+#[derive(Default)]
+struct StructAliasTree {
+    aliases: Vec<StructAliasLeaf>,
+    modules: IndexMap<String, StructAliasTree>,
+}
+
+impl StructAliasTree {
+    fn insert(&mut self, path: &[String], alias: StructAliasLeaf) {
+        if path.len() == 1 {
+            self.aliases.push(alias);
+        } else {
+            self.modules.entry(path[0].clone()).or_default().insert(&path[1..], alias);
+        }
+    }
+
+    fn render(&self, depth: usize) -> String {
+        self.render_items(depth).join("\n\n")
+    }
+
+    fn render_items(&self, depth: usize) -> Vec<String> {
+        let mut items = Vec::new();
+        let indent = "    ".repeat(depth);
+        let target_prefix = "super::".repeat(depth);
+
+        for alias in &self.aliases {
+            let cfg = if alias.proposed {
+                format!("{indent}#[cfg(feature = \"proposed\")]\n")
+            } else {
+                String::new()
+            };
+            items.push(format!(
+                "{cfg}{indent}pub type {} = {target_prefix}{};",
+                alias.alias, alias.target
+            ));
+        }
+
+        for (module, tree) in &self.modules {
+            let nested = tree.render(depth + 1);
+            items.push(format!("{indent}pub mod {module} {{\n{nested}\n{indent}}}"));
+        }
+
+        items
+    }
+}
+
+struct StructAliasLeaf {
+    alias: String,
+    target: String,
+    proposed: bool,
 }
 
 fn struct_alias_name(module: &str, name: &str) -> Option<String> {

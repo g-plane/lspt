@@ -179,8 +179,10 @@ pub type Options = FoldingRangeOptions;
 #[cfg(feature = "proposed")]
 pub type WorkspaceClientCapabilities = FoldingRangeWorkspaceClientCapabilities;
 
-pub type ClientCapabilities = FoldingRangeClientCapabilities;
+pub mod client {
+    pub type Capabilities = super::FoldingRangeClientCapabilities;
 
-pub type ClientKindOptions = ClientFoldingRangeKindOptions;
+    pub type KindOptions = super::ClientFoldingRangeKindOptions;
 
-pub type ClientOptions = ClientFoldingRangeOptions;
+    pub type Options = super::ClientFoldingRangeOptions;
+}

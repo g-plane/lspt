@@ -124,6 +124,8 @@ pub type Options = CodeLensOptions;
 
 pub type WorkspaceClientCapabilities = CodeLensWorkspaceClientCapabilities;
 
-pub type ClientCapabilities = CodeLensClientCapabilities;
+pub mod client {
+    pub type Capabilities = super::CodeLensClientCapabilities;
 
-pub type ClientResolveOptions = ClientCodeLensResolveOptions;
+    pub type ResolveOptions = super::ClientCodeLensResolveOptions;
+}

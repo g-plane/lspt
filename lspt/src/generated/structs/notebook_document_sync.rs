@@ -368,15 +368,7 @@ pub struct NotebookDocumentSyncClientCapabilities {
     pub execution_summary_support: Option<bool>,
 }
 
-pub type DidOpenParams = DidOpenNotebookDocumentParams;
-
 pub type RegistrationOptions = NotebookDocumentSyncRegistrationOptions;
-
-pub type DidChangeParams = DidChangeNotebookDocumentParams;
-
-pub type DidSaveParams = DidSaveNotebookDocumentParams;
-
-pub type DidCloseParams = DidCloseNotebookDocumentParams;
 
 pub type Options = NotebookDocumentSyncOptions;
 
@@ -386,14 +378,30 @@ pub type ChangeEvent = NotebookDocumentChangeEvent;
 
 pub type Identifier = NotebookDocumentIdentifier;
 
-pub type FilterWithNotebook = NotebookDocumentFilterWithNotebook;
-
-pub type FilterWithCells = NotebookDocumentFilterWithCells;
-
-pub type CellChanges = NotebookDocumentCellChanges;
-
-pub type CellChangeStructure = NotebookDocumentCellChangeStructure;
-
-pub type CellContentChanges = NotebookDocumentCellContentChanges;
-
 pub type ClientCapabilities = NotebookDocumentSyncClientCapabilities;
+
+pub mod did {
+    pub type OpenParams = super::DidOpenNotebookDocumentParams;
+
+    pub type ChangeParams = super::DidChangeNotebookDocumentParams;
+
+    pub type SaveParams = super::DidSaveNotebookDocumentParams;
+
+    pub type CloseParams = super::DidCloseNotebookDocumentParams;
+}
+
+pub mod filter {
+    pub mod with {
+        pub type Notebook = super::super::NotebookDocumentFilterWithNotebook;
+
+        pub type Cells = super::super::NotebookDocumentFilterWithCells;
+    }
+}
+
+pub mod cell {
+    pub type Changes = super::NotebookDocumentCellChanges;
+
+    pub type ChangeStructure = super::NotebookDocumentCellChangeStructure;
+
+    pub type ContentChanges = super::NotebookDocumentCellContentChanges;
+}

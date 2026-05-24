@@ -261,17 +261,7 @@ pub struct DiagnosticClientCapabilities {
     pub related_document_support: Option<bool>,
 }
 
-pub type DocumentParams = DocumentDiagnosticParams;
-
-pub type DocumentReportPartialResult = DocumentDiagnosticReportPartialResult;
-
 pub type RegistrationOptions = DiagnosticRegistrationOptions;
-
-pub type WorkspaceParams = WorkspaceDiagnosticParams;
-
-pub type WorkspaceReport = WorkspaceDiagnosticReport;
-
-pub type WorkspaceReportPartialResult = WorkspaceDiagnosticReportPartialResult;
 
 pub type FullDocumentReport = FullDocumentDiagnosticReport;
 
@@ -279,6 +269,20 @@ pub type UnchangedDocumentReport = UnchangedDocumentDiagnosticReport;
 
 pub type Options = DiagnosticOptions;
 
-pub type WorkspaceClientCapabilities = DiagnosticWorkspaceClientCapabilities;
-
 pub type ClientCapabilities = DiagnosticClientCapabilities;
+
+pub mod document {
+    pub type Params = super::DocumentDiagnosticParams;
+
+    pub type ReportPartialResult = super::DocumentDiagnosticReportPartialResult;
+}
+
+pub mod workspace {
+    pub type Params = super::WorkspaceDiagnosticParams;
+
+    pub type Report = super::WorkspaceDiagnosticReport;
+
+    pub type ReportPartialResult = super::WorkspaceDiagnosticReportPartialResult;
+
+    pub type ClientCapabilities = super::DiagnosticWorkspaceClientCapabilities;
+}

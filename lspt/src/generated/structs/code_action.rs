@@ -375,12 +375,14 @@ pub type Options = CodeActionOptions;
 #[cfg(feature = "proposed")]
 pub type KindDocumentation = CodeActionKindDocumentation;
 
-pub type ClientCapabilities = CodeActionClientCapabilities;
-
-pub type ClientLiteralOptions = ClientCodeActionLiteralOptions;
-
-pub type ClientResolveOptions = ClientCodeActionResolveOptions;
-
 pub type TagOptions = CodeActionTagOptions;
 
-pub type ClientKindOptions = ClientCodeActionKindOptions;
+pub mod client {
+    pub type Capabilities = super::CodeActionClientCapabilities;
+
+    pub type LiteralOptions = super::ClientCodeActionLiteralOptions;
+
+    pub type ResolveOptions = super::ClientCodeActionResolveOptions;
+
+    pub type KindOptions = super::ClientCodeActionKindOptions;
+}

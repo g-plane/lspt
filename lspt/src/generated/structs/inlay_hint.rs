@@ -214,6 +214,8 @@ pub type Options = InlayHintOptions;
 
 pub type WorkspaceClientCapabilities = InlayHintWorkspaceClientCapabilities;
 
-pub type ClientCapabilities = InlayHintClientCapabilities;
+pub mod client {
+    pub type Capabilities = super::InlayHintClientCapabilities;
 
-pub type ClientResolveOptions = ClientInlayHintResolveOptions;
+    pub type ResolveOptions = super::ClientInlayHintResolveOptions;
+}

@@ -178,14 +178,18 @@ pub type Item = CallHierarchyItem;
 
 pub type RegistrationOptions = CallHierarchyRegistrationOptions;
 
-pub type IncomingCallsParams = CallHierarchyIncomingCallsParams;
-
-pub type IncomingCall = CallHierarchyIncomingCall;
-
-pub type OutgoingCallsParams = CallHierarchyOutgoingCallsParams;
-
-pub type OutgoingCall = CallHierarchyOutgoingCall;
-
 pub type Options = CallHierarchyOptions;
 
 pub type ClientCapabilities = CallHierarchyClientCapabilities;
+
+pub mod incoming {
+    pub type CallsParams = super::CallHierarchyIncomingCallsParams;
+
+    pub type Call = super::CallHierarchyIncomingCall;
+}
+
+pub mod outgoing {
+    pub type CallsParams = super::CallHierarchyOutgoingCallsParams;
+
+    pub type Call = super::CallHierarchyOutgoingCall;
+}
