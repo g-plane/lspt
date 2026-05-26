@@ -454,31 +454,41 @@ fn write_generated_structs(lsp_def: &LspDef, structs: &[GeneratedStruct]) -> any
     }
 
     let mod_declarations = modules.keys().map(|module| format!("pub mod {module};")).join("\n");
-    let internal_re_exports = modules
+    let public_re_exports = gen_struct_re_exports(&modules, "pub", "self::", "");
+    let internal_re_exports = gen_struct_re_exports(&modules, "pub(crate)", "super::", "    ");
+    fs::write(
+        output_dir.join("mod.rs"),
+        format!("// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(deprecated)]\n\n{mod_declarations}\n\n{public_re_exports}\n\npub(crate) mod internal {{\n    #![allow(unused_imports)]\n\n{internal_re_exports}\n}}\n"),
+    )?;
+
+    Ok(())
+}
+
+fn gen_struct_re_exports(
+    modules: &IndexMap<String, Vec<&GeneratedStruct>>,
+    visibility: &str,
+    path_prefix: &str,
+    indent: &str,
+) -> String {
+    modules
         .iter()
         .flat_map(|(module, structs)| {
             let aliases = module_struct_alias_paths(module, structs);
             structs.iter().map(move |structure| {
                 let cfg = if structure.proposed {
-                    "    #[cfg(feature = \"proposed\")]\n"
+                    format!("{indent}#[cfg(feature = \"proposed\")]\n")
                 } else {
-                    ""
+                    String::new()
                 };
                 if let Some(alias_path) = aliases.get(&structure.name) {
                     let alias = alias_path.join("::");
-                    format!("{cfg}    pub(crate) use super::{module}::{alias} as {};", structure.name)
+                    format!("{cfg}{indent}{visibility} use {path_prefix}{module}::{alias} as {};", structure.name)
                 } else {
-                    format!("{cfg}    pub(crate) use super::{module}::{};", structure.name)
+                    format!("{cfg}{indent}{visibility} use {path_prefix}{module}::{};", structure.name)
                 }
             })
         })
-        .join("\n");
-    fs::write(
-        output_dir.join("mod.rs"),
-        format!("// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(deprecated)]\n\n{mod_declarations}\n\npub(crate) mod internal {{\n    #![allow(unused_imports)]\n\n{internal_re_exports}\n}}\n"),
-    )?;
-
-    Ok(())
+        .join("\n")
 }
 
 fn gen_struct_module_header() -> &'static str {
