@@ -1,8 +1,10 @@
 use heck::{ToSnakeCase, ToUpperCamelCase};
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use serde::Deserialize;
-use std::{env, fmt::Write, fs};
+use std::{env, fmt::Write, fs, path::Path};
+
+const COMMON_STRUCT_MODULE: &str = "common";
 
 fn main() -> anyhow::Result<()> {
     let agent = if let Ok(proxy) = env::var("https_proxy") {
@@ -63,18 +65,7 @@ pub trait Notification {{
         ),
     )?;
 
-    fs::write(
-        "./lspt/src/generated/structs.rs",
-        format!(
-            "// DO NOT EDIT THIS GENERATED FILE.
-
-use crate::{{HashMap, Uri}};
-use serde::{{Deserialize, Serialize}};
-use super::*;
-{}",
-            structs,
-        ),
-    )?;
+    write_generated_structs(&lsp_def, &structs)?;
 
     fs::write(
         "./lspt/src/generated/enums.rs",
@@ -305,7 +296,27 @@ impl Notification for {} {{
         })
 }
 
-fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
+struct GeneratedStruct {
+    name: String,
+    proposed: bool,
+    source: String,
+}
+
+struct StructAlias {
+    module: String,
+    name: String,
+}
+
+struct StructRoot {
+    module: String,
+    refs: IndexSet<String>,
+}
+
+struct StructOwnership {
+    owners: IndexMap<String, IndexSet<String>>,
+}
+
+fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> Vec<GeneratedStruct> {
     lsp_def
         .structures
         .iter()
@@ -320,12 +331,13 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                     | "StaticRegistrationOptions"
             )
         })
-        .fold(String::new(), |mut output, structure| {
+        .map(|structure| {
+            let mut source = String::new();
             if structure.proposed {
-                output.push_str("\n#[cfg(feature = \"proposed\")]");
+                source.push_str("\n#[cfg(feature = \"proposed\")]");
             }
             if let Some(deprecated) = &structure.deprecated {
-                let _ = write!(output, "\n#[deprecated = \"{deprecated}\"]");
+                let _ = write!(source, "\n#[deprecated = \"{deprecated}\"]");
             }
             let default = if can_derive_default(structure, lsp_def) {
                 "Default, "
@@ -337,25 +349,26 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                 "Range" => ", Copy",
                 _ => "",
             };
+            let eq = if can_derive_eq(structure, lsp_def) { ", Eq" } else { "" };
             let _ = write!(
-                output,
-                "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize{additional_derives})]"
+                source,
+                "\n#[derive(Clone, Debug, {default}PartialEq{eq}, Serialize, Deserialize{additional_derives})]"
             );
-            output.push_str("\n#[serde(rename_all = \"camelCase\")]");
-            output.push_str(&gen_doc(structure.documentation.as_deref(), 0));
-            let _ = write!(output, "\npub struct {} {{", structure.name);
+            source.push_str("\n#[serde(rename_all = \"camelCase\")]");
+            source.push_str(&gen_doc(structure.documentation.as_deref(), 0));
+            let _ = write!(source, "\npub struct {} {{", structure.name);
             get_extends(structure, lsp_def)
                 .iter()
                 .chain(structure.properties.iter())
                 .chain(get_mixins(structure, lsp_def).iter())
                 .filter(|property| property.deprecated.is_none())
-                .fold(&mut output, |output, property| {
+                .fold(&mut source, |source, property| {
                     if property.proposed {
-                        output.push_str("\n    #[cfg(feature = \"proposed\")]");
+                        source.push_str("\n    #[cfg(feature = \"proposed\")]");
                     }
                     let mut name = property.name.to_snake_case();
                     if name == "type" {
-                        output.push_str("\n    #[serde(rename = \"type\")]");
+                        source.push_str("\n    #[serde(rename = \"type\")]");
                         name = "ty".into();
                     }
                     let mut optional = property.optional;
@@ -389,19 +402,690 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                         _ => {}
                     }
                     if optional {
-                        output.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
-                        output.push_str(&gen_doc(property.documentation.as_deref(), 4));
-                        let _ = write!(output, "\n    pub {name}: Option<{ty}>,");
+                        source.push_str("\n    #[serde(skip_serializing_if = \"Option::is_none\")]");
+                        source.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                        let _ = write!(source, "\n    pub {name}: Option<{ty}>,");
                     } else {
-                        output.push_str(&gen_doc(property.documentation.as_deref(), 4));
-                        let _ = write!(output, "\n    pub {name}: {ty},");
+                        source.push_str(&gen_doc(property.documentation.as_deref(), 4));
+                        let _ = write!(source, "\n    pub {name}: {ty},");
                     }
-                    output.push('\n');
-                    output
+                    source.push('\n');
+                    source
                 });
-            output.push_str("}\n");
-            output
+            source.push_str("}\n");
+            GeneratedStruct {
+                name: structure.name.clone(),
+                proposed: structure.proposed,
+                source: source.trim_start().into(),
+            }
         })
+        .collect()
+}
+
+fn write_generated_structs(lsp_def: &LspDef, structs: &[GeneratedStruct]) -> anyhow::Result<()> {
+    let legacy_path = Path::new("./lspt/src/generated/structs.rs");
+    if legacy_path.exists() {
+        fs::remove_file(legacy_path)?;
+    }
+
+    let output_dir = Path::new("./lspt/src/generated/structs");
+    if output_dir.exists() {
+        fs::remove_dir_all(output_dir)?;
+    }
+    fs::create_dir_all(output_dir)?;
+
+    let modules = group_structs(lsp_def, structs);
+    for (module, structs) in &modules {
+        let alias_paths = module_struct_alias_paths(module, structs);
+        let public_source = structs
+            .iter()
+            .filter(|structure| !alias_paths.contains_key(&structure.name))
+            .map(|structure| structure.source.as_str())
+            .join("\n\n");
+        let raw_source = gen_raw_structs(structs, &alias_paths);
+        let aliases = gen_struct_aliases(&alias_paths, structs);
+        let source = [public_source, raw_source, aliases]
+            .into_iter()
+            .filter(|source| !source.is_empty())
+            .join("\n\n");
+        fs::write(
+            output_dir.join(format!("{module}.rs")),
+            format!("{}\n{}", gen_struct_module_header(), source),
+        )?;
+    }
+
+    let mod_declarations = modules.keys().map(|module| format!("pub mod {module};")).join("\n");
+    let public_re_exports = gen_struct_re_exports(&modules, "pub", "self::", "");
+    let internal_re_exports = gen_struct_re_exports(&modules, "pub(crate)", "super::", "    ");
+    fs::write(
+        output_dir.join("mod.rs"),
+        format!("// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(deprecated)]\n\n{mod_declarations}\n\n{public_re_exports}\n\npub(crate) mod internal {{\n    #![allow(unused_imports)]\n\n{internal_re_exports}\n}}\n"),
+    )?;
+
+    Ok(())
+}
+
+fn gen_struct_re_exports(
+    modules: &IndexMap<String, Vec<&GeneratedStruct>>,
+    visibility: &str,
+    path_prefix: &str,
+    indent: &str,
+) -> String {
+    modules
+        .iter()
+        .flat_map(|(module, structs)| {
+            let aliases = module_struct_alias_paths(module, structs);
+            structs.iter().map(move |structure| {
+                let cfg = if structure.proposed {
+                    format!("{indent}#[cfg(feature = \"proposed\")]\n")
+                } else {
+                    String::new()
+                };
+                if let Some(alias_path) = aliases.get(&structure.name) {
+                    let alias = alias_path.join("::");
+                    format!("{cfg}{indent}{visibility} use {path_prefix}{module}::{alias} as {};", structure.name)
+                } else {
+                    format!("{cfg}{indent}{visibility} use {path_prefix}{module}::{};", structure.name)
+                }
+            })
+        })
+        .join("\n")
+}
+
+fn gen_struct_module_header() -> &'static str {
+    "// DO NOT EDIT THIS GENERATED FILE.\n\n#![allow(unused_imports)]\n\nuse crate::{HashMap, Uri};\nuse serde::{Deserialize, Serialize};\nuse super::*;\nuse super::super::*;\n"
+}
+
+fn gen_raw_structs(structs: &[&GeneratedStruct], aliases: &IndexMap<String, Vec<String>>) -> String {
+    let source = structs
+        .iter()
+        .filter(|structure| aliases.contains_key(&structure.name))
+        .map(|structure| structure.source.as_str())
+        .join("\n\n");
+    if source.is_empty() {
+        String::new()
+    } else {
+        format!(
+            "mod raw {{\n{}\n}}",
+            indent_source(&format!("{}\n\n{source}", gen_raw_struct_module_header()), 4)
+        )
+    }
+}
+
+fn gen_raw_struct_module_header() -> &'static str {
+    "#![allow(unused_imports)]\n\nuse crate::{HashMap, Uri};\nuse serde::{Deserialize, Serialize};\nuse super::*;\nuse super::super::*;"
+}
+
+fn indent_source(source: &str, spaces: usize) -> String {
+    let indent = " ".repeat(spaces);
+    source
+        .lines()
+        .map(|line| {
+            if line.is_empty() {
+                String::new()
+            } else {
+                format!("{indent}{line}")
+            }
+        })
+        .join("\n")
+}
+
+fn group_structs<'a>(lsp_def: &LspDef, structs: &'a [GeneratedStruct]) -> IndexMap<String, Vec<&'a GeneratedStruct>> {
+    let ownership = struct_ownership(lsp_def, structs);
+    let mut modules = IndexMap::<String, Vec<&GeneratedStruct>>::new();
+    for structure in structs {
+        modules
+            .entry(struct_module(&structure.name, &ownership))
+            .or_default()
+            .push(structure);
+    }
+    modules
+}
+
+fn struct_module(name: &str, ownership: &StructOwnership) -> String {
+    match ownership.owners.get(name) {
+        Some(owners) if owners.len() == 1 => owners.first().cloned().unwrap(),
+        Some(_) | None => COMMON_STRUCT_MODULE.into(),
+    }
+}
+
+fn struct_ownership(lsp_def: &LspDef, structs: &[GeneratedStruct]) -> StructOwnership {
+    let struct_names = structs
+        .iter()
+        .map(|structure| structure.name.clone())
+        .collect::<IndexSet<_>>();
+    let graph = struct_reference_graph(lsp_def, &struct_names);
+    let mut owners = IndexMap::<String, IndexSet<String>>::new();
+
+    for root in struct_roots(lsp_def, structs) {
+        for name in reachable_structs(&root, &graph) {
+            owners.entry(name).or_default().insert(root.module.clone());
+        }
+    }
+
+    StructOwnership { owners }
+}
+
+fn struct_roots(lsp_def: &LspDef, structs: &[GeneratedStruct]) -> Vec<StructRoot> {
+    let valid_modules = valid_struct_modules(lsp_def, structs);
+    let mut roots = Vec::new();
+
+    for request in &lsp_def.requests {
+        let mut refs = IndexSet::new();
+        if let Some(params) = &request.params {
+            refs.insert(params.name.clone());
+        }
+        if let Some(result) = &request.result {
+            collect_type_refs(result, &mut refs);
+        }
+        if let Some(partial_result) = &request.partial_result {
+            collect_type_refs(partial_result, &mut refs);
+        }
+        if let Some(registration_options) = &request.registration_options {
+            collect_type_refs(registration_options, &mut refs);
+        }
+        let registration_options_module = request
+            .registration_options
+            .as_ref()
+            .and_then(type_def_struct_alias_module);
+        roots.push(StructRoot {
+            module: protocol_message_module(
+                &request.method,
+                request.registration_method.as_deref(),
+                registration_options_module.as_deref(),
+                request.server_capability.as_deref(),
+                request.client_capability.as_deref(),
+                &valid_modules,
+            ),
+            refs,
+        });
+    }
+
+    for notification in &lsp_def.notifications {
+        let mut refs = IndexSet::new();
+        if let Some(params) = &notification.params {
+            refs.insert(params.name.clone());
+        }
+        if let Some(registration_options) = &notification.registration_options {
+            collect_type_refs(registration_options, &mut refs);
+        }
+        let registration_options_module = notification
+            .registration_options
+            .as_ref()
+            .and_then(type_def_struct_alias_module);
+        roots.push(StructRoot {
+            module: protocol_message_module(
+                &notification.method,
+                notification.registration_method.as_deref(),
+                registration_options_module.as_deref(),
+                notification.server_capability.as_deref(),
+                notification.client_capability.as_deref(),
+                &valid_modules,
+            ),
+            refs,
+        });
+    }
+
+    roots.extend(capability_struct_roots(lsp_def));
+
+    roots
+}
+
+fn valid_struct_modules(lsp_def: &LspDef, structs: &[GeneratedStruct]) -> IndexSet<String> {
+    let mut modules = structs
+        .iter()
+        .filter_map(|structure| struct_alias(&structure.name).map(|alias| alias.module))
+        .collect::<IndexSet<_>>();
+
+    for request in &lsp_def.requests {
+        modules.insert(protocol_method_module(&request.method));
+        if let Some(registration_method) = &request.registration_method {
+            modules.insert(protocol_method_module(registration_method));
+        }
+    }
+    for notification in &lsp_def.notifications {
+        modules.insert(protocol_method_module(&notification.method));
+        if let Some(registration_method) = &notification.registration_method {
+            modules.insert(protocol_method_module(registration_method));
+        }
+    }
+    for root in capability_struct_roots(lsp_def) {
+        modules.insert(root.module);
+    }
+
+    modules
+}
+
+fn protocol_message_module(
+    method: &str,
+    registration_method: Option<&str>,
+    registration_options_module: Option<&str>,
+    server_capability: Option<&str>,
+    client_capability: Option<&str>,
+    valid_modules: &IndexSet<String>,
+) -> String {
+    // Prefer explicit schema ownership over method spelling. This keeps
+    // operations like `completionItem/resolve` in the `completion` module.
+    if let Some(registration_options_module) = registration_options_module {
+        return registration_options_module.into();
+    }
+    if let Some(registration_method) = registration_method {
+        return protocol_method_module(registration_method);
+    }
+
+    let method_module = protocol_method_module(method);
+    server_capability
+        .and_then(capability_path_module)
+        .filter(|module| valid_modules.contains(module))
+        .or_else(|| {
+            if valid_modules.contains(&method_module) {
+                Some(method_module.clone())
+            } else {
+                None
+            }
+        })
+        .or_else(|| {
+            client_capability
+                .and_then(capability_path_module)
+                .filter(|module| valid_modules.contains(module))
+        })
+        .unwrap_or(method_module)
+}
+
+fn protocol_method_module(method: &str) -> String {
+    let mut segments = method
+        .split('/')
+        .filter(|segment| !segment.is_empty() && !segment.starts_with('$'))
+        .collect::<Vec<_>>();
+    if segments.len() > 1 && is_protocol_method_scope(segments[0]) {
+        segments.remove(0);
+    }
+    segments
+        .first()
+        .map(|segment| segment.to_snake_case())
+        .unwrap_or_else(|| method.to_snake_case())
+}
+
+fn is_protocol_method_scope(segment: &str) -> bool {
+    matches!(segment, "client" | "notebookDocument" | "textDocument" | "window" | "workspace")
+}
+
+fn capability_path_module(capability: &str) -> Option<String> {
+    let mut segments = capability.split('.').filter(|segment| !segment.is_empty()).collect::<Vec<_>>();
+    if segments.first().is_some_and(|segment| is_protocol_method_scope(segment)) {
+        segments.remove(0);
+    }
+    segments.first().map(|segment| capability_segment_module(segment))
+}
+
+fn capability_segment_module(segment: &str) -> String {
+    segment
+        .strip_suffix("Provider")
+        .or_else(|| segment.strip_suffix("Support"))
+        .unwrap_or(segment)
+        .to_snake_case()
+}
+
+fn capability_struct_roots(lsp_def: &LspDef) -> Vec<StructRoot> {
+    let mut roots = Vec::new();
+    // Capability subtrees describe developer-facing feature groups for nested
+    // client/server option structs that are not directly referenced by methods.
+    add_capability_struct_roots(lsp_def, "ClientCapabilities", Vec::new(), None, &mut roots);
+    add_capability_struct_roots(lsp_def, "ServerCapabilities", Vec::new(), None, &mut roots);
+    roots
+}
+
+fn add_capability_struct_roots(
+    lsp_def: &LspDef,
+    structure_name: &str,
+    path: Vec<String>,
+    module: Option<String>,
+    roots: &mut Vec<StructRoot>,
+) {
+    let Some(structure) = lsp_def.structures.iter().find(|structure| structure.name == structure_name) else {
+        return;
+    };
+
+    for property in &structure.properties {
+        let mut property_path = path.clone();
+        property_path.push(property.name.clone());
+
+        let mut refs = IndexSet::new();
+        collect_type_refs(&property.ty, &mut refs);
+        for reference in refs {
+            let module = module.clone().or_else(|| capability_property_module(&property_path, &reference));
+            if let Some(module) = module {
+                roots.push(StructRoot {
+                    module: module.clone(),
+                    refs: IndexSet::from([reference.clone()]),
+                });
+                continue;
+            }
+
+            add_capability_struct_roots(lsp_def, &reference, property_path.clone(), None, roots);
+        }
+    }
+}
+
+fn capability_property_module(path: &[String], reference: &str) -> Option<String> {
+    let first = path.first()?;
+    if path.len() == 1 && is_capability_container(first) {
+        return None;
+    }
+
+    struct_alias(reference)
+        .map(|alias| alias.module)
+        .or_else(|| path.last().map(|segment| capability_segment_module(segment)))
+}
+
+fn is_capability_container(segment: &str) -> bool {
+    matches!(segment, "general" | "notebookDocument" | "textDocument" | "window" | "workspace")
+}
+
+fn type_def_struct_alias_module(type_def: &TypeDef) -> Option<String> {
+    let mut refs = IndexSet::new();
+    collect_type_refs(type_def, &mut refs);
+    refs.into_iter().find_map(|name| struct_alias(&name).map(|alias| alias.module))
+}
+
+fn struct_reference_graph(lsp_def: &LspDef, struct_names: &IndexSet<String>) -> IndexMap<String, IndexSet<String>> {
+    lsp_def
+        .structures
+        .iter()
+        .map(|structure| {
+            let mut refs = IndexSet::new();
+            for type_ref in structure.extends.iter().chain(structure.mixins.iter()) {
+                refs.insert(type_ref.name.clone());
+            }
+            for property in &structure.properties {
+                if property.deprecated.is_none() {
+                    collect_type_refs(&property.ty, &mut refs);
+                }
+            }
+            refs.retain(|name| struct_names.contains(name));
+            (structure.name.clone(), refs)
+        })
+        .collect()
+}
+
+fn reachable_structs(root: &StructRoot, graph: &IndexMap<String, IndexSet<String>>) -> IndexSet<String> {
+    let mut reachable = IndexSet::new();
+    let mut pending = root.refs.iter().cloned().collect::<Vec<_>>();
+
+    while let Some(name) = pending.pop() {
+        if !reachable.insert(name.clone()) || is_struct_graph_boundary(&name) {
+            continue;
+        }
+
+        if let Some(refs) = graph.get(&name) {
+            pending.extend(refs.iter().cloned());
+        }
+    }
+
+    reachable
+}
+
+fn is_struct_graph_boundary(name: &str) -> bool {
+    matches!(name, "ClientCapabilities" | "ServerCapabilities")
+}
+
+fn collect_type_refs(type_def: &TypeDef, refs: &mut IndexSet<String>) {
+    match type_def {
+        TypeDef::Ref(TypeRef { name }) => {
+            refs.insert(name.clone());
+        }
+        TypeDef::Map { key, value } => {
+            collect_type_refs(key, refs);
+            collect_type_refs(value, refs);
+        }
+        TypeDef::Or { items } => {
+            for item in items {
+                collect_type_refs(item, refs);
+            }
+        }
+        TypeDef::Array { element } => collect_type_refs(element, refs),
+        TypeDef::Tuple { items } => {
+            for item in items {
+                collect_type_refs(item, refs);
+            }
+        }
+        TypeDef::Base { .. } | TypeDef::And | TypeDef::Literal | TypeDef::StringLiteral => {}
+    }
+}
+
+fn gen_struct_aliases(aliases: &IndexMap<String, Vec<String>>, structs: &[&GeneratedStruct]) -> String {
+    let mut tree = StructAliasTree::default();
+    for structure in structs {
+        if let Some(alias_path) = aliases.get(&structure.name) {
+            tree.insert(
+                alias_path,
+                StructAliasLeaf {
+                    alias: alias_path.last().cloned().unwrap(),
+                    target: format!("raw::{}", structure.name),
+                    proposed: structure.proposed,
+                },
+            );
+        }
+    }
+
+    tree.render(0)
+}
+
+fn module_struct_alias_paths(module: &str, structs: &[&GeneratedStruct]) -> IndexMap<String, Vec<String>> {
+    if module == COMMON_STRUCT_MODULE {
+        return IndexMap::new();
+    }
+
+    let struct_names = structs
+        .iter()
+        .map(|structure| structure.name.clone())
+        .collect::<IndexSet<_>>();
+    let aliases = structs
+        .iter()
+        .filter_map(|structure| {
+            struct_alias_name(module, &structure.name).map(|alias| {
+                (
+                    alias.clone(),
+                    StructAliasCandidate {
+                        target: structure.name.clone(),
+                        tokens: Vec::new(),
+                    },
+                )
+            })
+        })
+        .collect::<Vec<_>>();
+    let alias_counts = aliases.iter().fold(IndexMap::<String, usize>::new(), |mut counts, (alias, _)| {
+        *counts.entry(alias.clone()).or_insert(0) += 1;
+        counts
+    });
+
+    let candidates = aliases
+        .into_iter()
+        .filter_map(|(alias, mut candidate)| {
+            let keep = alias_counts.get(&alias) == Some(&1)
+                && alias != candidate.target
+                && !struct_names.contains(&alias)
+                && {
+                    candidate.tokens = split_upper_camel_case(&alias);
+                    !candidate.tokens.is_empty()
+                };
+            keep.then_some(candidate)
+        })
+        .collect::<Vec<_>>();
+
+    let mut paths = IndexMap::new();
+    assign_struct_alias_paths(candidates, Vec::new(), &mut paths);
+    paths
+}
+
+struct StructAliasCandidate {
+    target: String,
+    tokens: Vec<String>,
+}
+
+// Build one alias path per struct by recursively splitting shared UpperCamel
+// prefixes. This avoids protocol-specific word lists while keeping paths stable.
+fn assign_struct_alias_paths(
+    candidates: Vec<StructAliasCandidate>,
+    module_path: Vec<String>,
+    paths: &mut IndexMap<String, Vec<String>>,
+) {
+    let nested_group_counts = candidates.iter().fold(IndexMap::<String, usize>::new(), |mut counts, candidate| {
+        if let Some(token) = candidate.tokens.first() {
+            if candidate.tokens.len() > 1 {
+                *counts.entry(token.clone()).or_insert(0) += 1;
+            }
+        }
+        counts
+    });
+    let mut nested = IndexMap::<String, Vec<StructAliasCandidate>>::new();
+
+    for mut candidate in candidates {
+        let Some(first_token) = candidate.tokens.first().cloned() else {
+            continue;
+        };
+        if nested_group_counts.get(&first_token).copied().unwrap_or_default() > 1 {
+            candidate.tokens.remove(0);
+            if candidate.tokens.is_empty() {
+                candidate.tokens.push(first_token.clone());
+            }
+            nested.entry(first_token.to_snake_case()).or_default().push(candidate);
+        } else {
+            let mut path = module_path.clone();
+            path.push(candidate.tokens.join(""));
+            paths.insert(candidate.target, path);
+        }
+    }
+
+    for (module, candidates) in nested {
+        let mut nested_path = module_path.clone();
+        nested_path.push(module);
+        assign_struct_alias_paths(candidates, nested_path, paths);
+    }
+}
+
+#[derive(Default)]
+struct StructAliasTree {
+    aliases: Vec<StructAliasLeaf>,
+    modules: IndexMap<String, StructAliasTree>,
+}
+
+impl StructAliasTree {
+    fn insert(&mut self, path: &[String], alias: StructAliasLeaf) {
+        if path.len() == 1 {
+            self.aliases.push(alias);
+        } else {
+            self.modules.entry(path[0].clone()).or_default().insert(&path[1..], alias);
+        }
+    }
+
+    fn render(&self, depth: usize) -> String {
+        self.render_items(depth).join("\n\n")
+    }
+
+    fn render_items(&self, depth: usize) -> Vec<String> {
+        let mut items = Vec::new();
+        let indent = "    ".repeat(depth);
+        let target_prefix = "super::".repeat(depth);
+
+        for alias in &self.aliases {
+            let cfg = if alias.proposed {
+                format!("{indent}#[cfg(feature = \"proposed\")]\n")
+            } else {
+                String::new()
+            };
+            items.push(format!(
+                "{cfg}{indent}pub type {} = {target_prefix}{};",
+                alias.alias, alias.target
+            ));
+        }
+
+        for (module, tree) in &self.modules {
+            let nested = tree.render(depth + 1);
+            items.push(format!("{indent}pub mod {module} {{\n{nested}\n{indent}}}"));
+        }
+
+        items
+    }
+}
+
+struct StructAliasLeaf {
+    alias: String,
+    target: String,
+    proposed: bool,
+}
+
+fn struct_alias_name(module: &str, name: &str) -> Option<String> {
+    relative_struct_alias(module, name).or_else(|| struct_alias(name).map(|alias| alias.name))
+}
+
+fn relative_struct_alias(module: &str, name: &str) -> Option<String> {
+    // Public module aliases are relative names, not suffixes. For example,
+    // `CompletionItem` becomes `completion::Item` and
+    // `ClientCompletionItemResolveOptions` becomes
+    // `completion::ClientItemResolveOptions`.
+    module_stems(module).into_iter().find_map(|module_stem| {
+        name.strip_prefix(&format!("Client{module_stem}"))
+            .and_then(|suffix| non_empty_alias(&format!("Client{suffix}")))
+            .or_else(|| {
+                name.strip_prefix(&format!("Server{module_stem}"))
+                    .and_then(|suffix| non_empty_alias(&format!("Server{suffix}")))
+            })
+            .or_else(|| name.strip_prefix(&module_stem).and_then(non_empty_alias))
+            .or_else(|| {
+                name.find(&module_stem).and_then(|index| {
+                    if index == 0 {
+                        return None;
+                    }
+                    let suffix_start = index + module_stem.len();
+                    non_empty_alias(&format!("{}{}", &name[..index], &name[suffix_start..]))
+                })
+            })
+    })
+}
+
+fn module_stems(module: &str) -> Vec<String> {
+    let stem = module.to_upper_camel_case();
+    let mut stems = vec![stem.clone()];
+    if let Some(trimmed) = stem.strip_suffix("Sync") {
+        stems.push(trimmed.into());
+    }
+    stems
+}
+
+fn non_empty_alias(alias: &str) -> Option<String> {
+    if alias.is_empty() || !alias.starts_with(char::is_uppercase) {
+        None
+    } else {
+        Some(alias.into())
+    }
+}
+
+fn struct_alias(name: &str) -> Option<StructAlias> {
+    const SUFFIXES: &[&str] = &[
+        "WorkspaceClientCapabilities",
+        "ClientCapabilities",
+        "ServerCapabilities",
+        "RegistrationOptions",
+        "PartialResult",
+        "Options",
+        "Params",
+        "Result",
+        "Report",
+        "Identifier",
+    ];
+
+    SUFFIXES.iter().find_map(|suffix| {
+        let stem = name.strip_suffix(suffix)?;
+        if stem.is_empty() {
+            return None;
+        }
+        let stem = stem.strip_prefix("Client").filter(|stem| !stem.is_empty()).unwrap_or(stem);
+        Some(StructAlias {
+            module: stem.to_snake_case(),
+            name: (*suffix).into(),
+        })
+    })
 }
 fn can_derive_default(structure: &Structure, lsp_def: &LspDef) -> bool {
     !structure
@@ -433,6 +1117,83 @@ fn can_derive_default(structure: &Structure, lsp_def: &LspDef) -> bool {
                 }
         })
 }
+
+fn can_derive_eq(structure: &Structure, lsp_def: &LspDef) -> bool {
+    !structure_contains_decimal(structure, lsp_def, &mut IndexSet::new(), &mut IndexSet::new())
+}
+
+fn structure_contains_decimal(
+    structure: &Structure,
+    lsp_def: &LspDef,
+    visited_structs: &mut IndexSet<String>,
+    visited_aliases: &mut IndexSet<String>,
+) -> bool {
+    if !visited_structs.insert(structure.name.clone()) {
+        return false;
+    }
+
+    structure
+        .extends
+        .iter()
+        .any(|extend| type_ref_contains_decimal(extend, lsp_def, visited_structs, visited_aliases))
+        || structure
+            .properties
+            .iter()
+            .any(|property| type_def_contains_decimal(&property.ty, lsp_def, visited_structs, visited_aliases))
+        || structure
+            .mixins
+            .iter()
+            .any(|mixin| type_ref_contains_decimal(mixin, lsp_def, visited_structs, visited_aliases))
+}
+
+fn type_ref_contains_decimal(
+    type_ref: &TypeRef,
+    lsp_def: &LspDef,
+    visited_structs: &mut IndexSet<String>,
+    visited_aliases: &mut IndexSet<String>,
+) -> bool {
+    if matches!(&*type_ref.name, "LSPAny" | "LSPObject") {
+        return false;
+    }
+
+    lsp_def
+        .structures
+        .iter()
+        .find(|structure| structure.name == type_ref.name)
+        .is_some_and(|structure| structure_contains_decimal(structure, lsp_def, visited_structs, visited_aliases))
+        || (visited_aliases.insert(type_ref.name.clone())
+            && lsp_def
+                .type_aliases
+                .iter()
+                .find(|type_alias| type_alias.name == type_ref.name)
+                .is_some_and(|type_alias| {
+                    type_def_contains_decimal(&type_alias.ty, lsp_def, visited_structs, visited_aliases)
+                }))
+}
+
+fn type_def_contains_decimal(
+    type_def: &TypeDef,
+    lsp_def: &LspDef,
+    visited_structs: &mut IndexSet<String>,
+    visited_aliases: &mut IndexSet<String>,
+) -> bool {
+    match type_def {
+        TypeDef::Base {
+            name: BaseType::Decimal,
+        } => true,
+        TypeDef::Ref(type_ref) => type_ref_contains_decimal(type_ref, lsp_def, visited_structs, visited_aliases),
+        TypeDef::Map { key, value } => {
+            type_def_contains_decimal(key, lsp_def, visited_structs, visited_aliases)
+                || type_def_contains_decimal(value, lsp_def, visited_structs, visited_aliases)
+        }
+        TypeDef::Or { items } | TypeDef::Tuple { items } => items
+            .iter()
+            .any(|item| type_def_contains_decimal(item, lsp_def, visited_structs, visited_aliases)),
+        TypeDef::Array { element } => type_def_contains_decimal(element, lsp_def, visited_structs, visited_aliases),
+        TypeDef::Base { .. } | TypeDef::And | TypeDef::Literal | TypeDef::StringLiteral => false,
+    }
+}
+
 fn get_extends(structure: &Structure, lsp_def: &LspDef) -> Vec<Property> {
     structure
         .extends
@@ -1362,9 +2123,13 @@ struct LspDef {
 struct Request {
     method: String,
     type_name: String,
+    registration_method: Option<String>,
+    client_capability: Option<String>,
+    server_capability: Option<String>,
     params: Option<TypeRef>,
     result: Option<TypeDef>,
     partial_result: Option<TypeDef>,
+    registration_options: Option<TypeDef>,
     #[serde(default)]
     proposed: bool,
 }
@@ -1374,7 +2139,11 @@ struct Request {
 struct Notification {
     method: String,
     type_name: String,
+    registration_method: Option<String>,
+    client_capability: Option<String>,
+    server_capability: Option<String>,
     params: Option<TypeRef>,
+    registration_options: Option<TypeDef>,
     #[serde(default)]
     proposed: bool,
 }
