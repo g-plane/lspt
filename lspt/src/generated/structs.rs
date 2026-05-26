@@ -1,6 +1,6 @@
 // DO NOT EDIT THIS GENERATED FILE.
 
-use crate::{HashMap, Union2, Union3, Union4, Uri};
+use crate::{HashMap, Uri};
 use serde::{Deserialize, Serialize};
 use super::*;
 
@@ -543,11 +543,11 @@ pub struct SemanticTokensRegistrationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a specific range
     /// of a document.
-    pub range: Option<Union2<bool, serde_json::Value>>,
+    pub range: Option<SemanticTokensRange>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a full document.
-    pub full: Option<Union2<bool, SemanticTokensFullDelta>>,
+    pub full: Option<SemanticTokensFull>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The id used to register the request. The id can be used to deregister
@@ -740,7 +740,7 @@ pub struct WorkspaceEdit {
     ///
     /// If a client neither supports `documentChanges` nor `workspace.workspaceEdit.resourceOperations` then
     /// only plain `TextEdit`s using the `changes` property are supported.
-    pub document_changes: Option<Vec<Union4<TextDocumentEdit, CreateFile, RenameFile, DeleteFile>>>,
+    pub document_changes: Option<Vec<WorkspaceEditDocumentChangesItem>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A map of change annotations that can be referenced in `AnnotatedTextEdit`s or create, rename and
@@ -1013,7 +1013,7 @@ pub struct InlayHint {
     /// InlayHintLabelPart label parts.
     ///
     /// *Note* that neither the string nor the label part can be empty.
-    pub label: Union2<String, Vec<InlayHintLabelPart>>,
+    pub label: InlayHintLabel,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The kind of this hint. Can be omitted in which case the client
@@ -1030,7 +1030,7 @@ pub struct InlayHint {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The tooltip text when you hover over this item.
-    pub tooltip: Option<Union2<String, MarkupContent>>,
+    pub tooltip: Option<InlayHintTooltip>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Render padding before the hint.
@@ -1109,7 +1109,7 @@ pub struct DocumentDiagnosticParams {
 ///
 /// @since 3.17.0
 pub struct DocumentDiagnosticReportPartialResult {
-    pub related_documents: HashMap<Uri, Union2<FullDocumentDiagnosticReport, UnchangedDocumentDiagnosticReport>>,
+    pub related_documents: HashMap<Uri, RelatedDocumentDiagnosticReport>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -1215,7 +1215,7 @@ pub struct DidOpenNotebookDocumentParams {
 /// @since 3.17.0
 pub struct NotebookDocumentSyncRegistrationOptions {
     /// The notebooks to be synced
-    pub notebook_selector: Vec<Union2<NotebookDocumentFilterWithNotebook, NotebookDocumentFilterWithCells>>,
+    pub notebook_selector: Vec<NotebookSelectorItem>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether save notification should be forwarded to
@@ -1324,7 +1324,7 @@ pub struct InlineCompletionList {
 /// @proposed
 pub struct InlineCompletionItem {
     /// The text to replace the range with. Must be set.
-    pub insert_text: Union2<String, StringValue>,
+    pub insert_text: InlineCompletionItemInsertText,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A text that is used to decide if this inline completion should be shown. When `falsy` the {@link InlineCompletionItem.insertText} is used.
@@ -1518,7 +1518,7 @@ pub struct DidChangeConfigurationParams {
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeConfigurationRegistrationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub section: Option<Union2<String, Vec<String>>>,
+    pub section: Option<DidChangeConfigurationSection>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1766,7 +1766,7 @@ pub struct CompletionItem {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A human-readable string that represents a doc-comment.
-    pub documentation: Option<Union2<String, MarkupContent>>,
+    pub documentation: Option<CompletionItemDocumentation>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Select this item when showing.
@@ -1840,7 +1840,7 @@ pub struct CompletionItem {
     /// contained and starting at the same position.
     ///
     /// @since 3.16.0 additional type `InsertReplaceEdit`
-    pub text_edit: Option<Union2<TextEdit, InsertReplaceEdit>>,
+    pub text_edit: Option<CompletionItemTextEdit>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The edit text used if the completion item is part of a CompletionList and
@@ -2000,7 +2000,7 @@ pub struct HoverParams {
 /// The result of a hover request.
 pub struct Hover {
     /// The hover's content
-    pub contents: Union3<MarkupContent, MarkedString, Vec<MarkedString>>,
+    pub contents: HoverContents,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional range inside the text document that is used to
@@ -2539,7 +2539,7 @@ pub struct WorkspaceSymbol {
     /// capability `workspace.symbol.resolveSupport`.
     ///
     /// See SymbolInformation#location for more details.
-    pub location: Union2<Location, LocationUriOnly>,
+    pub location: WorkspaceSymbolLocation,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A data entry field that is preserved on a workspace symbol between a
@@ -3005,7 +3005,7 @@ pub struct LogTraceParams {
 #[serde(rename_all = "camelCase")]
 pub struct CancelParams {
     /// The request id to cancel.
-    pub id: Union2<i32, String>,
+    pub id: CancelParamsId,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -3222,11 +3222,11 @@ pub struct SemanticTokensOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a specific range
     /// of a document.
-    pub range: Option<Union2<bool, serde_json::Value>>,
+    pub range: Option<SemanticTokensRange>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Server supports providing semantic tokens for a full document.
-    pub full: Option<Union2<bool, SemanticTokensFullDelta>>,
+    pub full: Option<SemanticTokensFull>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub work_done_progress: Option<bool>,
@@ -3281,7 +3281,7 @@ pub struct TextDocumentEdit {
     ///
     /// @since 3.18.0 - support for SnippetTextEdit. This is guarded using a
     /// client capability.
-    pub edits: Vec<Union2<TextEdit, AnnotatedTextEdit>>,
+    pub edits: Vec<TextDocumentEditEditsItem>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -3512,7 +3512,7 @@ pub struct InlayHintLabelPart {
     /// The tooltip text when you hover over this label part. Depending on
     /// the client capability `inlayHint.resolveSupport` clients might resolve
     /// this property late using the resolve request.
-    pub tooltip: Option<Union2<String, MarkupContent>>,
+    pub tooltip: Option<InlayHintLabelPartTooltip>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional source code location that represents this
@@ -3609,7 +3609,7 @@ pub struct RelatedFullDocumentDiagnosticReport {
     /// a.cpp and result in errors in a header file b.hpp.
     ///
     /// @since 3.17.0
-    pub related_documents: Option<HashMap<Uri, Union2<FullDocumentDiagnosticReport, UnchangedDocumentDiagnosticReport>>>,
+    pub related_documents: Option<HashMap<Uri, RelatedDocumentDiagnosticReport>>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3636,7 +3636,7 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
     /// a.cpp and result in errors in a header file b.hpp.
     ///
     /// @since 3.17.0
-    pub related_documents: Option<HashMap<Uri, Union2<FullDocumentDiagnosticReport, UnchangedDocumentDiagnosticReport>>>,
+    pub related_documents: Option<HashMap<Uri, RelatedDocumentDiagnosticReport>>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3777,7 +3777,7 @@ pub struct TextDocumentItem {
 /// @since 3.17.0
 pub struct NotebookDocumentSyncOptions {
     /// The notebooks to be synced
-    pub notebook_selector: Vec<Union2<NotebookDocumentFilterWithNotebook, NotebookDocumentFilterWithCells>>,
+    pub notebook_selector: Vec<NotebookSelectorItem>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether save notification should be forwarded to
@@ -3949,13 +3949,13 @@ pub struct ServerCapabilities {
     /// Defines how text documents are synced. Is either a detailed structure
     /// defining each notification or for backwards compatibility the
     /// TextDocumentSyncKind number.
-    pub text_document_sync: Option<Union2<TextDocumentSyncOptions, TextDocumentSyncKind>>,
+    pub text_document_sync: Option<TextDocumentSync>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Defines how notebook documents are synced.
     ///
     /// @since 3.17.0
-    pub notebook_document_sync: Option<Union2<NotebookDocumentSyncOptions, NotebookDocumentSyncRegistrationOptions>>,
+    pub notebook_document_sync: Option<NotebookDocumentSync>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides completion support.
@@ -3963,7 +3963,7 @@ pub struct ServerCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides hover support.
-    pub hover_provider: Option<Union2<bool, HoverOptions>>,
+    pub hover_provider: Option<HoverProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides signature help support.
@@ -3971,37 +3971,37 @@ pub struct ServerCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides Goto Declaration support.
-    pub declaration_provider: Option<Union3<bool, DeclarationOptions, DeclarationRegistrationOptions>>,
+    pub declaration_provider: Option<DeclarationProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides goto definition support.
-    pub definition_provider: Option<Union2<bool, DefinitionOptions>>,
+    pub definition_provider: Option<DefinitionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides Goto Type Definition support.
-    pub type_definition_provider: Option<Union3<bool, TypeDefinitionOptions, TypeDefinitionRegistrationOptions>>,
+    pub type_definition_provider: Option<TypeDefinitionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides Goto Implementation support.
-    pub implementation_provider: Option<Union3<bool, ImplementationOptions, ImplementationRegistrationOptions>>,
+    pub implementation_provider: Option<ImplementationProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides find references support.
-    pub references_provider: Option<Union2<bool, ReferenceOptions>>,
+    pub references_provider: Option<ReferencesProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document highlight support.
-    pub document_highlight_provider: Option<Union2<bool, DocumentHighlightOptions>>,
+    pub document_highlight_provider: Option<DocumentHighlightProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document symbol support.
-    pub document_symbol_provider: Option<Union2<bool, DocumentSymbolOptions>>,
+    pub document_symbol_provider: Option<DocumentSymbolProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides code actions. CodeActionOptions may only be
     /// specified if the client states that it supports
     /// `codeActionLiteralSupport` in its initial `initialize` request.
-    pub code_action_provider: Option<Union2<bool, CodeActionOptions>>,
+    pub code_action_provider: Option<CodeActionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides code lens.
@@ -4013,19 +4013,19 @@ pub struct ServerCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides color provider support.
-    pub color_provider: Option<Union3<bool, DocumentColorOptions, DocumentColorRegistrationOptions>>,
+    pub color_provider: Option<ColorProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides workspace symbol support.
-    pub workspace_symbol_provider: Option<Union2<bool, WorkspaceSymbolOptions>>,
+    pub workspace_symbol_provider: Option<WorkspaceSymbolProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document formatting.
-    pub document_formatting_provider: Option<Union2<bool, DocumentFormattingOptions>>,
+    pub document_formatting_provider: Option<DocumentFormattingProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document range formatting.
-    pub document_range_formatting_provider: Option<Union2<bool, DocumentRangeFormattingOptions>>,
+    pub document_range_formatting_provider: Option<DocumentRangeFormattingProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides document formatting on typing.
@@ -4035,15 +4035,15 @@ pub struct ServerCapabilities {
     /// The server provides rename support. RenameOptions may only be
     /// specified if the client states that it supports
     /// `prepareSupport` in its initial `initialize` request.
-    pub rename_provider: Option<Union2<bool, RenameOptions>>,
+    pub rename_provider: Option<RenameProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides folding provider support.
-    pub folding_range_provider: Option<Union3<bool, FoldingRangeOptions, FoldingRangeRegistrationOptions>>,
+    pub folding_range_provider: Option<FoldingRangeProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides selection range support.
-    pub selection_range_provider: Option<Union3<bool, SelectionRangeOptions, SelectionRangeRegistrationOptions>>,
+    pub selection_range_provider: Option<SelectionRangeProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides execute command support.
@@ -4053,49 +4053,49 @@ pub struct ServerCapabilities {
     /// The server provides call hierarchy support.
     ///
     /// @since 3.16.0
-    pub call_hierarchy_provider: Option<Union3<bool, CallHierarchyOptions, CallHierarchyRegistrationOptions>>,
+    pub call_hierarchy_provider: Option<CallHierarchyProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides linked editing range support.
     ///
     /// @since 3.16.0
-    pub linked_editing_range_provider: Option<Union3<bool, LinkedEditingRangeOptions, LinkedEditingRangeRegistrationOptions>>,
+    pub linked_editing_range_provider: Option<LinkedEditingRangeProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides semantic tokens support.
     ///
     /// @since 3.16.0
-    pub semantic_tokens_provider: Option<Union2<SemanticTokensOptions, SemanticTokensRegistrationOptions>>,
+    pub semantic_tokens_provider: Option<SemanticTokensProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides moniker support.
     ///
     /// @since 3.16.0
-    pub moniker_provider: Option<Union3<bool, MonikerOptions, MonikerRegistrationOptions>>,
+    pub moniker_provider: Option<MonikerProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides type hierarchy support.
     ///
     /// @since 3.17.0
-    pub type_hierarchy_provider: Option<Union3<bool, TypeHierarchyOptions, TypeHierarchyRegistrationOptions>>,
+    pub type_hierarchy_provider: Option<TypeHierarchyProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides inline values.
     ///
     /// @since 3.17.0
-    pub inline_value_provider: Option<Union3<bool, InlineValueOptions, InlineValueRegistrationOptions>>,
+    pub inline_value_provider: Option<InlineValueProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides inlay hints.
     ///
     /// @since 3.17.0
-    pub inlay_hint_provider: Option<Union3<bool, InlayHintOptions, InlayHintRegistrationOptions>>,
+    pub inlay_hint_provider: Option<InlayHintProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server has support for pull model diagnostics.
     ///
     /// @since 3.17.0
-    pub diagnostic_provider: Option<Union2<DiagnosticOptions, DiagnosticRegistrationOptions>>,
+    pub diagnostic_provider: Option<DiagnosticProvider>,
 
     #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4103,7 +4103,7 @@ pub struct ServerCapabilities {
     ///
     /// @since 3.18.0
     /// @proposed
-    pub inline_completion_provider: Option<Union2<bool, InlineCompletionOptions>>,
+    pub inline_completion_provider: Option<InlineCompletionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Workspace specific server capabilities.
@@ -4192,7 +4192,7 @@ pub struct Diagnostic {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The diagnostic's code, which usually appear in the user interface.
-    pub code: Option<Union2<i32, String>>,
+    pub code: Option<DiagnosticCode>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional property to describe the error code.
@@ -4303,7 +4303,7 @@ pub struct CompletionItemDefaults {
     /// A default edit range.
     ///
     /// @since 3.17.0
-    pub edit_range: Option<Union2<Range, EditRangeWithInsertReplace>>,
+    pub edit_range: Option<CompletionItemDefaultsEditRange>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A default insert text format.
@@ -4480,7 +4480,7 @@ pub struct SignatureInformation {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The human-readable doc-comment of this signature. Will be shown
     /// in the UI but can be omitted.
-    pub documentation: Option<Union2<String, MarkupContent>>,
+    pub documentation: Option<SignatureInformationDocumentation>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The parameters of this signature.
@@ -5083,7 +5083,7 @@ pub struct NotebookDocumentFilterWithNotebook {
     /// The notebook to be synced If a string
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
-    pub notebook: Union2<String, NotebookDocumentFilter>,
+    pub notebook: NotebookDocumentFilterNotebook,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The cells of the matching notebook to be synced.
@@ -5098,7 +5098,7 @@ pub struct NotebookDocumentFilterWithCells {
     /// The notebook to be synced If a string
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
-    pub notebook: Option<Union2<String, NotebookDocumentFilter>>,
+    pub notebook: Option<NotebookDocumentFilterNotebook>,
 
     /// The cells of the matching notebook to be synced.
     pub cells: Vec<NotebookCellLanguage>,
@@ -5214,7 +5214,7 @@ pub struct TextDocumentSyncOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// If present save notifications are sent to the server. If omitted the notification should not be
     /// sent.
-    pub save: Option<Union2<bool, SaveOptions>>,
+    pub save: Option<TextDocumentSyncSave>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5241,7 +5241,7 @@ pub struct WorkspaceOptions {
     ///
     /// @since 3.18.0
     /// @proposed
-    pub text_document_content: Option<Union2<TextDocumentContentOptions, TextDocumentContentRegistrationOptions>>,
+    pub text_document_content: Option<WorkspaceTextDocumentContent>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5338,12 +5338,12 @@ pub struct ParameterInformation {
     ///
     /// *Note*: a label of type string should be a substring of its containing signature label.
     /// Its intended use case is to highlight the parameter label part in the `SignatureInformation.label`.
-    pub label: Union2<String, (u32, u32)>,
+    pub label: ParameterInformationLabel,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The human-readable doc-comment of this parameter. Will be shown
     /// in the UI but can be omitted.
-    pub documentation: Option<Union2<String, MarkupContent>>,
+    pub documentation: Option<ParameterInformationDocumentation>,
 }
 
 #[cfg(feature = "proposed")]
@@ -5378,7 +5378,7 @@ pub struct NotebookCellTextDocumentFilter {
     /// containing the notebook cell. If a string
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
-    pub notebook: Union2<String, NotebookDocumentFilter>,
+    pub notebook: NotebookDocumentFilterNotebook,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A language id like `python`.
@@ -5821,7 +5821,7 @@ pub struct WorkspaceFoldersServerCapabilities {
     /// under which the notification is registered on the client
     /// side. The ID can be used to unregister for these events
     /// using the `client/unregisterCapability` request.
-    pub change_notifications: Option<Union2<String, bool>>,
+    pub change_notifications: Option<WorkspaceFoldersChangeNotifications>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5865,7 +5865,7 @@ pub struct FileOperationOptions {
 pub struct RelativePattern {
     /// A workspace folder or a base URI to which this pattern will be matched
     /// against relatively.
-    pub base_uri: Union2<WorkspaceFolder, Uri>,
+    pub base_uri: RelativePatternBaseUri,
 
     /// The actual glob pattern;
     pub pattern: Pattern,
@@ -7327,12 +7327,12 @@ pub struct ClientSemanticTokensRequestOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The client will send the `textDocument/semanticTokens/range` request if
     /// the server provides a corresponding handler.
-    pub range: Option<Union2<bool, serde_json::Value>>,
+    pub range: Option<ClientSemanticTokensRequestRange>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The client will send the `textDocument/semanticTokens/full` request if
     /// the server provides a corresponding handler.
-    pub full: Option<Union2<bool, ClientSemanticTokensRequestFullDelta>>,
+    pub full: Option<ClientSemanticTokensRequestFull>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
