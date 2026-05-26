@@ -667,6 +667,7 @@ struct UnionVariant {
     name: String,
     original_name: Option<String>,
     ty: String,
+    proposed: bool,
 }
 
 impl UnionRegistry {
@@ -974,12 +975,17 @@ fn gen_union_def(union: &UnionDef) -> String {
         .variants
         .iter()
         .map(|variant| {
+            let cfg = if variant.proposed {
+                "    #[cfg(feature = \"proposed\")]\n"
+            } else {
+                ""
+            };
             let original_name = variant
                 .original_name
                 .as_ref()
                 .map(|name| format!("    /// `{name}`.\n"))
                 .unwrap_or_default();
-            format!("{original_name}    {}({}),", variant.name, variant.ty)
+            format!("{cfg}{original_name}    {}({}),", variant.name, variant.ty)
         })
         .join("\n");
     let from_impls = gen_union_from_impls(union);
@@ -1009,17 +1015,13 @@ fn gen_cfg(proposed: bool) -> &'static str {
     }
 }
 
-fn gen_union_cfg(union: &UnionDef) -> &'static str {
-    gen_cfg(union.proposed)
-}
-
 fn gen_union_from_impls(union: &UnionDef) -> String {
     union
         .variants
         .iter()
         .filter(|variant| variant.ty != union.name && has_unique_variant_type(union, &variant.ty))
         .map(|variant| {
-            let cfg = gen_union_cfg(union);
+            let cfg = gen_cfg(union.proposed || variant.proposed);
             format!(
                 "\n\n{cfg}impl From<{}> for {} {{\n    fn from(value: {}) -> Self {{\n        Self::{}(value)\n    }}\n}}",
                 variant.ty, union.name, variant.ty, variant.name
@@ -1053,7 +1055,7 @@ fn gen_type_def(
             gen_type_def(value, unions, &context.map_value(), proposed, None)
         ),
         TypeDef::Or { items } => {
-            let items = normalize_union_items(items);
+            let items = items.to_vec();
             if items.len() == 1 {
                 gen_type_def(items.first().unwrap(), unions, context, proposed, documentation)
             } else {
@@ -1071,6 +1073,7 @@ fn gen_type_def(
                             name: variant_name,
                             original_name,
                             ty,
+                            proposed: variant_requires_proposed_feature(item),
                         }
                     })
                     .collect();
@@ -1096,19 +1099,11 @@ fn gen_type_def(
 }
 
 fn is_multi_union(type_def: &TypeDef) -> bool {
-    matches!(type_def, TypeDef::Or { items } if normalize_union_items(items).len() > 1)
+    matches!(type_def, TypeDef::Or { items } if items.len() > 1)
 }
 
-fn normalize_union_items(items: &[TypeDef]) -> Vec<TypeDef> {
-    if items.len() == 3
-        && matches!(items.first(), Some(item) if is_ref(item, "TextEdit"))
-        && matches!(items.get(1), Some(item) if is_ref(item, "AnnotatedTextEdit"))
-        && matches!(items.get(2), Some(item) if is_ref(item, "SnippetTextEdit"))
-    {
-        items[..2].to_vec()
-    } else {
-        items.to_vec()
-    }
+fn variant_requires_proposed_feature(type_def: &TypeDef) -> bool {
+    is_ref(type_def, "SnippetTextEdit")
 }
 
 fn is_ref(type_def: &TypeDef, expected: &str) -> bool {
