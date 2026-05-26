@@ -613,7 +613,8 @@ fn gen_base_type(base_type: &BaseType) -> &'static str {
     match base_type {
         BaseType::Null => "serde_json::Value",
         BaseType::Uinteger => "u32",
-        BaseType::Integer | BaseType::Decimal => "i32",
+        BaseType::Integer => "i32",
+        BaseType::Decimal => "f32",
         BaseType::String => "String",
         BaseType::Boolean => "bool",
         BaseType::DocumentUri | BaseType::Uri => "Uri",

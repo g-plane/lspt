@@ -3122,16 +3122,16 @@ pub struct TextDocumentIdentifier {
 /// Represents a color in RGBA space.
 pub struct Color {
     /// The red component of this color in the range [0-1].
-    pub red: i32,
+    pub red: f32,
 
     /// The green component of this color in the range [0-1].
-    pub green: i32,
+    pub green: f32,
 
     /// The blue component of this color in the range [0-1].
-    pub blue: i32,
+    pub blue: f32,
 
     /// The alpha component of this color in the range [0-1].
-    pub alpha: i32,
+    pub alpha: f32,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
