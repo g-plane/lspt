@@ -349,9 +349,10 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> Vec<GeneratedStr
                 "Range" => ", Copy",
                 _ => "",
             };
+            let eq = if can_derive_eq(structure, lsp_def) { ", Eq" } else { "" };
             let _ = write!(
                 source,
-                "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize{additional_derives})]"
+                "\n#[derive(Clone, Debug, {default}PartialEq{eq}, Serialize, Deserialize{additional_derives})]"
             );
             source.push_str("\n#[serde(rename_all = \"camelCase\")]");
             source.push_str(&gen_doc(structure.documentation.as_deref(), 0));
@@ -1116,6 +1117,83 @@ fn can_derive_default(structure: &Structure, lsp_def: &LspDef) -> bool {
                 }
         })
 }
+
+fn can_derive_eq(structure: &Structure, lsp_def: &LspDef) -> bool {
+    !structure_contains_decimal(structure, lsp_def, &mut IndexSet::new(), &mut IndexSet::new())
+}
+
+fn structure_contains_decimal(
+    structure: &Structure,
+    lsp_def: &LspDef,
+    visited_structs: &mut IndexSet<String>,
+    visited_aliases: &mut IndexSet<String>,
+) -> bool {
+    if !visited_structs.insert(structure.name.clone()) {
+        return false;
+    }
+
+    structure
+        .extends
+        .iter()
+        .any(|extend| type_ref_contains_decimal(extend, lsp_def, visited_structs, visited_aliases))
+        || structure
+            .properties
+            .iter()
+            .any(|property| type_def_contains_decimal(&property.ty, lsp_def, visited_structs, visited_aliases))
+        || structure
+            .mixins
+            .iter()
+            .any(|mixin| type_ref_contains_decimal(mixin, lsp_def, visited_structs, visited_aliases))
+}
+
+fn type_ref_contains_decimal(
+    type_ref: &TypeRef,
+    lsp_def: &LspDef,
+    visited_structs: &mut IndexSet<String>,
+    visited_aliases: &mut IndexSet<String>,
+) -> bool {
+    if matches!(&*type_ref.name, "LSPAny" | "LSPObject") {
+        return false;
+    }
+
+    lsp_def
+        .structures
+        .iter()
+        .find(|structure| structure.name == type_ref.name)
+        .is_some_and(|structure| structure_contains_decimal(structure, lsp_def, visited_structs, visited_aliases))
+        || (visited_aliases.insert(type_ref.name.clone())
+            && lsp_def
+                .type_aliases
+                .iter()
+                .find(|type_alias| type_alias.name == type_ref.name)
+                .is_some_and(|type_alias| {
+                    type_def_contains_decimal(&type_alias.ty, lsp_def, visited_structs, visited_aliases)
+                }))
+}
+
+fn type_def_contains_decimal(
+    type_def: &TypeDef,
+    lsp_def: &LspDef,
+    visited_structs: &mut IndexSet<String>,
+    visited_aliases: &mut IndexSet<String>,
+) -> bool {
+    match type_def {
+        TypeDef::Base {
+            name: BaseType::Decimal,
+        } => true,
+        TypeDef::Ref(type_ref) => type_ref_contains_decimal(type_ref, lsp_def, visited_structs, visited_aliases),
+        TypeDef::Map { key, value } => {
+            type_def_contains_decimal(key, lsp_def, visited_structs, visited_aliases)
+                || type_def_contains_decimal(value, lsp_def, visited_structs, visited_aliases)
+        }
+        TypeDef::Or { items } | TypeDef::Tuple { items } => items
+            .iter()
+            .any(|item| type_def_contains_decimal(item, lsp_def, visited_structs, visited_aliases)),
+        TypeDef::Array { element } => type_def_contains_decimal(element, lsp_def, visited_structs, visited_aliases),
+        TypeDef::Base { .. } | TypeDef::And | TypeDef::Literal | TypeDef::StringLiteral => false,
+    }
+}
+
 fn get_extends(structure: &Structure, lsp_def: &LspDef) -> Vec<Property> {
     structure
         .extends

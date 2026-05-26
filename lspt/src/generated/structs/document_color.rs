@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::*;
 use super::super::*;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Represents a color range from a document.
 pub struct ColorInformation {

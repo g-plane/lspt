@@ -321,7 +321,7 @@ pub struct TextDocumentIdentifier {
 }
 
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Represents a color in RGBA space.
 pub struct Color {
