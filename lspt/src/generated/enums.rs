@@ -549,11 +549,9 @@ pub enum MessageType {
     /// A log message.
     Log = 4,
 
-    #[cfg(feature = "proposed")]
     /// A debug message.
     ///
     /// @since 3.18.0
-    /// @proposed
     Debug = 5,
 }
 impl Serialize for MessageType {
@@ -566,7 +564,6 @@ impl Serialize for MessageType {
             MessageType::Warning => serializer.serialize_u32(2),
             MessageType::Info => serializer.serialize_u32(3),
             MessageType::Log => serializer.serialize_u32(4),
-            #[cfg(feature = "proposed")]
             MessageType::Debug => serializer.serialize_u32(5),
         }
     }
@@ -582,7 +579,6 @@ impl<'de> Deserialize<'de> for MessageType {
             2 => Ok(MessageType::Warning),
             3 => Ok(MessageType::Info),
             4 => Ok(MessageType::Log),
-            #[cfg(feature = "proposed")]
             5 => Ok(MessageType::Debug),
             value => Err(serde::de::Error::invalid_value(
                 serde::de::Unexpected::Signed(value as i64),
@@ -1018,7 +1014,6 @@ pub enum CodeActionKind {
     /// - ...
     RefactorInline,
 
-    #[cfg(feature = "proposed")]
     #[serde(rename = "refactor.move")]
     /// Base kind for refactoring move actions: `refactor.move`
     ///
@@ -1030,7 +1025,6 @@ pub enum CodeActionKind {
     /// - ...
     ///
     /// @since 3.18.0
-    /// @proposed
     RefactorMove,
 
     #[serde(rename = "refactor.rewrite")]
@@ -1172,16 +1166,12 @@ pub enum LanguageKind {
     #[serde(rename = "css")]
     Css,
 
-    #[cfg(feature = "proposed")]
     #[serde(rename = "d")]
     /// @since 3.18.0
-    /// @proposed
     D,
 
-    #[cfg(feature = "proposed")]
     #[serde(rename = "pascal")]
     /// @since 3.18.0
-    /// @proposed
     Delphi,
 
     #[serde(rename = "diff")]
@@ -1205,7 +1195,7 @@ pub enum LanguageKind {
     #[serde(rename = "git-commit")]
     GitCommit,
 
-    #[serde(rename = "rebase")]
+    #[serde(rename = "git-rebase")]
     GitRebase,
 
     #[serde(rename = "go")]
@@ -1259,10 +1249,8 @@ pub enum LanguageKind {
     #[serde(rename = "objective-cpp")]
     ObjectiveCpp,
 
-    #[cfg(feature = "proposed")]
     #[serde(rename = "pascal")]
     /// @since 3.18.0
-    /// @proposed
     Pascal,
 
     #[serde(rename = "perl")]
@@ -1273,6 +1261,9 @@ pub enum LanguageKind {
 
     #[serde(rename = "php")]
     Php,
+
+    #[serde(rename = "plaintext")]
+    Plaintext,
 
     #[serde(rename = "powershell")]
     Powershell,
@@ -1345,7 +1336,6 @@ pub enum LanguageKind {
 /// Describes how an {@link InlineCompletionItemProvider inline completion provider} was triggered.
 ///
 /// @since 3.18.0
-/// @proposed
 pub enum InlineCompletionTriggerKind {
     /// Completion was triggered explicitly by a user gesture.
     Invoked = 1,

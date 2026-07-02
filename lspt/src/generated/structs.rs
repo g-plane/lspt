@@ -951,10 +951,10 @@ pub struct InlineValueParams {
     /// The text document.
     pub text_document: TextDocumentIdentifier,
 
-    /// The document range for which inline values should be computed.
+    /// The document range for which inline values information will be returned.
     pub range: Range,
 
-    /// Additional information about the context in which inline values were
+    /// Additional information about the context in which inline values information was
     /// requested.
     pub context: InlineValueContext,
 
@@ -1101,15 +1101,6 @@ pub struct DocumentDiagnosticParams {
     /// An optional token that a server can use to report partial results (e.g. streaming) to
     /// the client.
     pub partial_result_token: Option<ProgressToken>,
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// A partial result for a document diagnostic report.
-///
-/// @since 3.17.0
-pub struct DocumentDiagnosticReportPartialResult {
-    pub related_documents: HashMap<Uri, RelatedDocumentDiagnosticReport>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -1280,13 +1271,11 @@ pub struct DidCloseNotebookDocumentParams {
     pub cell_text_documents: Vec<TextDocumentIdentifier>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// A parameter literal used in inline completion requests.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct InlineCompletionParams {
     /// The text document.
     pub text_document: TextDocumentIdentifier,
@@ -1303,25 +1292,21 @@ pub struct InlineCompletionParams {
     pub work_done_token: Option<ProgressToken>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Represents a collection of {@link InlineCompletionItem inline completion items} to be presented in the editor.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct InlineCompletionList {
     /// The inline completion items
     pub items: Vec<InlineCompletionItem>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// An inline completion item represents a text snippet that is proposed inline to complete text that is being typed.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct InlineCompletionItem {
     /// The text to replace the range with. Must be set.
     pub insert_text: InlineCompletionItemInsertText,
@@ -1339,13 +1324,11 @@ pub struct InlineCompletionItem {
     pub command: Option<Command>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Inline completion options used during static or dynamic registration.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct InlineCompletionRegistrationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A document selector to identify the scope of the registration. If set to null
@@ -1358,25 +1341,21 @@ pub struct InlineCompletionRegistrationOptions {
     pub id: Option<String>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Parameters for the `workspace/textDocumentContent` request.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct TextDocumentContentParams {
     /// The uri of the text document.
     pub uri: Uri,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Result of the `workspace/textDocumentContent` request.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct TextDocumentContentResult {
     /// The text content of the text document. Please note, that the content of
     /// any subsequent open notifications for the text document might differ
@@ -1385,13 +1364,11 @@ pub struct TextDocumentContentResult {
     pub text: String,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Text document content provider registration options.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct TextDocumentContentRegistrationOptions {
     /// The schemes for which the server provides content.
     pub schemes: Vec<String>,
@@ -1402,13 +1379,11 @@ pub struct TextDocumentContentRegistrationOptions {
     pub id: Option<String>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Parameters for the `workspace/textDocumentContent/refresh` request.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct TextDocumentContentRefreshParams {
     /// The uri of the text document to refresh.
     pub uri: Uri,
@@ -2078,6 +2053,9 @@ pub struct SignatureHelp {
     /// In future version of the protocol this property might become
     /// mandatory (but still nullable) to better express the active parameter if
     /// the active signature does have any.
+    ///
+    /// Since version 3.16.0 the `SignatureInformation` itself provides a
+    /// `activeParameter` property and it should be used instead of this one.
     pub active_parameter: Option<u32>,
 }
 
@@ -2351,12 +2329,10 @@ pub struct Command {
     /// Title of the command, like `save`.
     pub title: String,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional tooltip.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub tooltip: Option<String>,
 
     /// The identifier of the actual command handler.
@@ -2456,7 +2432,6 @@ pub struct CodeActionRegistrationOptions {
     /// may list out every specific kind they provide.
     pub code_action_kinds: Option<Vec<CodeActionKind>>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Static documentation for a class of code actions.
     ///
@@ -2472,7 +2447,6 @@ pub struct CodeActionRegistrationOptions {
     /// At most one documentation entry should be shown per provider.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub documentation: Option<Vec<CodeActionKindDocumentation>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2722,22 +2696,18 @@ pub struct DocumentRangeFormattingRegistrationOptions {
     /// the document selector provided on the client side will be used.
     pub document_selector: Option<DocumentSelector>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether the server supports formatting multiple ranges at once.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub ranges_support: Option<bool>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// The parameters of a {@link DocumentRangesFormattingRequest}.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct DocumentRangesFormattingParams {
     /// The document to format.
     pub text_document: TextDocumentIdentifier,
@@ -2796,10 +2766,10 @@ pub struct DocumentOnTypeFormattingRegistrationOptions {
 #[serde(rename_all = "camelCase")]
 /// The parameters of a {@link RenameRequest}.
 pub struct RenameParams {
-    /// The document to rename.
+    /// The text document.
     pub text_document: TextDocumentIdentifier,
 
-    /// The position at which this request was sent.
+    /// The position inside the text document.
     pub position: Position,
 
     /// The new name of the symbol. If the given name is not valid the
@@ -2879,12 +2849,10 @@ pub struct ApplyWorkspaceEditParams {
     /// The edits to apply.
     pub edit: WorkspaceEdit,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Additional data about the edit.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub metadata: Option<WorkspaceEditMetadata>,
 }
 
@@ -3440,7 +3408,7 @@ pub struct InlineValueContext {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Provide inline value as text.
+/// Returns inline value information as the complete text to be shown.
 ///
 /// @since 3.17.0
 pub struct InlineValueText {
@@ -3453,14 +3421,20 @@ pub struct InlineValueText {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Provide inline value through a variable lookup.
-/// If only a range is specified, the variable name will be extracted from the underlying document.
-/// An optional variable name can be used to override the extracted name.
+/// To compute inline value through a variable lookup.
+///
+/// If only a range is specified, the variable name should
+/// be extracted from the underlying document.
+///
+/// An optional variable name could be used to lookup instead
+/// of the extracted name.
 ///
 /// @since 3.17.0
 pub struct InlineValueVariableLookup {
     /// The document range for which the inline value applies.
-    /// The range is used to extract the variable name from the underlying document.
+    ///
+    /// The range could be used to extract the variable name
+    /// from the underlying document.
     pub range: Range,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3473,18 +3447,24 @@ pub struct InlineValueVariableLookup {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// Provide an inline value through an expression evaluation.
-/// If only a range is specified, the expression will be extracted from the underlying document.
-/// An optional expression can be used to override the extracted expression.
+/// To compute an inline value through an expression evaluation.
+///
+/// If only a range is specified, the expression should be
+/// extracted from the underlying document.
+///
+/// An optional expression could be evaluated instead of
+/// the extracted expression.
 ///
 /// @since 3.17.0
 pub struct InlineValueEvaluatableExpression {
     /// The document range for which the inline value applies.
-    /// The range is used to extract the evaluatable expression from the underlying document.
+    ///
+    /// The range could be used to extract the evaluatable expression
+    /// from the underlying document.
     pub range: Range,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    /// If specified the expression overrides the extracted expression.
+    /// If specified the expression could be evaluated instead.
     pub expression: Option<String>,
 }
 
@@ -3641,39 +3621,11 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// A diagnostic report with a full set of problems.
+/// A partial result for a document diagnostic report.
 ///
 /// @since 3.17.0
-pub struct FullDocumentDiagnosticReport {
-    /// A full document diagnostic report.
-    pub kind: String,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// An optional result id. If provided it will
-    /// be sent on the next diagnostic request for the
-    /// same document.
-    pub result_id: Option<String>,
-
-    /// The actual items.
-    pub items: Vec<Diagnostic>,
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-/// A diagnostic report indicating that the last returned
-/// report is still accurate.
-///
-/// @since 3.17.0
-pub struct UnchangedDocumentDiagnosticReport {
-    /// A document diagnostic report indicating
-    /// no changes to the last result. A server can
-    /// only return `unchanged` if result ids are
-    /// provided.
-    pub kind: String,
-
-    /// A result id which will be sent on the next
-    /// diagnostic request for the same document.
-    pub result_id: String,
+pub struct DocumentDiagnosticReportPartialResult {
+    pub related_documents: HashMap<Uri, RelatedDocumentDiagnosticReport>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3825,13 +3777,11 @@ pub struct NotebookDocumentIdentifier {
     pub uri: Uri,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Provides information about the context in which an inline completion was requested.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct InlineCompletionContext {
     /// Describes how the inline completion was triggered.
     pub trigger_kind: InlineCompletionTriggerKind,
@@ -3841,7 +3791,6 @@ pub struct InlineCompletionContext {
     pub selected_completion_info: Option<SelectedCompletionInfo>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// A string value used as a snippet is a template which allows to insert text
@@ -3853,7 +3802,6 @@ pub struct InlineCompletionContext {
 /// `${name:default value}`.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct StringValue {
     /// The kind of string value.
     pub kind: String,
@@ -3862,25 +3810,21 @@ pub struct StringValue {
     pub value: String,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Inline completion options used during static registration.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct InlineCompletionOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub work_done_progress: Option<bool>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Text document content provider options.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct TextDocumentContentOptions {
     /// The schemes for which the server provides content.
     pub schemes: Vec<String>,
@@ -4097,12 +4041,10 @@ pub struct ServerCapabilities {
     /// @since 3.17.0
     pub diagnostic_provider: Option<DiagnosticProvider>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Inline completion options used during static registration.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub inline_completion_provider: Option<InlineCompletionProvider>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4176,7 +4118,7 @@ pub struct FileSystemWatcher {
     pub kind: Option<WatchKind>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Represents a diagnostic, such as a compiler error or warning. Diagnostic objects
 /// are only valid in the scope of a resource.
@@ -4207,8 +4149,11 @@ pub struct Diagnostic {
     /// appears in the user interface.
     pub source: Option<String>,
 
-    /// The diagnostic's message. It usually appears in the user interface
-    pub message: String,
+    /// The diagnostic's message. It usually appears in the user interface.
+    ///
+    /// @since 3.18.0 - support for MarkupContent. This is guarded by the client
+    /// capability `textDocument.diagnostic.markupMessageSupport`.
+    pub message: DiagnosticMessage,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Additional metadata about the diagnostic.
@@ -4643,7 +4588,6 @@ pub struct CodeActionOptions {
     /// may list out every specific kind they provide.
     pub code_action_kinds: Option<Vec<CodeActionKind>>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Static documentation for a class of code actions.
     ///
@@ -4659,7 +4603,6 @@ pub struct CodeActionOptions {
     /// At most one documentation entry should be shown per provider.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub documentation: Option<Vec<CodeActionKindDocumentation>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4762,12 +4705,10 @@ pub struct DocumentFormattingOptions {
 #[serde(rename_all = "camelCase")]
 /// Provider options for a {@link DocumentRangeFormattingRequest}.
 pub struct DocumentRangeFormattingOptions {
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether the server supports formatting multiple ranges at once.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub ranges_support: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4827,13 +4768,11 @@ pub struct ExecuteCommandOptions {
     pub work_done_progress: Option<bool>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Additional data about a workspace edit.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct WorkspaceEditMetadata {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Signal to the editor that this edit is a refactoring.
@@ -4896,13 +4835,11 @@ pub struct AnnotatedTextEdit {
     pub annotation_id: ChangeAnnotationIdentifier,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// An interactive text edit.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct SnippetTextEdit {
     /// The range of the text document to be manipulated.
     pub range: Range,
@@ -4976,7 +4913,7 @@ pub struct DeleteFileOptions {
 /// @since 3.16.0
 pub struct FileOperationPattern {
     /// The glob pattern to match. Glob patterns can have the following syntax:
-    /// - `*` to match one or more characters in a path segment
+    /// - `*` to match zero or more characters in a path segment
     /// - `?` to match on one character in a path segment
     /// - `**` to match any number of path segments, including none
     /// - `{}` to group sub patterns into an OR expression. (e.g. `**​/*.{ts,js}` matches all TypeScript and JavaScript files)
@@ -4993,6 +4930,43 @@ pub struct FileOperationPattern {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Additional options used during matching.
     pub options: Option<FileOperationPatternOptions>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// A diagnostic report with a full set of problems.
+///
+/// @since 3.17.0
+pub struct FullDocumentDiagnosticReport {
+    /// A full document diagnostic report.
+    pub kind: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// An optional result id. If provided it will
+    /// be sent on the next diagnostic request for the
+    /// same document.
+    pub result_id: Option<String>,
+
+    /// The actual items.
+    pub items: Vec<Diagnostic>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+/// A diagnostic report indicating that the last returned
+/// report is still accurate.
+///
+/// @since 3.17.0
+pub struct UnchangedDocumentDiagnosticReport {
+    /// A document diagnostic report indicating
+    /// no changes to the last result. A server can
+    /// only return `unchanged` if result ids are
+    /// provided.
+    pub kind: String,
+
+    /// A result id which will be sent on the next
+    /// diagnostic request for the same document.
+    pub result_id: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -5125,13 +5099,11 @@ pub struct NotebookDocumentCellChanges {
     pub text_content: Option<Vec<NotebookDocumentCellContentChanges>>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Describes the currently selected completion item.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct SelectedCompletionInfo {
     /// The range that will be replaced if this completion item is accepted.
     pub range: Range,
@@ -5235,12 +5207,10 @@ pub struct WorkspaceOptions {
     /// @since 3.16.0
     pub file_operations: Option<FileOperationOptions>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server supports the `workspace/textDocumentContent` request.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub text_document_content: Option<WorkspaceTextDocumentContent>,
 }
 
@@ -5346,13 +5316,11 @@ pub struct ParameterInformation {
     pub documentation: Option<ParameterInformationDocumentation>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Documentation for a class of code actions.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct CodeActionKindDocumentation {
     /// The kind of the code action being documented.
     ///
@@ -5532,20 +5500,16 @@ pub struct WorkspaceClientCapabilities {
     /// @since 3.17.0.
     pub diagnostics: Option<DiagnosticWorkspaceClientCapabilities>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Capabilities specific to the folding range requests scoped to the workspace.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub folding_range: Option<FoldingRangeWorkspaceClientCapabilities>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Capabilities specific to the `workspace/textDocumentContent` request.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub text_document_content: Option<TextDocumentContentClientCapabilities>,
 }
 
@@ -5708,12 +5672,10 @@ pub struct TextDocumentClientCapabilities {
     /// @since 3.17.0
     pub diagnostic: Option<DiagnosticClientCapabilities>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Client capabilities specific to inline completions.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub inline_completion: Option<InlineCompletionClientCapabilities>,
 }
 
@@ -6047,20 +6009,16 @@ pub struct WorkspaceEditClientCapabilities {
     /// @since 3.16.0
     pub change_annotation_support: Option<ChangeAnnotationsSupportOptions>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether the client supports `WorkspaceEditMetadata` in `WorkspaceEdit`s.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub metadata_support: Option<bool>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether the client supports snippets as text edits.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub snippet_edit_support: Option<bool>,
 }
 
@@ -6245,15 +6203,12 @@ pub struct DiagnosticWorkspaceClientCapabilities {
     pub refresh_support: Option<bool>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Client workspace capabilities specific to folding ranges
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct FoldingRangeWorkspaceClientCapabilities {
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether the client implementation supports a refresh request sent from the
     /// server to the client.
@@ -6264,17 +6219,14 @@ pub struct FoldingRangeWorkspaceClientCapabilities {
     /// change that requires such a calculation.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub refresh_support: Option<bool>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Client capabilities for a text document content provider.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct TextDocumentContentClientCapabilities {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Text document content provider supports dynamic registration.
@@ -6327,6 +6279,7 @@ pub struct CompletionClientCapabilities {
     pub completion_item: Option<ClientCompletionItemOptions>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// The client supports the following completion item kinds.
     pub completion_item_kind: Option<ClientCompletionItemOptionsKind>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6554,13 +6507,11 @@ pub struct CodeActionClientCapabilities {
     /// @since 3.16.0
     pub honors_change_annotations: Option<bool>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether the client supports documentation for a class of
     /// code actions.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub documentation_support: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6629,12 +6580,10 @@ pub struct DocumentRangeFormattingClientCapabilities {
     /// Whether range formatting supports dynamic registration.
     pub dynamic_registration: Option<bool>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether the client supports formatting multiple ranges at once.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub ranges_support: Option<bool>,
 }
 
@@ -6938,15 +6887,19 @@ pub struct DiagnosticClientCapabilities {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether the clients supports related documents for document diagnostic pulls.
     pub related_document_support: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Whether the client supports `MarkupContent` in diagnostic messages.
+    ///
+    /// @since 3.18.0
+    pub markup_message_support: Option<bool>,
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Client capabilities specific to inline completions.
 ///
 /// @since 3.18.0
-/// @proposed
 pub struct InlineCompletionClientCapabilities {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether implementation supports dynamic registration for inline completion providers.
@@ -7222,14 +7175,12 @@ pub struct ClientSignatureInformationOptions {
     /// @since 3.16.0
     pub active_parameter_support: Option<bool>,
 
-    #[cfg(feature = "proposed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The client supports the `activeParameter` property on
     /// `SignatureHelp`/`SignatureInformation` being set to `null` to
     /// indicate that no parameter should be active.
     ///
     /// @since 3.18.0
-    /// @proposed
     pub no_active_parameter_support: Option<bool>,
 }
 

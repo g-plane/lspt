@@ -123,6 +123,41 @@ impl From<RelatedUnchangedDocumentDiagnosticReport> for DocumentDiagnosticReport
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
+/// The document diagnostic report used when reporting partial result.
+///
+/// When using partial results, the first literal sent needs to be a
+/// DocumentDiagnosticReport providing the diagnostics on the document
+/// followed by n DocumentDiagnosticReportPartialResult literals providing
+/// the diagnostics for related documents.
+///
+/// ```
+/// DocumentDiagnosticReport
+/// DocumentDiagnosticReportPartialResult
+/// DocumentDiagnosticReportPartialResult
+/// ...
+/// ```
+///
+/// @since 3.18.1
+pub enum DocumentDiagnosticReportProgress {
+    DocumentDiagnosticReport(DocumentDiagnosticReport),
+    /// `DocumentDiagnosticReportPartialResult`.
+    PartialResult(DocumentDiagnosticReportPartialResult),
+}
+
+impl From<DocumentDiagnosticReport> for DocumentDiagnosticReportProgress {
+    fn from(value: DocumentDiagnosticReport) -> Self {
+        Self::DocumentDiagnosticReport(value)
+    }
+}
+
+impl From<DocumentDiagnosticReportPartialResult> for DocumentDiagnosticReportProgress {
+    fn from(value: DocumentDiagnosticReportPartialResult) -> Self {
+        Self::PartialResult(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum PrepareRenameResult {
     Range(Range),
     PrepareRenamePlaceholder(PrepareRenamePlaceholder),
@@ -299,7 +334,7 @@ impl From<RelativePattern> for GlobPattern {
 /// its resource, or a glob-pattern that is applied to the {@link TextDocument.fileName path}.
 ///
 /// Glob patterns can have the following syntax:
-/// - `*` to match one or more characters in a path segment
+/// - `*` to match zero or more characters in a path segment
 /// - `?` to match on one character in a path segment
 /// - `**` to match any number of path segments, including none
 /// - `{}` to group sub patterns into an OR expression. (e.g. `**​/*.{ts,js}` matches all TypeScript and JavaScript files)
@@ -529,8 +564,8 @@ impl From<SemanticTokensPartialResult> for SemanticTokensRangeResponse {
 #[serde(untagged)]
 pub enum DocumentDiagnosticResponse {
     DocumentDiagnosticReport(DocumentDiagnosticReport),
-    /// `DocumentDiagnosticReportPartialResult`.
-    PartialResult(DocumentDiagnosticReportPartialResult),
+    /// `DocumentDiagnosticReportProgress`.
+    Progress(DocumentDiagnosticReportProgress),
 }
 
 impl From<DocumentDiagnosticReport> for DocumentDiagnosticResponse {
@@ -539,9 +574,9 @@ impl From<DocumentDiagnosticReport> for DocumentDiagnosticResponse {
     }
 }
 
-impl From<DocumentDiagnosticReportPartialResult> for DocumentDiagnosticResponse {
-    fn from(value: DocumentDiagnosticReportPartialResult) -> Self {
-        Self::PartialResult(value)
+impl From<DocumentDiagnosticReportProgress> for DocumentDiagnosticResponse {
+    fn from(value: DocumentDiagnosticReportProgress) -> Self {
+        Self::Progress(value)
     }
 }
 
@@ -565,7 +600,6 @@ impl From<WorkspaceDiagnosticReportPartialResult> for WorkspaceDiagnosticRespons
     }
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineCompletionResponse {
@@ -575,14 +609,12 @@ pub enum InlineCompletionResponse {
     ItemList(Vec<InlineCompletionItem>),
 }
 
-#[cfg(feature = "proposed")]
 impl From<InlineCompletionList> for InlineCompletionResponse {
     fn from(value: InlineCompletionList) -> Self {
         Self::List(value)
     }
 }
 
-#[cfg(feature = "proposed")]
 impl From<Vec<InlineCompletionItem>> for InlineCompletionResponse {
     fn from(value: Vec<InlineCompletionItem>) -> Self {
         Self::ItemList(value)
@@ -808,27 +840,6 @@ pub type InlayHintTooltip = StringOrMarkupContent;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum RelatedDocumentDiagnosticReport {
-    /// `FullDocumentDiagnosticReport`.
-    Full(FullDocumentDiagnosticReport),
-    /// `UnchangedDocumentDiagnosticReport`.
-    Unchanged(UnchangedDocumentDiagnosticReport),
-}
-
-impl From<FullDocumentDiagnosticReport> for RelatedDocumentDiagnosticReport {
-    fn from(value: FullDocumentDiagnosticReport) -> Self {
-        Self::Full(value)
-    }
-}
-
-impl From<UnchangedDocumentDiagnosticReport> for RelatedDocumentDiagnosticReport {
-    fn from(value: UnchangedDocumentDiagnosticReport) -> Self {
-        Self::Unchanged(value)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
 pub enum NotebookSelectorItem {
     /// `NotebookDocumentFilterWithNotebook`.
     Notebook(NotebookDocumentFilterWithNotebook),
@@ -848,7 +859,6 @@ impl From<NotebookDocumentFilterWithCells> for NotebookSelectorItem {
     }
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineCompletionItemInsertText {
@@ -856,14 +866,12 @@ pub enum InlineCompletionItemInsertText {
     StringValue(StringValue),
 }
 
-#[cfg(feature = "proposed")]
 impl From<String> for InlineCompletionItemInsertText {
     fn from(value: String) -> Self {
         Self::String(value)
     }
 }
 
-#[cfg(feature = "proposed")]
 impl From<StringValue> for InlineCompletionItemInsertText {
     fn from(value: StringValue) -> Self {
         Self::StringValue(value)
@@ -987,6 +995,27 @@ impl From<SnippetTextEdit> for TextDocumentEditEditsItem {
 }
 
 pub type InlayHintLabelPartTooltip = StringOrMarkupContent;
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum RelatedDocumentDiagnosticReport {
+    /// `FullDocumentDiagnosticReport`.
+    Full(FullDocumentDiagnosticReport),
+    /// `UnchangedDocumentDiagnosticReport`.
+    Unchanged(UnchangedDocumentDiagnosticReport),
+}
+
+impl From<FullDocumentDiagnosticReport> for RelatedDocumentDiagnosticReport {
+    fn from(value: FullDocumentDiagnosticReport) -> Self {
+        Self::Full(value)
+    }
+}
+
+impl From<UnchangedDocumentDiagnosticReport> for RelatedDocumentDiagnosticReport {
+    fn from(value: UnchangedDocumentDiagnosticReport) -> Self {
+        Self::Unchanged(value)
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -1607,7 +1636,6 @@ impl From<DiagnosticRegistrationOptions> for DiagnosticProvider {
     }
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineCompletionProvider {
@@ -1616,14 +1644,12 @@ pub enum InlineCompletionProvider {
     Options(InlineCompletionOptions),
 }
 
-#[cfg(feature = "proposed")]
 impl From<bool> for InlineCompletionProvider {
     fn from(value: bool) -> Self {
         Self::Bool(value)
     }
 }
 
-#[cfg(feature = "proposed")]
 impl From<InlineCompletionOptions> for InlineCompletionProvider {
     fn from(value: InlineCompletionOptions) -> Self {
         Self::Options(value)
@@ -1631,6 +1657,8 @@ impl From<InlineCompletionOptions> for InlineCompletionProvider {
 }
 
 pub type DiagnosticCode = NumberOrString;
+
+pub type DiagnosticMessage = StringOrMarkupContent;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -1691,7 +1719,6 @@ impl From<SaveOptions> for TextDocumentSyncSave {
     }
 }
 
-#[cfg(feature = "proposed")]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum WorkspaceTextDocumentContent {
@@ -1701,14 +1728,12 @@ pub enum WorkspaceTextDocumentContent {
     RegistrationOptions(TextDocumentContentRegistrationOptions),
 }
 
-#[cfg(feature = "proposed")]
 impl From<TextDocumentContentOptions> for WorkspaceTextDocumentContent {
     fn from(value: TextDocumentContentOptions) -> Self {
         Self::Options(value)
     }
 }
 
-#[cfg(feature = "proposed")]
 impl From<TextDocumentContentRegistrationOptions> for WorkspaceTextDocumentContent {
     fn from(value: TextDocumentContentRegistrationOptions) -> Self {
         Self::RegistrationOptions(value)

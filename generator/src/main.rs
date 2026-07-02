@@ -12,7 +12,7 @@ fn main() -> anyhow::Result<()> {
         ureq::Agent::new()
     };
     let lsp_def = agent
-        .get("https://raw.githubusercontent.com/microsoft/lsprotocol/refs/heads/main/generator/lsp.json")
+        .get("https://raw.githubusercontent.com/microsoft/language-server-protocol/refs/heads/gh-pages/_specifications/lsp/3.18/metaModel/metaModel.json")
         .call()?
         .into_json::<LspDef>()?;
     let mut unions = UnionRegistry::default();

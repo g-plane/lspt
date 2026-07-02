@@ -19,6 +19,7 @@ macro_rules! lsp_request {
     ("textDocument/documentColor") => { $crate::request::DocumentColorRequest };
     ("textDocument/colorPresentation") => { $crate::request::ColorPresentationRequest };
     ("textDocument/foldingRange") => { $crate::request::FoldingRangeRequest };
+    ("workspace/foldingRange/refresh") => { $crate::request::FoldingRangeRefreshRequest };
     ("textDocument/declaration") => { $crate::request::DeclarationRequest };
     ("textDocument/selectionRange") => { $crate::request::SelectionRangeRequest };
     ("window/workDoneProgress/create") => { $crate::request::WorkDoneProgressCreateRequest };
@@ -46,6 +47,9 @@ macro_rules! lsp_request {
     ("textDocument/diagnostic") => { $crate::request::DocumentDiagnosticRequest };
     ("workspace/diagnostic") => { $crate::request::WorkspaceDiagnosticRequest };
     ("workspace/diagnostic/refresh") => { $crate::request::DiagnosticRefreshRequest };
+    ("textDocument/inlineCompletion") => { $crate::request::InlineCompletionRequest };
+    ("workspace/textDocumentContent") => { $crate::request::TextDocumentContentRequest };
+    ("workspace/textDocumentContent/refresh") => { $crate::request::TextDocumentContentRefreshRequest };
     ("client/registerCapability") => { $crate::request::RegistrationRequest };
     ("client/unregisterCapability") => { $crate::request::UnregistrationRequest };
     ("initialize") => { $crate::request::InitializeRequest };
@@ -71,6 +75,7 @@ macro_rules! lsp_request {
     ("documentLink/resolve") => { $crate::request::DocumentLinkResolveRequest };
     ("textDocument/formatting") => { $crate::request::DocumentFormattingRequest };
     ("textDocument/rangeFormatting") => { $crate::request::DocumentRangeFormattingRequest };
+    ("textDocument/rangesFormatting") => { $crate::request::DocumentRangesFormattingRequest };
     ("textDocument/onTypeFormatting") => { $crate::request::DocumentOnTypeFormattingRequest };
     ("textDocument/rename") => { $crate::request::RenameRequest };
     ("textDocument/prepareRename") => { $crate::request::PrepareRenameRequest };
@@ -202,9 +207,7 @@ impl Request for FoldingRangeRequest {
     type Result = Option<Vec<FoldingRange>>;
 }
 
-#[cfg(feature = "proposed")]
 pub enum FoldingRangeRefreshRequest {}
-#[cfg(feature = "proposed")]
 impl Request for FoldingRangeRefreshRequest {
     const METHOD: &'static str = "workspace/foldingRange/refresh";
     type Params = ();
@@ -400,27 +403,21 @@ impl Request for DiagnosticRefreshRequest {
     type Result = ();
 }
 
-#[cfg(feature = "proposed")]
 pub enum InlineCompletionRequest {}
-#[cfg(feature = "proposed")]
 impl Request for InlineCompletionRequest {
     const METHOD: &'static str = "textDocument/inlineCompletion";
     type Params = InlineCompletionParams;
     type Result = Option<InlineCompletionResponse>;
 }
 
-#[cfg(feature = "proposed")]
 pub enum TextDocumentContentRequest {}
-#[cfg(feature = "proposed")]
 impl Request for TextDocumentContentRequest {
     const METHOD: &'static str = "workspace/textDocumentContent";
     type Params = TextDocumentContentParams;
     type Result = TextDocumentContentResult;
 }
 
-#[cfg(feature = "proposed")]
 pub enum TextDocumentContentRefreshRequest {}
-#[cfg(feature = "proposed")]
 impl Request for TextDocumentContentRefreshRequest {
     const METHOD: &'static str = "workspace/textDocumentContent/refresh";
     type Params = TextDocumentContentRefreshParams;
@@ -602,9 +599,7 @@ impl Request for DocumentRangeFormattingRequest {
     type Result = Option<Vec<TextEdit>>;
 }
 
-#[cfg(feature = "proposed")]
 pub enum DocumentRangesFormattingRequest {}
-#[cfg(feature = "proposed")]
 impl Request for DocumentRangesFormattingRequest {
     const METHOD: &'static str = "textDocument/rangesFormatting";
     type Params = DocumentRangesFormattingParams;
