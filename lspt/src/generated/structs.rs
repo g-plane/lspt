@@ -124,7 +124,7 @@ pub struct DocumentColorParams {
     pub partial_result_token: Option<ProgressToken>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Represents a color range from a document.
 pub struct ColorInformation {
@@ -149,7 +149,7 @@ pub struct DocumentColorRegistrationOptions {
     pub id: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Parameters for a {@link ColorPresentationRequest}.
 pub struct ColorPresentationParams {
@@ -3117,7 +3117,7 @@ pub struct TextDocumentIdentifier {
     pub uri: Uri,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// Represents a color in RGBA space.
 pub struct Color {

@@ -337,9 +337,17 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                 "Range" => ", Copy",
                 _ => "",
             };
+            let eq = if matches!(
+                &*structure.name,
+                "Color" | "ColorInformation" | "ColorPresentationParams"
+            ) {
+                ""
+            } else {
+                ", Eq"
+            };
             let _ = write!(
                 output,
-                "\n#[derive(Clone, Debug, {default}PartialEq, Eq, Serialize, Deserialize{additional_derives})]"
+                "\n#[derive(Clone, Debug, {default}PartialEq{eq}, Serialize, Deserialize{additional_derives})]"
             );
             output.push_str("\n#[serde(rename_all = \"camelCase\")]");
             output.push_str(&gen_doc(structure.documentation.as_deref(), 0));
