@@ -81,6 +81,8 @@ use super::*;
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
+#![allow(unreachable_patterns)]
+
 use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 
 {}
@@ -530,13 +532,7 @@ fn gen_enums(lsp_def: &LspDef) -> String {
                         variants.push_str("\n    #[serde(untagged)]\n    Custom_(String),\n");
                     }
                     format!(
-                        "{deprecated}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
-                        if enumeration.name == "LanguageKind" {
-                            // https://github.com/microsoft/language-server-protocol/pull/1697
-                            "#[allow(unreachable_patterns)]\n"
-                        } else {
-                            ""
-                        },
+                        "{deprecated}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
                         gen_doc(enumeration.documentation.as_deref(), 0),
                         enumeration.name,
                         variants

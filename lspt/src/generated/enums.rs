@@ -1,5 +1,7 @@
 // DO NOT EDIT THIS GENERATED FILE.
 
+#![allow(unreachable_patterns)]
+
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1135,7 +1137,6 @@ pub enum MarkupKind {
     Markdown,
 }
 
-#[allow(unreachable_patterns)]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 /// Predefined Language kinds
 /// @since 3.18.0
