@@ -1087,7 +1087,7 @@ fn gen_type_def(
                             name: variant_name,
                             original_name,
                             ty,
-                            proposed: variant_requires_proposed_feature(item),
+                            proposed: false,
                         }
                     })
                     .collect();
@@ -1114,14 +1114,6 @@ fn gen_type_def(
 
 fn is_multi_union(type_def: &TypeDef) -> bool {
     matches!(type_def, TypeDef::Or { items } if items.len() > 1)
-}
-
-fn variant_requires_proposed_feature(type_def: &TypeDef) -> bool {
-    is_ref(type_def, "SnippetTextEdit")
-}
-
-fn is_ref(type_def: &TypeDef, expected: &str) -> bool {
-    matches!(type_def, TypeDef::Ref(TypeRef { name }) if name == expected)
 }
 
 fn gen_variant_name(type_def: &TypeDef) -> String {

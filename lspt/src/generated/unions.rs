@@ -971,7 +971,6 @@ pub type CancelParamsId = NumberOrString;
 pub enum TextDocumentEditEditsItem {
     TextEdit(TextEdit),
     AnnotatedTextEdit(AnnotatedTextEdit),
-    #[cfg(feature = "proposed")]
     SnippetTextEdit(SnippetTextEdit),
 }
 
@@ -987,7 +986,6 @@ impl From<AnnotatedTextEdit> for TextDocumentEditEditsItem {
     }
 }
 
-#[cfg(feature = "proposed")]
 impl From<SnippetTextEdit> for TextDocumentEditEditsItem {
     fn from(value: SnippetTextEdit) -> Self {
         Self::SnippetTextEdit(value)
