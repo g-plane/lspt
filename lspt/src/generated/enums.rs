@@ -1135,6 +1135,7 @@ pub enum MarkupKind {
     Markdown,
 }
 
+#[allow(unreachable_patterns)]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 /// Predefined Language kinds
 /// @since 3.18.0

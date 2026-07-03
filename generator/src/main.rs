@@ -530,7 +530,13 @@ fn gen_enums(lsp_def: &LspDef) -> String {
                         variants.push_str("\n    #[serde(untagged)]\n    Custom_(String),\n");
                     }
                     format!(
-                        "{deprecated}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
+                        "{deprecated}{}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]{}\npub enum {} {{\n{}}}",
+                        if enumeration.name == "LanguageKind" {
+                            // https://github.com/microsoft/language-server-protocol/pull/1697
+                            "#[allow(unreachable_patterns)]\n"
+                        } else {
+                            ""
+                        },
                         gen_doc(enumeration.documentation.as_deref(), 0),
                         enumeration.name,
                         variants
