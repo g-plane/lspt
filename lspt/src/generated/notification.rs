@@ -8,38 +8,7 @@ pub trait Notification {
     type Params: serde::de::DeserializeOwned + Serialize + Send + Sync + 'static;
 }
 
-#[cfg(all(feature = "macros", not(feature = "proposed")))]
-#[macro_export]
-macro_rules! lsp_notification {
-    ("workspace/didChangeWorkspaceFolders") => { $crate::notification::DidChangeWorkspaceFoldersNotification };
-    ("window/workDoneProgress/cancel") => { $crate::notification::WorkDoneProgressCancelNotification };
-    ("workspace/didCreateFiles") => { $crate::notification::DidCreateFilesNotification };
-    ("workspace/didRenameFiles") => { $crate::notification::DidRenameFilesNotification };
-    ("workspace/didDeleteFiles") => { $crate::notification::DidDeleteFilesNotification };
-    ("notebookDocument/didOpen") => { $crate::notification::DidOpenNotebookDocumentNotification };
-    ("notebookDocument/didChange") => { $crate::notification::DidChangeNotebookDocumentNotification };
-    ("notebookDocument/didSave") => { $crate::notification::DidSaveNotebookDocumentNotification };
-    ("notebookDocument/didClose") => { $crate::notification::DidCloseNotebookDocumentNotification };
-    ("initialized") => { $crate::notification::InitializedNotification };
-    ("exit") => { $crate::notification::ExitNotification };
-    ("workspace/didChangeConfiguration") => { $crate::notification::DidChangeConfigurationNotification };
-    ("window/showMessage") => { $crate::notification::ShowMessageNotification };
-    ("window/logMessage") => { $crate::notification::LogMessageNotification };
-    ("telemetry/event") => { $crate::notification::TelemetryEventNotification };
-    ("textDocument/didOpen") => { $crate::notification::DidOpenTextDocumentNotification };
-    ("textDocument/didChange") => { $crate::notification::DidChangeTextDocumentNotification };
-    ("textDocument/didClose") => { $crate::notification::DidCloseTextDocumentNotification };
-    ("textDocument/didSave") => { $crate::notification::DidSaveTextDocumentNotification };
-    ("textDocument/willSave") => { $crate::notification::WillSaveTextDocumentNotification };
-    ("workspace/didChangeWatchedFiles") => { $crate::notification::DidChangeWatchedFilesNotification };
-    ("textDocument/publishDiagnostics") => { $crate::notification::PublishDiagnosticsNotification };
-    ("$/setTrace") => { $crate::notification::SetTraceNotification };
-    ("$/logTrace") => { $crate::notification::LogTraceNotification };
-    ("$/cancelRequest") => { $crate::notification::CancelNotification };
-    ("$/progress") => { $crate::notification::ProgressNotification };
-}
-
-#[cfg(all(feature = "macros", feature = "proposed"))]
+#[cfg(feature = "macros")]
 #[macro_export]
 macro_rules! lsp_notification {
     ("workspace/didChangeWorkspaceFolders") => { $crate::notification::DidChangeWorkspaceFoldersNotification };

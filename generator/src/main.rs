@@ -134,25 +134,13 @@ fn gen_request_macros(lsp_def: &LspDef) -> String {
             .map(|request| (&request.method, &request.type_name)),
         "request",
     );
-    let all_arms = gen_method_macro_arms(
-        lsp_def
-            .requests
-            .iter()
-            .map(|request| (&request.method, &request.type_name)),
-        "request",
-    );
 
     format!(
         r#"
-#[cfg(all(feature = "macros", not(feature = "proposed")))]
+#[cfg(feature = "macros")]
 #[macro_export]
 macro_rules! lsp_request {{
 {stable_arms}}}
-
-#[cfg(all(feature = "macros", feature = "proposed"))]
-#[macro_export]
-macro_rules! lsp_request {{
-{all_arms}}}
 "#
     )
 }
@@ -166,25 +154,13 @@ fn gen_notification_macros(lsp_def: &LspDef) -> String {
             .map(|notification| (&notification.method, &notification.type_name)),
         "notification",
     );
-    let all_arms = gen_method_macro_arms(
-        lsp_def
-            .notifications
-            .iter()
-            .map(|notification| (&notification.method, &notification.type_name)),
-        "notification",
-    );
 
     format!(
         r#"
-#[cfg(all(feature = "macros", not(feature = "proposed")))]
+#[cfg(feature = "macros")]
 #[macro_export]
 macro_rules! lsp_notification {{
 {stable_arms}}}
-
-#[cfg(all(feature = "macros", feature = "proposed"))]
-#[macro_export]
-macro_rules! lsp_notification {{
-{all_arms}}}
 "#
     )
 }
