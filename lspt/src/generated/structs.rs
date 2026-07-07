@@ -2412,7 +2412,7 @@ pub struct CodeAction {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Tags for this code action.
     ///
-    /// @since 3.18.0 - proposed
+    /// @since 3.18.0
     pub tags: Option<Vec<CodeActionTag>>,
 }
 
@@ -6518,7 +6518,7 @@ pub struct CodeActionClientCapabilities {
     /// Client supports the tag property on a code action. Clients
     /// supporting tags have to handle unknown tags gracefully.
     ///
-    /// @since 3.18.0 - proposed
+    /// @since 3.18.0
     pub tag_support: Option<CodeActionTagOptions>,
 }
 
@@ -7203,7 +7203,7 @@ pub struct ClientCodeActionResolveOptions {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// @since 3.18.0 - proposed
+/// @since 3.18.0
 pub struct CodeActionTagOptions {
     /// The tags supported by the client.
     pub value_set: Vec<CodeActionTag>,

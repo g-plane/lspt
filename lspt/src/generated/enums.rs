@@ -1075,7 +1075,7 @@ pub enum CodeActionKind {
 #[derive(Clone, Debug, PartialEq, Eq)]
 /// Code action tags are extra annotations that tweak the behavior of a code action.
 ///
-/// @since 3.18.0 - proposed
+/// @since 3.18.0
 pub enum CodeActionTag {
     /// Marks the code action as LLM-generated.
     LlmGenerated = 1,
