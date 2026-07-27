@@ -182,7 +182,7 @@ impl From<PrepareRenameDefaultBehavior> for PrepareRenameResult {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Hash)]
 #[serde(untagged)]
 pub enum NumberOrString {
     Integer(i32),

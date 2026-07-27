@@ -957,6 +957,7 @@ fn gen_unions(unions: &UnionRegistry) -> String {
 fn gen_union_def(union: &UnionDef) -> String {
     let doc = gen_doc(union.documentation.as_deref(), 0);
     let cfg = gen_cfg(union.proposed);
+    let extra_derives = if union.name == "NumberOrString" { ", Hash" } else { "" };
     let variants = union
         .variants
         .iter()
@@ -976,7 +977,7 @@ fn gen_union_def(union: &UnionDef) -> String {
         .join("\n");
     let from_impls = gen_union_from_impls(union);
     format!(
-        "{cfg}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]\n#[serde(untagged)]{}\npub enum {} {{\n{}\n}}{from_impls}",
+        "{cfg}#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize{extra_derives})]\n#[serde(untagged)]{}\npub enum {} {{\n{}\n}}{from_impls}",
         doc, union.name, variants,
     )
 }
