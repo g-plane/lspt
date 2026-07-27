@@ -329,6 +329,40 @@ impl From<RelativePattern> for GlobPattern {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
+/// A notebook document filter denotes a notebook document by
+/// different properties. The properties will be match
+/// against the notebook's URI (same as with documents)
+///
+/// @since 3.17.0
+pub enum NotebookDocumentFilter {
+    /// `NotebookDocumentFilterNotebookType`.
+    NotebookType(NotebookDocumentFilterNotebookType),
+    /// `NotebookDocumentFilterScheme`.
+    Scheme(NotebookDocumentFilterScheme),
+    /// `NotebookDocumentFilterPattern`.
+    Pattern(NotebookDocumentFilterPattern),
+}
+
+impl From<NotebookDocumentFilterNotebookType> for NotebookDocumentFilter {
+    fn from(value: NotebookDocumentFilterNotebookType) -> Self {
+        Self::NotebookType(value)
+    }
+}
+
+impl From<NotebookDocumentFilterScheme> for NotebookDocumentFilter {
+    fn from(value: NotebookDocumentFilterScheme) -> Self {
+        Self::Scheme(value)
+    }
+}
+
+impl From<NotebookDocumentFilterPattern> for NotebookDocumentFilter {
+    fn from(value: NotebookDocumentFilterPattern) -> Self {
+        Self::Pattern(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 /// A document filter denotes a document by different properties like
 /// the {@link TextDocument.languageId language}, the {@link Uri.scheme scheme} of
 /// its resource, or a glob-pattern that is applied to the {@link TextDocument.fileName path}.
@@ -368,40 +402,6 @@ impl From<TextDocumentFilterScheme> for TextDocumentFilter {
 
 impl From<TextDocumentFilterPattern> for TextDocumentFilter {
     fn from(value: TextDocumentFilterPattern) -> Self {
-        Self::Pattern(value)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(untagged)]
-/// A notebook document filter denotes a notebook document by
-/// different properties. The properties will be match
-/// against the notebook's URI (same as with documents)
-///
-/// @since 3.17.0
-pub enum NotebookDocumentFilter {
-    /// `NotebookDocumentFilterNotebookType`.
-    NotebookType(NotebookDocumentFilterNotebookType),
-    /// `NotebookDocumentFilterScheme`.
-    Scheme(NotebookDocumentFilterScheme),
-    /// `NotebookDocumentFilterPattern`.
-    Pattern(NotebookDocumentFilterPattern),
-}
-
-impl From<NotebookDocumentFilterNotebookType> for NotebookDocumentFilter {
-    fn from(value: NotebookDocumentFilterNotebookType) -> Self {
-        Self::NotebookType(value)
-    }
-}
-
-impl From<NotebookDocumentFilterScheme> for NotebookDocumentFilter {
-    fn from(value: NotebookDocumentFilterScheme) -> Self {
-        Self::Scheme(value)
-    }
-}
-
-impl From<NotebookDocumentFilterPattern> for NotebookDocumentFilter {
-    fn from(value: NotebookDocumentFilterPattern) -> Self {
         Self::Pattern(value)
     }
 }

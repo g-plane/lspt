@@ -17,15 +17,15 @@ pub type DefinitionLink = LocationLink;
 /// by the client.
 pub type DeclarationLink = LocationLink;
 
+/// An identifier to refer to a change annotation stored with a workspace edit.
+pub type ChangeAnnotationIdentifier = String;
+
 /// A document selector is the combination of one or many document filters.
 ///
 /// @sample `let sel:DocumentSelector = [{ language: 'typescript' }, { language: 'json', pattern: '**∕tsconfig.json' }]`;
 ///
 /// The use of a string as a document filter is deprecated @since 3.16.0.
 pub type DocumentSelector = Vec<DocumentFilter>;
-
-/// An identifier to refer to a change annotation stored with a workspace edit.
-pub type ChangeAnnotationIdentifier = String;
 
 /// The glob pattern to watch relative to the base path. Glob patterns can have the following syntax:
 /// - `*` to match zero or more characters in a path segment
