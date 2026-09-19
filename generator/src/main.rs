@@ -70,6 +70,7 @@ pub trait Notification {{
 
 use crate::{{HashMap, Uri}};
 use serde::{{Deserialize, Serialize}};
+use std::borrow::Cow;
 use super::*;
 {}",
             structs,
@@ -371,6 +372,15 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                     match &type_def {
                         TypeDef::Ref(TypeRef { name }) if name == &structure.name => {
                             ty = format!("Box<{ty}>");
+                        }
+                        TypeDef::Base { name: BaseType::String } if name.contains("character") => {
+                            ty = "char".into();
+                        }
+                        TypeDef::Array { element }
+                            if let TypeDef::Base { name: BaseType::String } = &**element
+                                && name.contains("character") =>
+                        {
+                            ty = "Cow<'static, [char]>".into();
                         }
                         _ => {}
                     }

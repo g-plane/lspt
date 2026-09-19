@@ -2,6 +2,7 @@
 
 use crate::{HashMap, Uri};
 use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 use super::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1844,7 +1845,7 @@ pub struct CompletionItem {
     /// An optional set of characters that when pressed while this completion is active will accept it first and
     /// then type that character. *Note* that all commit characters should have `length=1` and that superfluous
     /// characters will be ignored.
-    pub commit_characters: Option<Vec<String>>,
+    pub commit_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional {@link Command command} that is executed *after* inserting this completion. *Note* that
@@ -1929,7 +1930,7 @@ pub struct CompletionRegistrationOptions {
     ///
     /// If code complete should automatically be trigger on characters not being valid inside
     /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
-    pub trigger_characters: Option<Vec<String>>,
+    pub trigger_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The list of all possible characters that commit a completion. This field can be used
@@ -1940,7 +1941,7 @@ pub struct CompletionRegistrationOptions {
     /// completion item the ones on the completion item win.
     ///
     /// @since 3.2.0
-    pub all_commit_characters: Option<Vec<String>>,
+    pub all_commit_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides support to resolve additional
@@ -2070,7 +2071,7 @@ pub struct SignatureHelpRegistrationOptions {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// List of characters that trigger signature help automatically.
-    pub trigger_characters: Option<Vec<String>>,
+    pub trigger_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// List of characters that re-trigger signature help.
@@ -2079,7 +2080,7 @@ pub struct SignatureHelpRegistrationOptions {
     /// are also counted as re-trigger characters.
     ///
     /// @since 3.15.0
-    pub retrigger_characters: Option<Vec<String>>,
+    pub retrigger_characters: Option<Cow<'static, [char]>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -2755,11 +2756,11 @@ pub struct DocumentOnTypeFormattingRegistrationOptions {
     pub document_selector: Option<DocumentSelector>,
 
     /// A character on which formatting should be triggered, like `{`.
-    pub first_trigger_character: String,
+    pub first_trigger_character: char,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// More trigger characters.
-    pub more_trigger_character: Option<Vec<String>>,
+    pub more_trigger_character: Option<Cow<'static, [char]>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -4184,7 +4185,7 @@ pub struct CompletionContext {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The trigger character (a single character) that has trigger code complete.
     /// Is undefined if `triggerKind !== CompletionTriggerKind.TriggerCharacter`
-    pub trigger_character: Option<String>,
+    pub trigger_character: Option<char>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4242,7 +4243,7 @@ pub struct CompletionItemDefaults {
     /// A default commit character set.
     ///
     /// @since 3.17.0
-    pub commit_characters: Option<Vec<String>>,
+    pub commit_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A default edit range.
@@ -4346,7 +4347,7 @@ pub struct CompletionOptions {
     ///
     /// If code complete should automatically be trigger on characters not being valid inside
     /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
-    pub trigger_characters: Option<Vec<String>>,
+    pub trigger_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The list of all possible characters that commit a completion. This field can be used
@@ -4357,7 +4358,7 @@ pub struct CompletionOptions {
     /// completion item the ones on the completion item win.
     ///
     /// @since 3.2.0
-    pub all_commit_characters: Option<Vec<String>>,
+    pub all_commit_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server provides support to resolve additional
@@ -4396,7 +4397,7 @@ pub struct SignatureHelpContext {
     /// Character that caused signature help to be triggered.
     ///
     /// This is undefined when `triggerKind !== SignatureHelpTriggerKind.TriggerCharacter`
-    pub trigger_character: Option<String>,
+    pub trigger_character: Option<char>,
 
     /// `true` if signature help was already showing when it was triggered.
     ///
@@ -4452,7 +4453,7 @@ pub struct SignatureInformation {
 pub struct SignatureHelpOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// List of characters that trigger signature help automatically.
-    pub trigger_characters: Option<Vec<String>>,
+    pub trigger_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// List of characters that re-trigger signature help.
@@ -4461,7 +4462,7 @@ pub struct SignatureHelpOptions {
     /// are also counted as re-trigger characters.
     ///
     /// @since 3.15.0
-    pub retrigger_characters: Option<Vec<String>>,
+    pub retrigger_characters: Option<Cow<'static, [char]>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub work_done_progress: Option<bool>,
@@ -4720,11 +4721,11 @@ pub struct DocumentRangeFormattingOptions {
 /// Provider options for a {@link DocumentOnTypeFormattingRequest}.
 pub struct DocumentOnTypeFormattingOptions {
     /// A character on which formatting should be triggered, like `{`.
-    pub first_trigger_character: String,
+    pub first_trigger_character: char,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// More trigger characters.
-    pub more_trigger_character: Option<Vec<String>>,
+    pub more_trigger_character: Option<Cow<'static, [char]>>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
