@@ -21,8 +21,15 @@ By default, this library uses [`String`] as URI.
 If this doesn't satisfy your requirements,
 enable the `url` feature and it will switch to `url::Url`.
 
+Alternatively, you can enable `non_string` feature to switch to `Arc<str>` if this is applicable for your project.
+
 ## Hashmap Implementation
 
 By default, this library uses [`rustc_hash::FxHashMap`] as hashmap implementation, but can be disabled.
 
 You can also enable the `indexmap` feature for preserve the order in map.
+
+## Non `String` Type
+
+If `non_string` feature enabled, some fields will use `Cow<'static, str>` as string type.
+Also, URLs will use `Arc<str>` as string type.

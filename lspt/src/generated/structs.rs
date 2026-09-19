@@ -1,6 +1,6 @@
 // DO NOT EDIT THIS GENERATED FILE.
 
-use crate::{HashMap, Uri};
+use crate::{HashMap, Str, Uri};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use super::*;
@@ -90,7 +90,7 @@ pub struct WorkspaceFolder {
 
     /// The name of the workspace folder. Used to refer to this
     /// workspace folder in the user interface.
-    pub name: String,
+    pub name: Str,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -179,7 +179,7 @@ pub struct ColorPresentation {
     /// The label of this color presentation. It will be shown on the color
     /// picker header. By default this is also the text that is inserted when selecting
     /// this color presentation.
-    pub label: String,
+    pub label: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An {@link TextEdit edit} which is applied to a document when selecting
@@ -379,7 +379,7 @@ pub struct CallHierarchyPrepareParams {
 /// @since 3.16.0
 pub struct CallHierarchyItem {
     /// The name of this item.
-    pub name: String,
+    pub name: Str,
 
     /// The kind of this item.
     pub kind: SymbolKind,
@@ -857,7 +857,7 @@ pub struct TypeHierarchyPrepareParams {
 /// @since 3.17.0
 pub struct TypeHierarchyItem {
     /// The name of this item.
-    pub name: String,
+    pub name: Str,
 
     /// The kind of this item.
     pub kind: SymbolKind,
@@ -1716,7 +1716,7 @@ pub struct CompletionItem {
     ///
     /// If label details are provided the label itself should
     /// be an unqualified name of the completion item.
-    pub label: String,
+    pub label: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Additional details for the label
@@ -2212,7 +2212,7 @@ pub struct DocumentSymbolParams {
 /// interfaces etc.
 pub struct SymbolInformation {
     /// The name of this symbol.
-    pub name: String,
+    pub name: Str,
 
     /// The kind of this symbol.
     pub kind: SymbolKind,
@@ -2251,7 +2251,7 @@ pub struct SymbolInformation {
 pub struct DocumentSymbol {
     /// The name of this symbol. Will be displayed in the user interface and therefore must not be
     /// an empty string or a string only consisting of white spaces.
-    pub name: String,
+    pub name: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// More detail for this symbol, e.g the signature of a function.
@@ -2294,7 +2294,7 @@ pub struct DocumentSymbolRegistrationOptions {
     /// are shown for the same document.
     ///
     /// @since 3.16.0
-    pub label: Option<String>,
+    pub label: Option<Str>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -2491,7 +2491,7 @@ pub struct WorkspaceSymbolParams {
 /// @since 3.17.0
 pub struct WorkspaceSymbol {
     /// The name of this symbol.
-    pub name: String,
+    pub name: Str,
 
     /// The kind of this symbol.
     pub kind: SymbolKind,
@@ -2845,7 +2845,7 @@ pub struct ApplyWorkspaceEditParams {
     /// An optional label of the workspace edit. This label is
     /// presented in the user interface for example on an undo
     /// stack to undo the workspace edit.
-    pub label: Option<String>,
+    pub label: Option<Str>,
 
     /// The edits to apply.
     pub edit: WorkspaceEdit,
@@ -3327,7 +3327,7 @@ pub struct DeleteFile {
 pub struct ChangeAnnotation {
     /// A human-readable string describing the actual change. The string
     /// is rendered prominent in the user interface.
-    pub label: String,
+    pub label: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A flag which indicates that user confirmation is needed
@@ -4065,7 +4065,7 @@ pub struct ServerCapabilities {
 /// @since 3.18.0 ServerInfo type name added.
 pub struct ServerInfo {
     /// The name of the server as defined by the server.
-    pub name: String,
+    pub name: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server's version as defined by the server.
@@ -4148,7 +4148,7 @@ pub struct Diagnostic {
     /// A human-readable string describing the source of this
     /// diagnostic, e.g. 'typescript' or 'super lint'. It usually
     /// appears in the user interface.
-    pub source: Option<String>,
+    pub source: Option<Str>,
 
     /// The diagnostic's message. It usually appears in the user interface.
     ///
@@ -4421,7 +4421,7 @@ pub struct SignatureHelpContext {
 pub struct SignatureInformation {
     /// The label of this signature. Will be shown in
     /// the UI.
-    pub label: String,
+    pub label: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The human-readable doc-comment of this signature. Will be shown
@@ -4506,7 +4506,7 @@ pub struct DocumentHighlightOptions {
 /// A base for all symbol information.
 pub struct BaseSymbolInformation {
     /// The name of this symbol.
-    pub name: String,
+    pub name: Str,
 
     /// The kind of this symbol.
     pub kind: SymbolKind,
@@ -4534,7 +4534,7 @@ pub struct DocumentSymbolOptions {
     /// are shown for the same document.
     ///
     /// @since 3.16.0
-    pub label: Option<String>,
+    pub label: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub work_done_progress: Option<bool>,
@@ -5121,7 +5121,7 @@ pub struct SelectedCompletionInfo {
 /// @since 3.18.0 ClientInfo type name added.
 pub struct ClientInfo {
     /// The name of the client as defined by the client.
-    pub name: String,
+    pub name: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The client's version as defined by the client.

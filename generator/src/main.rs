@@ -68,7 +68,7 @@ pub trait Notification {{
         format!(
             "// DO NOT EDIT THIS GENERATED FILE.
 
-use crate::{{HashMap, Uri}};
+use crate::{{HashMap, Str, Uri}};
 use serde::{{Deserialize, Serialize}};
 use std::borrow::Cow;
 use super::*;
@@ -103,7 +103,7 @@ use serde::{{Deserialize, Deserializer, Serialize, Serializer}};
 #![allow(rustdoc::invalid_codeblock_attributes)]
 #![allow(unused_imports)]
 
-use crate::{{HashMap, Uri}};
+use crate::{{HashMap, Str, Uri}};
 use serde::{{Deserialize, Serialize}};
 use super::*;
 
@@ -381,6 +381,9 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                                 && name.contains("character") =>
                         {
                             ty = "Cow<'static, [char]>".into();
+                        }
+                        TypeDef::Base { name: BaseType::String } if matches!(&*name, "name" | "label" | "source") => {
+                            ty = "Str".into();
                         }
                         _ => {}
                     }
@@ -982,7 +985,12 @@ fn gen_union_def(union: &UnionDef) -> String {
                 .as_ref()
                 .map(|name| format!("    /// `{name}`.\n"))
                 .unwrap_or_default();
-            format!("{cfg}{original_name}    {}({}),", variant.name, variant.ty)
+            let ty = if union.name == "NumberOrString" && variant.ty == "String" {
+                "Str"
+            } else {
+                &variant.ty
+            };
+            format!("{cfg}{original_name}    {}({ty}),", variant.name)
         })
         .join("\n");
     let from_impls = gen_union_from_impls(union);

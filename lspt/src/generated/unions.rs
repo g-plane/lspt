@@ -6,7 +6,7 @@
 #![allow(rustdoc::invalid_codeblock_attributes)]
 #![allow(unused_imports)]
 
-use crate::{HashMap, Uri};
+use crate::{HashMap, Str, Uri};
 use serde::{Deserialize, Serialize};
 use super::*;
 
@@ -186,7 +186,7 @@ impl From<PrepareRenameDefaultBehavior> for PrepareRenameResult {
 #[serde(untagged)]
 pub enum NumberOrString {
     Integer(i32),
-    String(String),
+    String(Str),
 }
 
 impl From<i32> for NumberOrString {
