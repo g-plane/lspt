@@ -382,7 +382,7 @@ fn gen_structs(lsp_def: &LspDef, unions: &mut UnionRegistry) -> String {
                         {
                             ty = "Cow<'static, [char]>".into();
                         }
-                        TypeDef::Base { name: BaseType::String } if matches!(&*name, "name" | "label" | "source") => {
+                        TypeDef::Base { name: BaseType::String } if can_use_cow_str(&structure.name, &name) => {
                             ty = "Str".into();
                         }
                         _ => {}
@@ -1342,6 +1342,17 @@ fn gen_doc(doc: Option<&str>, indent: usize) -> String {
         })
     })
     .unwrap_or_default()
+}
+
+fn can_use_cow_str(structure_name: &str, field_name: &str) -> bool {
+    !matches!(field_name, "id" | "identifier" | "value")
+        && !field_name.ends_with("_id")
+        && !structure_name.ends_with("Edit")
+        && structure_name != "MarkupContent"
+        && !structure_name.starts_with("TextDocument")
+        && !structure_name.contains("Rename")
+        && !structure_name.starts_with("Did")
+        && !structure_name.starts_with("Will")
 }
 
 #[derive(Debug, Deserialize)]

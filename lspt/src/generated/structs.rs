@@ -243,7 +243,7 @@ pub struct FoldingRange {
     /// will be chosen by the client.
     ///
     /// @since 3.17.0
-    pub collapsed_text: Option<String>,
+    pub collapsed_text: Option<Str>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -390,7 +390,7 @@ pub struct CallHierarchyItem {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// More detail for this item, e.g. the signature of a function.
-    pub detail: Option<String>,
+    pub detail: Option<Str>,
 
     /// The resource identifier of this item.
     pub uri: Uri,
@@ -683,7 +683,7 @@ pub struct LinkedEditingRanges {
     /// An optional word pattern (regular expression) that describes valid contents for
     /// the given ranges. If no pattern is provided, the client configuration's word
     /// pattern will be used.
-    pub word_pattern: Option<String>,
+    pub word_pattern: Option<Str>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -812,7 +812,7 @@ pub struct MonikerParams {
 /// @since 3.16.0
 pub struct Moniker {
     /// The scheme of the moniker. For example tsc or .Net
-    pub scheme: String,
+    pub scheme: Str,
 
     /// The identifier of the moniker. The value is opaque in LSIF however
     /// schema owners are allowed to define the structure if they want.
@@ -868,7 +868,7 @@ pub struct TypeHierarchyItem {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// More detail for this item, e.g. the signature of a function.
-    pub detail: Option<String>,
+    pub detail: Option<Str>,
 
     /// The resource identifier of this item.
     pub uri: Uri,
@@ -1314,7 +1314,7 @@ pub struct InlineCompletionItem {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A text that is used to decide if this inline completion should be shown. When `falsy` the {@link InlineCompletionItem.insertText} is used.
-    pub filter_text: Option<String>,
+    pub filter_text: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The range to replace. Must begin and end on the same line.
@@ -1428,7 +1428,7 @@ pub struct InitializeParams {
     /// (See https://en.wikipedia.org/wiki/IETF_language_tag)
     ///
     /// @since 3.16.0
-    pub locale: Option<String>,
+    pub locale: Option<Str>,
 
     /// The capabilities provided by the client (editor or tool)
     pub capabilities: ClientCapabilities,
@@ -1506,7 +1506,7 @@ pub struct ShowMessageParams {
     pub ty: MessageType,
 
     /// The actual message.
-    pub message: String,
+    pub message: Str,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1517,7 +1517,7 @@ pub struct ShowMessageRequestParams {
     pub ty: MessageType,
 
     /// The actual message.
-    pub message: String,
+    pub message: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The message action items to present.
@@ -1528,7 +1528,7 @@ pub struct ShowMessageRequestParams {
 #[serde(rename_all = "camelCase")]
 pub struct MessageActionItem {
     /// A short title like 'Retry', 'Open Log' etc.
-    pub title: String,
+    pub title: Str,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1540,7 +1540,7 @@ pub struct LogMessageParams {
     pub ty: MessageType,
 
     /// The actual message.
-    pub message: String,
+    pub message: Str,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1738,7 +1738,7 @@ pub struct CompletionItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A human-readable string with additional information
     /// about this item, like type or symbol information.
-    pub detail: Option<String>,
+    pub detail: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A human-readable string that represents a doc-comment.
@@ -1756,13 +1756,13 @@ pub struct CompletionItem {
     /// A string that should be used when comparing this item
     /// with other items. When `falsy` the {@link CompletionItem.label label}
     /// is used.
-    pub sort_text: Option<String>,
+    pub sort_text: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A string that should be used when filtering a set of
     /// completion items. When `falsy` the {@link CompletionItem.label label}
     /// is used.
-    pub filter_text: Option<String>,
+    pub filter_text: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A string that should be inserted into a document when selecting
@@ -1776,7 +1776,7 @@ pub struct CompletionItem {
     /// `console` is provided it will only insert `sole`. Therefore it is
     /// recommended to use `textEdit` instead since it avoids additional client
     /// side interpretation.
-    pub insert_text: Option<String>,
+    pub insert_text: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The format of the insert text. The format applies to both the
@@ -1829,7 +1829,7 @@ pub struct CompletionItem {
     /// property is used as a text.
     ///
     /// @since 3.17.0
-    pub text_edit_text: Option<String>,
+    pub text_edit_text: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional array of additional {@link TextEdit text edits} that are applied when
@@ -2228,7 +2228,7 @@ pub struct SymbolInformation {
     /// user interface purposes (e.g. to render a qualifier in the user interface
     /// if necessary). It can't be used to re-infer a hierarchy for the document
     /// symbols.
-    pub container_name: Option<String>,
+    pub container_name: Option<Str>,
 
     /// The location of this symbol. The location's range is used by a tool
     /// to reveal the location in the editor. If the symbol is selected in the
@@ -2255,7 +2255,7 @@ pub struct DocumentSymbol {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// More detail for this symbol, e.g the signature of a function.
-    pub detail: Option<String>,
+    pub detail: Option<Str>,
 
     /// The kind of this symbol.
     pub kind: SymbolKind,
@@ -2328,16 +2328,16 @@ pub struct CodeActionParams {
 /// function when invoked.
 pub struct Command {
     /// Title of the command, like `save`.
-    pub title: String,
+    pub title: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional tooltip.
     ///
     /// @since 3.18.0
-    pub tooltip: Option<String>,
+    pub tooltip: Option<Str>,
 
     /// The identifier of the actual command handler.
-    pub command: String,
+    pub command: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Arguments that the command handler should be
@@ -2353,7 +2353,7 @@ pub struct Command {
 /// A CodeAction must set either `edit` and/or a `command`. If both are supplied, the `edit` is applied first, then the `command` is executed.
 pub struct CodeAction {
     /// A short, human-readable, title for this code action.
-    pub title: String,
+    pub title: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The kind of the code action.
@@ -2470,7 +2470,7 @@ pub struct WorkspaceSymbolParams {
     /// of thumb is to match case-insensitive and to simply check that the
     /// characters of *query* appear in their order in a candidate symbol.
     /// Servers shouldn't use prefix, substring, or similar strict matching.
-    pub query: String,
+    pub query: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional token that a server can use to report work done progress.
@@ -2507,7 +2507,7 @@ pub struct WorkspaceSymbol {
     /// user interface purposes (e.g. to render a qualifier in the user interface
     /// if necessary). It can't be used to re-infer a hierarchy for the document
     /// symbols.
-    pub container_name: Option<String>,
+    pub container_name: Option<Str>,
 
     /// The location of the symbol. Whether a server is allowed to
     /// return a location without a range depends on the client
@@ -2623,7 +2623,7 @@ pub struct DocumentLink {
     /// user settings, and localization.
     ///
     /// @since 3.15.0
-    pub tooltip: Option<String>,
+    pub tooltip: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A data entry field that is preserved on a document link between a
@@ -2740,7 +2740,7 @@ pub struct DocumentOnTypeFormattingParams {
     /// on type request. That is not necessarily the last character that
     /// got inserted into the document since the client could auto insert
     /// characters as well (e.g. like automatic brace completion).
-    pub ch: String,
+    pub ch: Str,
 
     /// The formatting options.
     pub options: FormattingOptions,
@@ -2818,7 +2818,7 @@ pub struct PrepareRenameParams {
 /// The parameters of a {@link ExecuteCommandRequest}.
 pub struct ExecuteCommandParams {
     /// The identifier of the actual command handler.
-    pub command: String,
+    pub command: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Arguments that the command should be invoked with.
@@ -2870,7 +2870,7 @@ pub struct ApplyWorkspaceEditResult {
     /// An optional textual description for why the edit was not applied.
     /// This may be used by the server for diagnostic logging or to provide
     /// a suitable error for a request that triggered the edit.
-    pub failure_reason: Option<String>,
+    pub failure_reason: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Depending on the client's failure handling strategy `failedChange` might
@@ -2888,7 +2888,7 @@ pub struct WorkDoneProgressBegin {
     /// the kind of operation being performed.
     ///
     /// Examples: "Indexing" or "Linking dependencies".
-    pub title: String,
+    pub title: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Controls if a cancel button should show to allow the user to cancel the
@@ -2902,7 +2902,7 @@ pub struct WorkDoneProgressBegin {
     ///
     /// Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
     /// If unset, the previous progress message (if any) is still valid.
-    pub message: Option<String>,
+    pub message: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Optional progress percentage to display (value 100 is considered 100%).
@@ -2932,7 +2932,7 @@ pub struct WorkDoneProgressReport {
     ///
     /// Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
     /// If unset, the previous progress message (if any) is still valid.
-    pub message: Option<String>,
+    pub message: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Optional progress percentage to display (value 100 is considered 100%).
@@ -2952,7 +2952,7 @@ pub struct WorkDoneProgressEnd {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Optional, a final message indicating to for example indicate the outcome
     /// of the operation.
-    pub message: Option<String>,
+    pub message: Option<Str>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -2964,10 +2964,10 @@ pub struct SetTraceParams {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LogTraceParams {
-    pub message: String,
+    pub message: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub verbose: Option<String>,
+    pub verbose: Option<Str>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -3075,7 +3075,7 @@ pub struct ConfigurationItem {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The configuration section asked for.
-    pub section: Option<String>,
+    pub section: Option<Str>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -3337,7 +3337,7 @@ pub struct ChangeAnnotation {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A human-readable string which is rendered less prominent in
     /// the user interface.
-    pub description: Option<String>,
+    pub description: Option<Str>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3349,7 +3349,7 @@ pub struct ChangeAnnotation {
 pub struct FileOperationFilter {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A Uri scheme like `file` or `untitled`.
-    pub scheme: Option<String>,
+    pub scheme: Option<Str>,
 
     /// The actual file operation pattern.
     pub pattern: FileOperationPattern,
@@ -3417,7 +3417,7 @@ pub struct InlineValueText {
     pub range: Range,
 
     /// The text of the inline value.
-    pub text: String,
+    pub text: Str,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3440,7 +3440,7 @@ pub struct InlineValueVariableLookup {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// If specified the name of the variable to look up.
-    pub variable_name: Option<String>,
+    pub variable_name: Option<Str>,
 
     /// How to perform the lookup.
     pub case_sensitive_lookup: bool,
@@ -3466,7 +3466,7 @@ pub struct InlineValueEvaluatableExpression {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// If specified the expression could be evaluated instead.
-    pub expression: Option<String>,
+    pub expression: Option<Str>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -3677,7 +3677,7 @@ pub struct NotebookDocument {
     pub uri: Uri,
 
     /// The type of the notebook.
-    pub notebook_type: String,
+    pub notebook_type: Str,
 
     /// The version number of this document (it will increase after each
     /// change, including undo/redo).
@@ -3840,7 +3840,7 @@ pub struct Registration {
     pub id: String,
 
     /// The method / capability to register for.
-    pub method: String,
+    pub method: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Options necessary for the registration.
@@ -3856,7 +3856,7 @@ pub struct Unregistration {
     pub id: String,
 
     /// The method to unregister for.
-    pub method: String,
+    pub method: Str,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4069,7 +4069,7 @@ pub struct ServerInfo {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The server's version as defined by the server.
-    pub version: Option<String>,
+    pub version: Option<Str>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -4197,12 +4197,12 @@ pub struct CompletionItemLabelDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional string which is rendered less prominently directly after {@link CompletionItem.label label},
     /// without any spacing. Should be used for function signatures and type annotations.
-    pub detail: Option<String>,
+    pub detail: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional string which is rendered less prominently after {@link CompletionItem.detail}. Should be used
     /// for fully qualified names and file paths.
-    pub description: Option<String>,
+    pub description: Option<Str>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4522,7 +4522,7 @@ pub struct BaseSymbolInformation {
     /// user interface purposes (e.g. to render a qualifier in the user interface
     /// if necessary). It can't be used to re-infer a hierarchy for the document
     /// symbols.
-    pub container_name: Option<String>,
+    pub container_name: Option<Str>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4575,7 +4575,7 @@ pub struct CodeActionDisabled {
     /// Human readable description of why the code action is currently disabled.
     ///
     /// This is displayed in the code actions UI.
-    pub reason: String,
+    pub reason: Str,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -4858,7 +4858,7 @@ pub struct SnippetTextEdit {
 /// A generic resource operation.
 pub struct ResourceOperation {
     /// The resource operation kind.
-    pub kind: String,
+    pub kind: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// An optional annotation identifier describing the operation.
@@ -4920,7 +4920,7 @@ pub struct FileOperationPattern {
     /// - `{}` to group sub patterns into an OR expression. (e.g. `**​/*.{ts,js}` matches all TypeScript and JavaScript files)
     /// - `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
     /// - `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
-    pub glob: String,
+    pub glob: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Whether to match files or folders with this pattern.
@@ -5110,7 +5110,7 @@ pub struct SelectedCompletionInfo {
     pub range: Range,
 
     /// The text the range will be replaced with if this completion is accepted.
-    pub text: String,
+    pub text: Str,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5125,7 +5125,7 @@ pub struct ClientInfo {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The client's version as defined by the client.
-    pub version: Option<String>,
+    pub version: Option<Str>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5254,7 +5254,7 @@ pub struct DiagnosticRelatedInformation {
     pub location: Location,
 
     /// The message of this related diagnostic information.
-    pub message: String,
+    pub message: Str,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5287,7 +5287,7 @@ pub struct ServerCompletionItemOptions {
 /// @since 3.18.0
 /// @deprecated use MarkupContent instead.
 pub struct MarkedStringWithLanguage {
-    pub language: String,
+    pub language: Str,
 
     pub value: String,
 }
@@ -5365,7 +5365,7 @@ pub struct ExecutionSummary {
 #[serde(rename_all = "camelCase")]
 /// @since 3.18.0
 pub struct NotebookCellLanguage {
-    pub language: String,
+    pub language: Str,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -5815,7 +5815,7 @@ pub struct NotebookCellTextDocumentFilter {
     ///
     /// Will be matched against the language id of the
     /// notebook cell document. '*' matches every language.
-    pub language: Option<String>,
+    pub language: Option<Str>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -5841,11 +5841,11 @@ pub struct RelativePattern {
 /// @since 3.18.0
 pub struct NotebookDocumentFilterNotebookType {
     /// The type of the enclosing notebook.
-    pub notebook_type: String,
+    pub notebook_type: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
-    pub scheme: Option<String>,
+    pub scheme: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A glob pattern.
@@ -5860,10 +5860,10 @@ pub struct NotebookDocumentFilterNotebookType {
 pub struct NotebookDocumentFilterScheme {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The type of the enclosing notebook.
-    pub notebook_type: Option<String>,
+    pub notebook_type: Option<Str>,
 
     /// A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
-    pub scheme: String,
+    pub scheme: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A glob pattern.
@@ -5878,11 +5878,11 @@ pub struct NotebookDocumentFilterScheme {
 pub struct NotebookDocumentFilterPattern {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The type of the enclosing notebook.
-    pub notebook_type: Option<String>,
+    pub notebook_type: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A Uri {@link Uri.scheme scheme}, like `file` or `untitled`.
-    pub scheme: Option<String>,
+    pub scheme: Option<Str>,
 
     /// A glob pattern.
     pub pattern: GlobPattern,
@@ -6903,7 +6903,7 @@ pub struct RegularExpressionsClientCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The engine's version.
-    pub version: Option<String>,
+    pub version: Option<Str>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -6913,11 +6913,11 @@ pub struct RegularExpressionsClientCapabilities {
 /// @since 3.16.0
 pub struct MarkdownClientCapabilities {
     /// The name of the parser.
-    pub parser: String,
+    pub parser: Str,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The version of the parser.
-    pub version: Option<String>,
+    pub version: Option<Str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// A list of HTML tags that the client allows / supports in
