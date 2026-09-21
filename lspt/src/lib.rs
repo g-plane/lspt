@@ -17,8 +17,6 @@ pub type HashMap<K, V> = std::collections::HashMap<K, V>;
 
 #[cfg(feature = "url")]
 pub type Uri = url::Url;
-#[cfg(all(not(feature = "url"), feature = "non_string"))]
-pub type Uri = std::sync::Arc<str>;
 #[cfg(not(feature = "url"))]
 pub type Uri = String;
 
