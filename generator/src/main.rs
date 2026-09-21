@@ -1345,7 +1345,7 @@ fn gen_doc(doc: Option<&str>, indent: usize) -> String {
 }
 
 fn can_use_cow_str(structure_name: &str, field_name: &str) -> bool {
-    !matches!(field_name, "id" | "identifier" | "value")
+    !matches!(field_name, "id" | "identifier" | "value" | "message")
         && !field_name.ends_with("_id")
         && !structure_name.ends_with("Edit")
         && structure_name != "MarkupContent"

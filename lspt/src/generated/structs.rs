@@ -1506,7 +1506,7 @@ pub struct ShowMessageParams {
     pub ty: MessageType,
 
     /// The actual message.
-    pub message: Str,
+    pub message: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -1517,7 +1517,7 @@ pub struct ShowMessageRequestParams {
     pub ty: MessageType,
 
     /// The actual message.
-    pub message: Str,
+    pub message: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// The message action items to present.
@@ -1540,7 +1540,7 @@ pub struct LogMessageParams {
     pub ty: MessageType,
 
     /// The actual message.
-    pub message: Str,
+    pub message: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -2902,7 +2902,7 @@ pub struct WorkDoneProgressBegin {
     ///
     /// Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
     /// If unset, the previous progress message (if any) is still valid.
-    pub message: Option<Str>,
+    pub message: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Optional progress percentage to display (value 100 is considered 100%).
@@ -2932,7 +2932,7 @@ pub struct WorkDoneProgressReport {
     ///
     /// Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
     /// If unset, the previous progress message (if any) is still valid.
-    pub message: Option<Str>,
+    pub message: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Optional progress percentage to display (value 100 is considered 100%).
@@ -2952,7 +2952,7 @@ pub struct WorkDoneProgressEnd {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Optional, a final message indicating to for example indicate the outcome
     /// of the operation.
-    pub message: Option<Str>,
+    pub message: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -2964,7 +2964,7 @@ pub struct SetTraceParams {
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LogTraceParams {
-    pub message: Str,
+    pub message: String,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verbose: Option<Str>,
@@ -5254,7 +5254,7 @@ pub struct DiagnosticRelatedInformation {
     pub location: Location,
 
     /// The message of this related diagnostic information.
-    pub message: Str,
+    pub message: String,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
