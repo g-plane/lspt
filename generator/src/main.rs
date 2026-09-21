@@ -22,7 +22,7 @@ fn main() -> anyhow::Result<()> {
     let notifications = gen_notifications(&lsp_def);
     let structs = gen_structs(&lsp_def, &mut unions);
     let enums = gen_enums(&lsp_def);
-    let unions = gen_unions(&unions);
+    let unions = gen_unions(&mut unions);
 
     fs::write(
         "./lspt/src/generated/request.rs",
@@ -956,7 +956,15 @@ fn shorten_field_union_name(parent: &str, field: &str) -> String {
     }
 }
 
-fn gen_unions(unions: &UnionRegistry) -> String {
+fn gen_unions(unions: &mut UnionRegistry) -> String {
+    if let Some(variant) = unions
+        .definitions
+        .iter_mut()
+        .find(|union_def| union_def.name == "NumberOrString")
+        .and_then(|union_def| union_def.variants.iter_mut().find(|variant| variant.name == "String"))
+    {
+        variant.ty = "Str".into();
+    }
     unions
         .entries
         .iter()

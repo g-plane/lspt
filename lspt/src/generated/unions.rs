@@ -195,8 +195,8 @@ impl From<i32> for NumberOrString {
     }
 }
 
-impl From<String> for NumberOrString {
-    fn from(value: String) -> Self {
+impl From<Str> for NumberOrString {
+    fn from(value: Str) -> Self {
         Self::String(value)
     }
 }
